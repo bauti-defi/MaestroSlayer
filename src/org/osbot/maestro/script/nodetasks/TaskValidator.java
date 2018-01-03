@@ -20,10 +20,10 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() {
-        if (SlayerVariables.currentTask == null ? true : SlayerVariables.currentTask.isFinished()) {
+        if (SlayerVariables.currentTask == null ? true : SlayerVariables.currentTask.isFinished() || forceCheck) {
             return provider.getInventory().contains("Enchanted Gem");
         }
-        return forceCheck;
+        return false;
     }
 
     @Override

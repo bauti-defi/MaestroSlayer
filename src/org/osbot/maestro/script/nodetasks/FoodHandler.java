@@ -44,6 +44,7 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
             if (provider.getInventory().getSelectedItemName() == null) {
                 food.consume(provider, percentToEatAt);
                 generateRandomPercentToEatAt();
+                provider.log("Next eat at: " + percentToEatAt + "HP");
             } else {
                 provider.getInventory().deselectItem();
             }

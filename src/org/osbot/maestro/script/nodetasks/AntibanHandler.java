@@ -5,6 +5,7 @@ import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
 import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.rs07.api.model.Item;
+import org.osbot.rs07.api.model.NPC;
 
 import java.util.Random;
 
@@ -21,10 +22,7 @@ public class AntibanHandler extends NodeTimeTask {
 
     @Override
     protected void execute() throws InterruptedException {
-        //re-organize food (move up to top of invy)
-        //switch invy item locations
-
-        switch (random.nextInt(5)) {
+        switch (random.nextInt(6)) {
             case 0:
                 provider.log("Antiban: Move camera randomly");
                 int pitch = provider.getCamera().getPitchAngle();
@@ -61,7 +59,15 @@ public class AntibanHandler extends NodeTimeTask {
                 provider.log("Antiban: Move camera pitch");
                 provider.getCamera().movePitch(provider.getCamera().getLowestPitchAngle());
                 break;
+            case 6:
+                provider.log("Antiban: Turning camera to random entity");
+                NPC npc = provider.getNpcs().getAll().stream().findAny().orElse(null);
+                if (npc != null && npc.exists()) {
+                    provider.getCamera().toEntity(npc);
+                }
+                break;
         }
         super.execute();
+        provider.log("Next Antiban action in: " + (getNextRefresh() / 1000) + " seconds");
     }
 }
