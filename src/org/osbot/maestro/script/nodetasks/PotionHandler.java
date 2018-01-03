@@ -46,12 +46,17 @@ public class PotionHandler extends NodeTask {
 
         public Builder() {
             this.potions = new HashMap<>();
-            potions.put(new Potion("Antipoison"), null);
-            potions.put(new Potion("Antidote"), null);
+            potions.put(new Potion("Antipoison"), 0);
+            potions.put(new Potion("Antidote"), 0);
         }
 
         public Builder addPotion(Potion potion, int requiredBuff) {
             potions.put(potion, requiredBuff);
+            return this;
+        }
+
+        public Builder addPotion(Potion potion) {
+            potions.put(potion, 0);
             return this;
         }
 

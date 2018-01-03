@@ -7,9 +7,8 @@ public enum Monster {
 
 
     ROCKSLUGS("Rockslug", MonsterMechanic.ROCK_SLUG_MECHANIC, RequiredInventoryItem.BAG_OF_SALT), CAVE_CRAWLERS("Cave " +
-            "crawler", null,
-            RequiredInventoryItem
-                    .ANTIDOTE), OGRES("Ogre", null), KALPHITES("Kalphite", null), HILL_GIANTS("Hill Giant", null), MOSS_GIANTS("Moss giant", null);
+            "crawler", null, RequiredInventoryItem.ANTIDOTE), OGRES("Ogre", null), KALPHITES("Kalphite", null), HILL_GIANTS("Hill Giant", null),
+    MOSS_GIANTS("Moss giant", null);
 
     private final String name;
     private final MonsterMechanic monsterMechanic;

@@ -34,7 +34,7 @@ public class Potion extends Consumable {
         if (skill != null) {
             return provider.getSkills().getDynamic(skill) <= (provider.getSkills().getStatic(skill) + requiredBuff);
         }
-        return (getName().toLowerCase().contains("poison") || getName().toLowerCase().contains("antidote")) && provider
+        return (getName().contains("poison") || getName().contains("Antidote")) && provider
                 .getCombat().isPoisoned();
     }
 
