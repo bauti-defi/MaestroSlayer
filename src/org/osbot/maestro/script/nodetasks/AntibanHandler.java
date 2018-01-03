@@ -4,6 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
 import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
+import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 
@@ -65,7 +66,12 @@ public class AntibanHandler extends NodeTimeTask {
                 break;
             case 6:
                 provider.log("Antiban: Turning camera to random entity");
-                NPC npc = provider.getNpcs().getAll().stream().findAny().orElse(null);
+                NPC npc = provider.getNpcs().singleFilter(provider.getNpcs().getAll(), new Filter<NPC>() {
+                    @Override
+                    public boolean match(NPC npc) {
+                        return npc != null && npc.exists() && !npc.isOnScreen();
+                    }
+                });
                 if (npc != null && npc.exists()) {
                     provider.getCamera().toEntity(npc);
                 }

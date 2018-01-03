@@ -20,7 +20,8 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        return target == null || !target.exists() || inCombat(target) && !playerInCombat() || targetRequested;
+        return target == null || !target.exists() || inCombat(target) && !playerInCombat() || targetRequested ||
+                target.getHealthPercent() == 0;
     }
 
     @Override

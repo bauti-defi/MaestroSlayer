@@ -72,6 +72,8 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         if (monster.isOnScreen() && monster.isVisible()) {
             provider.log("Attacking " + SlayerVariables.currentTask.getMonster().getName());
             attackMonster(monster);
+            provider.log("Moving mouse off screen.");
+            provider.getMouse().moveOutsideScreen();
             new ConditionalSleep(4500, 500) {
 
                 @Override
@@ -79,13 +81,12 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                     return provider.getCombat().isFighting() || provider.myPlayer().isUnderAttack();
                 }
             }.sleep();
-            provider.log("Moving mouse off screen.");
-            provider.getMouse().moveOutsideScreen();
         } else {
             if (!provider.getMap().isWithinRange(monster, 7)) {
                 walkToMonster(monster);
+            } else {
+                provider.getCamera().toEntity(monster);
             }
-            provider.getCamera().toEntity(monster);
         }
     }
 
