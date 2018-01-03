@@ -19,7 +19,7 @@ public class MaestroSlayer extends NodeScript {
     public MaestroSlayer() {
         super();
         if (SlayerVariables.eating) {
-            addTask(new FoodHandler(new Food("Monkfish"), 35));
+            addTask(new FoodHandler(new Food("Monkfish"), 50, 30));
         }
         if (SlayerVariables.cannon) {
             addTask(new CannonHandler());
@@ -30,7 +30,7 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TaskValidator());
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
-        addTask(new AntibanHandler(AntibanFrequency.HIGH));
+        addTask(new AntibanHandler(AntibanFrequency.MAX));
     }
 
     @Override

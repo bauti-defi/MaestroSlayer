@@ -52,6 +52,7 @@ public class Potion extends Consumable {
         if (potion != null) {
             provider.log("Drinking: " + getName());
             potion.interact("Drink");
+            provider.getMouse().moveOutsideScreen();
             new ConditionalSleep(2800, 700) {
 
                 @Override
@@ -63,7 +64,11 @@ public class Potion extends Consumable {
                     return !provider.getCombat().isPoisoned();
                 }
             }.sleep();
-            provider.getMouse().moveOutsideScreen();
         }
+    }
+
+    @Override
+    public void hoverOver(MethodProvider provider) {
+
     }
 }

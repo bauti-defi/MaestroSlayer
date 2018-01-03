@@ -21,6 +21,7 @@ public class Food extends Consumable {
         if (food != null) {
             provider.log("Eating: " + getName());
             food.interact("Eat");
+            provider.getMouse().moveOutsideScreen();
             new ConditionalSleep(2800, 700) {
 
                 @Override
@@ -28,8 +29,12 @@ public class Food extends Consumable {
                     return percentToConsumeAt < provider.myPlayer().getHealthPercent();
                 }
             }.sleep();
-            provider.getMouse().moveOutsideScreen();
         }
+    }
+
+    @Override
+    public void hoverOver(MethodProvider provider) {
+
     }
 
 

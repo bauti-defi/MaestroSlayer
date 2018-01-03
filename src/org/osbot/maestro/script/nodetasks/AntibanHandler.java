@@ -1,8 +1,10 @@
 package org.osbot.maestro.script.nodetasks;
 
+import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
 import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
+import org.osbot.rs07.api.model.Item;
 
 import java.util.Random;
 
@@ -19,20 +21,17 @@ public class AntibanHandler extends NodeTimeTask {
 
     @Override
     protected void execute() throws InterruptedException {
-        //move mouse off screen
-        //hover food
-        //hover potion
-        //camera event 3 direction random
+        //re-organize food (move up to top of invy)
+        //switch invy item locations
 
-        //Do through broadcasts? send request to hover after next pot
-
-        switch (random.nextInt(1)) {
+        switch (random.nextInt(5)) {
             case 0:
-                provider.log("Antiban: Camera action");
+                provider.log("Antiban: Move camera randomly");
                 int pitch = provider.getCamera().getPitchAngle();
                 int yaw = provider.getCamera().getYawAngle();
                 for (int i = 0; i < antibanCharacteristic.getCameraMoveCount(); i++) {
-                    provider.getCamera().movePitch(random.nextInt(2) >= 1 ? (pitch + (pitch / 2)) : -(pitch + (pitch / 2)));
+                    provider.getCamera().movePitch(random.nextInt(2) >= 1 ? (pitch + (pitch / 2)) : (pitch - (pitch
+                            / 2)));
                     provider.getCamera().moveYaw(random.nextInt(2) >= 1 ? (yaw + (yaw / 2)) : -(yaw + (yaw / 2)));
                 }
                 break;
@@ -43,6 +42,24 @@ public class AntibanHandler extends NodeTimeTask {
                     break;
                 }
                 provider.getMouse().move(random.nextInt(350), random.nextInt(350));
+                break;
+            case 2:
+                provider.log("Antiban: Hover food");
+                sendBroadcast(new Broadcast("hover-food-antiban"));
+                break;
+            case 3:
+                provider.log("Antiban: Hover random inventory item");
+                Item[] items = provider.getInventory().getItems();
+                Item item = items[random.nextInt(items.length)];
+                item.hover();
+                break;
+            case 4:
+                provider.log("Antiban: Check kills left");
+                sendBroadcast(new Broadcast("check-kills-antiban"));
+                break;
+            case 5:
+                provider.log("Antiban: Move camera pitch");
+                provider.getCamera().movePitch(provider.getCamera().getLowestPitchAngle());
                 break;
         }
         super.execute();

@@ -1,5 +1,7 @@
 package org.osbot.maestro.script.slayer.utils.consumable;
 
+import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 
 public abstract class Consumable {
@@ -21,5 +23,18 @@ public abstract class Consumable {
     public abstract boolean needConsume(MethodProvider provider, int consumeAt);
 
     public abstract void consume(MethodProvider provider, int consumeAt);
+
+    public void hoverOver(MethodProvider provider) {
+        Item consumable = provider.getInventory().getItem(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains(getName());
+            }
+        });
+        if (consumable != null) {
+            provider.log("Hovering over: " + getName());
+            consumable.hover();
+        }
+    }
 
 }
