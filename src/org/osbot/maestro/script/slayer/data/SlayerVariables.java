@@ -7,6 +7,7 @@ import org.osbot.rs07.api.map.Position;
 public class SlayerVariables {
 
     public static SlayerTask currentTask;
+    public static boolean antidote = true;
     public static boolean eating = true;
     public static CombatStyle combatStyle;
     public static boolean cannon = false;

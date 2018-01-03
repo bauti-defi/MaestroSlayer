@@ -50,13 +50,13 @@ public class PotionHandler extends NodeTask {
             potions.put(new Potion("Antidote"), 0);
         }
 
-        public Builder addPotion(Potion potion, int requiredBuff) {
-            potions.put(potion, requiredBuff);
+        public Builder addPotion(String name, int requiredBuff) {
+            potions.put(new Potion(name), requiredBuff);
             return this;
         }
 
-        public Builder addPotion(Potion potion) {
-            potions.put(potion, 0);
+        public Builder addPotion(String name) {
+            potions.put(new Potion(name), 0);
             return this;
         }
 
