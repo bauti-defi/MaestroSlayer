@@ -20,36 +20,40 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        return target == null || !target.exists() || inCombat(target) && !playerInCombat() || targetRequested ||
-                target.getHealthPercent() == 0;
+        return target == null || !target.exists() || inCombat(target) && !inCombat(provider.myPlayer()) || targetRequested ||
+                target.getHealthPercent() == 0 || inCombat(provider.myPlayer()) && target != null && (!inCombat(target)
+                || !target.isInteracting(provider.myPlayer()));
     }
 
     @Override
     protected void execute() throws InterruptedException {
-        target = provider.getNpcs().closest(new Filter<NPC>() {
-            @Override
-            public boolean match(NPC npc) {
-                if (npc.isInteracting(provider.myPlayer())) {
-                    return true;
+        if (inCombat(provider.myPlayer()) && target != null && target.exists() && (!target.isInteracting(provider
+                .myPlayer()) || !inCombat(target))) {
+            provider.log("Updating target");
+            target = (NPC) provider.myPlayer().getInteracting();
+        } else {
+            target = provider.getNpcs().closest(new Filter<NPC>() {
+                @Override
+                public boolean match(NPC npc) {
+                    if (npc.isInteracting(provider.myPlayer())) {
+                        return true;
+                    }
+                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(SlayerVariables.currentTask.getMonster().getName())
+                            && provider.getMap().canReach(npc);
                 }
-                return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(SlayerVariables.currentTask.getMonster().getName())
-                        && provider.getMap().canReach(npc);
-            }
-        });
-        provider.log("Target found");
+            });
+            provider.log("Target found");
+        }
         sendBroadcast(new Broadcast("new-target", target));
         targetRequested = false;
     }
 
     private boolean inCombat(Character character) {
         if (character != null && character.exists()) {
-            return !character.isAttackable() || character.isUnderAttack() || character.isHitBarVisible();
+            return !character.isAttackable() || character.isUnderAttack() || character
+                    .getInteracting() != null;
         }
         return false;
-    }
-
-    private boolean playerInCombat() {
-        return inCombat(provider.myPlayer()) || target != null && provider.myPlayer().isInteracting(target);
     }
 
     @Override

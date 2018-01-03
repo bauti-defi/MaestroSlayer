@@ -59,7 +59,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                 }
             }
         }
-        return monster != null && monster.exists() && !playerInCombat();
+        return monster != null && monster.exists() && !inCombat(provider.myPlayer());
     }
 
     @Override
@@ -94,13 +94,13 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private void walkToMonster(NPC monster) {
         WalkingEvent walkingEvent = new WalkingEvent(monster);
         walkingEvent.setOperateCamera(true);
-        walkingEvent.setMinDistanceThreshold(2);
+        walkingEvent.setMinDistanceThreshold(4);
         walkingEvent.setEnergyThreshold(20);
         walkingEvent.setMiniMapDistanceThreshold(6);
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
-                return monster != null && monster.exists() && monster.isOnScreen() && monster.isVisible();
+                return monster.isOnScreen() && monster.isVisible() || inCombat(monster);
             }
         });
         provider.execute(walkingEvent);
@@ -116,13 +116,10 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     private boolean inCombat(Character character) {
         if (character != null && character.exists()) {
-            return !character.isAttackable() || character.isUnderAttack() || character.isHitBarVisible();
+            return !character.isAttackable() || character.isUnderAttack() || character
+                    .getInteracting() != null;
         }
         return false;
-    }
-
-    private boolean playerInCombat() {
-        return inCombat(provider.myPlayer()) || monster != null && provider.myPlayer().isInteracting(monster);
     }
 
     @Override

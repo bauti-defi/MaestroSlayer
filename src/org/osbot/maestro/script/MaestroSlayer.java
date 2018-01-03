@@ -114,9 +114,8 @@ public class MaestroSlayer extends NodeScript {
                 12, 118);
         g.drawString("Tasks: " + tasksFinished, 12, 70);
         if (targetToPaint != null && targetToPaint.exists()) {
-            Rectangle tile = targetToPaint.getPosition().getPolygon(getBot()).getBounds();
             g.setColor(Color.RED);
-            g.drawRect((int) tile.getX(), (int) tile.getY(), (int) tile.getWidth(), (int) tile.getHeight());
+            g.drawPolygon(targetToPaint.getPosition().getPolygon(getBot()));
         }
 
     }
