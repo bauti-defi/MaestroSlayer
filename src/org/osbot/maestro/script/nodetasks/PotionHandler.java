@@ -3,6 +3,7 @@ package org.osbot.maestro.script.nodetasks;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 
 import java.util.HashMap;
@@ -48,8 +49,8 @@ public class PotionHandler extends NodeTask {
             this.potions = new HashMap<>();
         }
 
-        public Builder addPotion(String name, int requiredBuff) {
-            potions.put(new Potion(name), requiredBuff);
+        public Builder addPotion(String name, Skill skill, int requiredBuff) {
+            potions.put(new Potion(name, skill), requiredBuff);
             return this;
         }
 

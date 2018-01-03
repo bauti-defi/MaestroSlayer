@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class NodeTimeTask extends NodeTask {
 
     private final long refreshRate;
-    private final long startTime;
+    private long startTime;
     private long deviation;
     private long currentDeviation;
     private final Random randomGenerator;
@@ -17,6 +17,11 @@ public abstract class NodeTimeTask extends NodeTask {
         this.startTime = System.currentTimeMillis();
         this.deviation = deviation;
         this.randomGenerator = new Random();
+        resetTimer();
+    }
+
+    private void resetTimer() {
+        this.startTime = System.currentTimeMillis();
         this.currentDeviation = randomGenerator.nextInt((int) (deviation / 2));
         this.currentDeviation = (currentDeviation > (deviation / 2) ? currentDeviation : -currentDeviation);
     }
@@ -35,6 +40,11 @@ public abstract class NodeTimeTask extends NodeTask {
             return (refreshRate + startTime + currentDeviation) - System.currentTimeMillis() >= 0 ? false : true;
         }
         return (refreshRate + startTime) - System.currentTimeMillis() >= 0 ? false : true;
+    }
+
+    @Override
+    protected void execute() throws InterruptedException {
+        resetTimer();
     }
 
 }

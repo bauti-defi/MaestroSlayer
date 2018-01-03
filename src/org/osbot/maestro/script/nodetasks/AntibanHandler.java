@@ -24,12 +24,25 @@ public class AntibanHandler extends NodeTimeTask {
         //camera event 3 direction random
 
         //Do through broadcasts? send request to hover after next pot
-        provider.log("Antiban: Camera action");
-        int pitch = provider.getCamera().getPitchAngle();
-        int yaw = provider.getCamera().getYawAngle();
-        for (int i = 0; i < antibanCharacteristic.getCameraMoveCount(); i++) {
-            provider.getCamera().movePitch(random.nextInt(2) >= 1 ? (pitch + (pitch / 2)) : -(pitch + (pitch / 2)));
-            provider.getCamera().moveYaw(random.nextInt(2) >= 1 ? (yaw + (yaw / 2)) : -(yaw + (yaw / 2)));
+
+        switch (random.nextInt(1)) {
+            case 0:
+                provider.log("Antiban: Camera action");
+                int pitch = provider.getCamera().getPitchAngle();
+                int yaw = provider.getCamera().getYawAngle();
+                for (int i = 0; i < antibanCharacteristic.getCameraMoveCount(); i++) {
+                    provider.getCamera().movePitch(random.nextInt(2) >= 1 ? (pitch + (pitch / 2)) : -(pitch + (pitch / 2)));
+                    provider.getCamera().moveYaw(random.nextInt(2) >= 1 ? (yaw + (yaw / 2)) : -(yaw + (yaw / 2)));
+                }
+                break;
+            case 1:
+                if (provider.getMouse().isOnScreen()) {
+                    provider.getMouse().moveOutsideScreen();
+                    break;
+                }
+                provider.getMouse().move(random.nextInt(350), random.nextInt(350));
+                break;
         }
+        super.execute();
     }
 }

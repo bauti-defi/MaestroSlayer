@@ -9,6 +9,7 @@ import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.rs07.api.ui.Message;
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.ScriptManifest;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 0.1, logo = "")
@@ -19,7 +20,7 @@ public class MaestroSlayer extends NodeScript {
         if (SlayerVariables.eating) {
             addTask(new FoodHandler(new Food("Monkfish"), 35));
         }
-        addTask(new PotionHandler.Builder().addPotion("Attack potion", 3).addPotion(SlayerVariables.antidote ?
+        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 3).addPotion(SlayerVariables.antidote ?
                 "Antidote" : "poison").build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());
