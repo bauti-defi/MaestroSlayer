@@ -36,6 +36,7 @@ public class AntibanHandler extends NodeTimeTask {
                 }
                 break;
             case 1:
+                provider.log("Antiban: Mouse Action");
                 if (provider.getMouse().isOnScreen()) {
                     provider.getMouse().moveOutsideScreen();
                     break;

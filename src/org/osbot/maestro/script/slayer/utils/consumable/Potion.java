@@ -32,7 +32,10 @@ public class Potion extends Consumable {
     @Override
     public boolean needConsume(MethodProvider provider, int requiredBuff) {
         if (skill != null) {
-            return provider.getSkills().getDynamic(skill) <= (provider.getSkills().getStatic(skill) + requiredBuff);
+            if (requiredBuff == 0) {
+                return provider.getSkills().getDynamic(skill) == provider.getSkills().getStatic(skill);
+            }
+            return provider.getSkills().getDynamic(skill) < (provider.getSkills().getStatic(skill) + requiredBuff);
         }
         return (getName().contains("poison") || getName().contains("Antidote")) && provider
                 .getCombat().isPoisoned();
