@@ -1,5 +1,6 @@
 package org.osbot.maestro.script;
 
+import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeScript;
 import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.data.Constants;
@@ -10,6 +11,7 @@ import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.SkillTimer;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
+import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.ScriptManifest;
@@ -18,7 +20,7 @@ import java.awt.*;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-@ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 0.1, logo = "")
+@ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
 
     private final Color color1 = new Color(204, 204, 204);
@@ -30,6 +32,7 @@ public class MaestroSlayer extends NodeScript {
     private final long startTime;
     private SkillTimer slayerTimer;
     private int tasksFinished = 0;
+    private NPC targetToPaint;
 
     public MaestroSlayer() {
         super();
@@ -110,6 +113,11 @@ public class MaestroSlayer extends NodeScript {
                         ? "None" : SlayerVariables.currentTask.getMonster().getName()),
                 12, 118);
         g.drawString("Tasks: " + tasksFinished, 12, 70);
+        if (targetToPaint != null && targetToPaint.exists()) {
+            Rectangle tile = targetToPaint.getPosition().getPolygon(getBot()).getBounds();
+            g.setColor(Color.RED);
+            g.drawRect((int) tile.getX(), (int) tile.getY(), (int) tile.getWidth(), (int) tile.getHeight());
+        }
 
     }
 
@@ -141,5 +149,14 @@ public class MaestroSlayer extends NodeScript {
                 break;
         }
         log("Combat style: " + SlayerVariables.combatStyle.getName());
+    }
+
+    @Override
+    public void receivedBroadcast(Broadcast broadcast) {
+        switch (broadcast.getKey()) {
+            case "new-target":
+                targetToPaint = (NPC) broadcast.getMessage();
+                break;
+        }
     }
 }

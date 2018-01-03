@@ -9,7 +9,7 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public abstract class NodeScript extends Script {
+public abstract class NodeScript extends Script implements BroadcastReceiver {
 
     private final List<NodeTask> tasks;
     private final List<BroadcastReceiver> receivers;
@@ -17,6 +17,7 @@ public abstract class NodeScript extends Script {
     public NodeScript() {
         this.tasks = new ArrayList<>();
         this.receivers = new ArrayList<>();
+        registerBroadcastReceiver(this);
     }
 
     @Override
