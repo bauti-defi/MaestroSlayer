@@ -1,17 +1,19 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.NodeTimeTask;
+import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
 
-public class AntibanHandler extends NodeTask {
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
-    protected AntibanHandler() {
-        super(Priority.VERY_LOW);
-    }
+public class AntibanHandler extends NodeTimeTask {
 
-    @Override
-    public boolean runnable() throws InterruptedException {
-        return false;
+    private final AntibanCharacteristic antibanCharacteristic = AntibanCharacteristic.getInstance();
+    private final Random random;
+
+    public AntibanHandler() {
+        super(3, TimeUnit.MINUTES, 90, TimeUnit.SECONDS);
+        random = new Random();
     }
 
     @Override
@@ -19,7 +21,15 @@ public class AntibanHandler extends NodeTask {
         //move mouse off screen
         //hover food
         //hover potion
+        //camera event 3 direction random
 
         //Do through broadcasts? send request to hover after next pot
+        provider.log("Antiban: Camera action");
+        int pitch = provider.getCamera().getPitchAngle();
+        int yaw = provider.getCamera().getYawAngle();
+        for (int i = 0; i < antibanCharacteristic.getCameraMoveCount(); i++) {
+            provider.getCamera().movePitch(random.nextInt(2) >= 1 ? (pitch + (pitch / 2)) : -(pitch + (pitch / 2)));
+            provider.getCamera().moveYaw(random.nextInt(2) >= 1 ? (yaw + (yaw / 2)) : -(yaw + (yaw / 2)));
+        }
     }
 }
