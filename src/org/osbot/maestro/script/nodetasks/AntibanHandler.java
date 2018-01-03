@@ -22,8 +22,14 @@ public class AntibanHandler extends NodeTimeTask {
 
     @Override
     protected void execute() throws InterruptedException {
-        switch (random.nextInt(6)) {
+        switch (random.nextInt(7)) {
             case 0:
+                provider.log("Antiban: Move camera pitch");
+                if (provider.getCamera().getPitchAngle() != provider.getCamera().getLowestPitchAngle()) {
+                    provider.getCamera().movePitch(provider.getCamera().getLowestPitchAngle());
+                    break;
+                }
+            case 1:
                 provider.log("Antiban: Move camera randomly");
                 int pitch = provider.getCamera().getPitchAngle();
                 int yaw = provider.getCamera().getYawAngle();
@@ -33,7 +39,7 @@ public class AntibanHandler extends NodeTimeTask {
                     provider.getCamera().moveYaw(random.nextInt(2) >= 1 ? (yaw + (yaw / 2)) : -(yaw + (yaw / 2)));
                 }
                 break;
-            case 1:
+            case 2:
                 provider.log("Antiban: Mouse Action");
                 if (provider.getMouse().isOnScreen()) {
                     provider.getMouse().moveOutsideScreen();
@@ -41,11 +47,11 @@ public class AntibanHandler extends NodeTimeTask {
                 }
                 provider.getMouse().move(random.nextInt(350), random.nextInt(350));
                 break;
-            case 2:
+            case 3:
                 provider.log("Antiban: Hover food");
                 sendBroadcast(new Broadcast("hover-food-antiban"));
                 break;
-            case 3:
+            case 4:
                 provider.log("Antiban: Hover random inventory item");
                 Item[] items = provider.getInventory().getItems();
                 Item item = items[random.nextInt(items.length)];
@@ -53,13 +59,9 @@ public class AntibanHandler extends NodeTimeTask {
                     item.hover();
                 }
                 break;
-            case 4:
+            case 5:
                 provider.log("Antiban: Check kills left");
                 sendBroadcast(new Broadcast("check-kills-antiban"));
-                break;
-            case 5:
-                provider.log("Antiban: Move camera pitch");
-                provider.getCamera().movePitch(provider.getCamera().getLowestPitchAngle());
                 break;
             case 6:
                 provider.log("Antiban: Turning camera to random entity");
@@ -67,6 +69,10 @@ public class AntibanHandler extends NodeTimeTask {
                 if (npc != null && npc.exists()) {
                     provider.getCamera().toEntity(npc);
                 }
+                break;
+            case 7:
+                provider.log("Antiban: Hover target");
+                sendBroadcast(new Broadcast("hover-target-antiban"));
                 break;
         }
         super.execute();

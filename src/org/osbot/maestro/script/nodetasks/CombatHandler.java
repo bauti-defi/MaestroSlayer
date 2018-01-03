@@ -13,6 +13,7 @@ import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.event.WalkingEvent;
+import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class CombatHandler extends NodeTask implements BroadcastReceiver {
@@ -81,7 +82,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             provider.log("Moving mouse off screen.");
             provider.getMouse().moveOutsideScreen();
         } else {
-            if (!provider.getMap().isWithinRange(monster, 5)) {
+            if (!provider.getMap().isWithinRange(monster, 7)) {
                 walkToMonster(monster);
             }
             provider.getCamera().toEntity(monster);
@@ -92,9 +93,15 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private void walkToMonster(NPC monster) {
         WalkingEvent walkingEvent = new WalkingEvent(monster);
         walkingEvent.setOperateCamera(true);
-        walkingEvent.setMinDistanceThreshold(3);
+        walkingEvent.setMinDistanceThreshold(2);
         walkingEvent.setEnergyThreshold(20);
-        walkingEvent.setMiniMapDistanceThreshold(7);
+        walkingEvent.setMiniMapDistanceThreshold(6);
+        walkingEvent.setBreakCondition(new Condition() {
+            @Override
+            public boolean evaluate() {
+                return monster != null && monster.exists() && monster.isOnScreen() && monster.isVisible();
+            }
+        });
         provider.execute(walkingEvent);
     }
 

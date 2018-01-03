@@ -28,6 +28,9 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         target = provider.getNpcs().closest(new Filter<NPC>() {
             @Override
             public boolean match(NPC npc) {
+                if (npc.isInteracting(provider.myPlayer())) {
+                    return true;
+                }
                 return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(SlayerVariables.currentTask.getMonster().getName())
                         && provider.getMap().canReach(npc);
             }
@@ -50,8 +53,15 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
-        if (broadcast.getKey().equalsIgnoreCase("request-target")) {
-            targetRequested = true;
+        switch (broadcast.getKey()) {
+            case "request-target":
+                targetRequested = true;
+                break;
+            case "hover-target-antiban":
+                if (target != null) {
+                    target.hover();
+                }
+                break;
         }
     }
 }
