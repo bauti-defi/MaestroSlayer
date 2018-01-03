@@ -11,6 +11,7 @@ import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.ScriptManifest;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 0.1, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -60,6 +61,15 @@ public class MaestroSlayer extends NodeScript {
                 } else if (message.getMessage().toLowerCase().contains("you've completed") || message.getMessage()
                         .toLowerCase().contains("you need something new to hunt.")) {
                     log("Task complete.");
+                    stop(true);
+                } else if (message.getMessage().toLowerCase().contains("you can't log out until 10 seconds")) {
+                    new ConditionalSleep(3000, 1000) {
+
+                        @Override
+                        public boolean condition() throws InterruptedException {
+                            return getClient().isLoggedIn();
+                        }
+                    }.sleep();
                     stop(true);
                 }
                 break;
