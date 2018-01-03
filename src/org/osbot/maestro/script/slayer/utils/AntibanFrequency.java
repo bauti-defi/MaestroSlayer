@@ -4,7 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 public enum AntibanFrequency {
 
-    LOW(3, TimeUnit.MINUTES, 90, TimeUnit.SECONDS);
+    VERY_LOW(6, TimeUnit.MINUTES, 3, TimeUnit.MINUTES), LOW(270, TimeUnit.SECONDS, 2, TimeUnit.MINUTES),
+    MEDIUM(3, TimeUnit.MINUTES, 90, TimeUnit.SECONDS), HIGH(150, TimeUnit.SECONDS, 30, TimeUnit.SECONDS), VERY_HIGH(2,
+            TimeUnit.MINUTES, 45, TimeUnit.SECONDS), MAX(1, TimeUnit.MINUTES, 15, TimeUnit.SECONDS);
 
 
     private final int rate;

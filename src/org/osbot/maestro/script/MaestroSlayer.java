@@ -30,7 +30,7 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TaskValidator());
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
-        addTask(new AntibanHandler(AntibanFrequency.LOW));
+        addTask(new AntibanHandler(AntibanFrequency.HIGH));
     }
 
     @Override
