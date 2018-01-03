@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="MaestroSlayer">
+    <output-path>$USER_HOME$/OSBot/Scripts</output-path>
+    <root id="archive" name="MaestroSlayer.jar">
+      <element id="module-output" name="MaestroSlayer" />
+    </root>
+  </artifact>
+</component>
