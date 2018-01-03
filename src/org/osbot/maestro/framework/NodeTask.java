@@ -25,7 +25,7 @@ public abstract class NodeTask extends Node {
     protected abstract void execute() throws InterruptedException;
 
     protected void stopScript(boolean logout) {
-        script.stop(logout);
+        script.forceStopScript(logout);
     }
 
     protected final void registerBroadcastReceiver(BroadcastReceiver receiver) {

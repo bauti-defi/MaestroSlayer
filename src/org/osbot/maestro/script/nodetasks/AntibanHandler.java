@@ -2,17 +2,18 @@ package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
+import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 public class AntibanHandler extends NodeTimeTask {
 
     private final AntibanCharacteristic antibanCharacteristic = AntibanCharacteristic.getInstance();
     private final Random random;
 
-    public AntibanHandler() {
-        super(3, TimeUnit.MINUTES, 90, TimeUnit.SECONDS);
+    public AntibanHandler(AntibanFrequency antibanFrequency) {
+        super(antibanFrequency.getRate(), antibanFrequency.getRateUnit(), antibanFrequency.getDeviation(),
+                antibanFrequency.getDeviationUnit());
         random = new Random();
     }
 

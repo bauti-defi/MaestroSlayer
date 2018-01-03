@@ -1,6 +1,7 @@
 package org.osbot.maestro.framework;
 
 import org.osbot.rs07.script.Script;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,6 +36,22 @@ public abstract class NodeScript extends Script {
     protected void sendBroadcast(Broadcast broadcast) {
         for (BroadcastReceiver receiver : receivers) {
             receiver.receivedBroadcast(broadcast);
+        }
+    }
+
+    protected final void forceStopScript(boolean logout) {
+        if (logout && getClient().isLoggedIn()) {
+            getLogoutTab().logOut();
+            new ConditionalSleep(5000, 1000) {
+
+                @Override
+                public boolean condition() throws InterruptedException {
+                    return !getClient().isLoggedIn();
+                }
+            }.sleep();
+            forceStopScript(true);
+        } else {
+            stop();
         }
     }
 

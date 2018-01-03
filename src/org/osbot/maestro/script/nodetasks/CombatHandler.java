@@ -81,7 +81,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             provider.log("Moving mouse off screen.");
             provider.getMouse().moveOutsideScreen();
         } else {
-            if (!provider.getMap().isWithinRange(monster, 7)) {
+            if (!provider.getMap().isWithinRange(monster, 5)) {
                 walkToMonster(monster);
             }
             provider.getCamera().toEntity(monster);
@@ -92,9 +92,9 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private void walkToMonster(NPC monster) {
         WalkingEvent walkingEvent = new WalkingEvent(monster);
         walkingEvent.setOperateCamera(true);
-        walkingEvent.setMinDistanceThreshold(5);
+        walkingEvent.setMinDistanceThreshold(3);
         walkingEvent.setEnergyThreshold(20);
-        walkingEvent.setMiniMapDistanceThreshold(9);
+        walkingEvent.setMiniMapDistanceThreshold(7);
         provider.execute(walkingEvent);
     }
 

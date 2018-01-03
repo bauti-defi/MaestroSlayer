@@ -32,6 +32,7 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                         && provider.getMap().canReach(npc);
             }
         });
+        provider.log("Target found");
         sendBroadcast(new Broadcast("new-target", target));
         targetRequested = false;
     }

@@ -6,12 +6,12 @@ import org.osbot.maestro.script.slayer.data.Constants;
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
 import org.osbot.maestro.script.slayer.task.Monster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
+import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.ScriptManifest;
-import org.osbot.rs07.utility.ConditionalSleep;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 0.1, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -21,15 +21,16 @@ public class MaestroSlayer extends NodeScript {
         if (SlayerVariables.eating) {
             addTask(new FoodHandler(new Food("Monkfish"), 35));
         }
+        if (SlayerVariables.cannon) {
+            addTask(new CannonHandler());
+        }
         addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).addPotion(SlayerVariables
-                .antidote ?
-                "Antidote" : "poison").build());
+                .antidote ? "Antidote" : "poison").build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());
         addTask(new TargetFinder());
-        addTask(new CannonHandler());
         addTask(new MonsterMechanicHandler());
-        addTask(new AntibanHandler());
+        addTask(new AntibanHandler(AntibanFrequency.LOW));
     }
 
     @Override
@@ -61,15 +62,6 @@ public class MaestroSlayer extends NodeScript {
                 } else if (message.getMessage().toLowerCase().contains("you've completed") || message.getMessage()
                         .toLowerCase().contains("you need something new to hunt.")) {
                     log("Task complete.");
-                    stop(true);
-                } else if (message.getMessage().toLowerCase().contains("you can't log out until 10 seconds")) {
-                    new ConditionalSleep(3000, 1000) {
-
-                        @Override
-                        public boolean condition() throws InterruptedException {
-                            return getClient().isLoggedIn();
-                        }
-                    }.sleep();
                     stop(true);
                 }
                 break;
