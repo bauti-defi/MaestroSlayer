@@ -53,7 +53,8 @@ public class MaestroSlayer extends NodeScript {
                             break;
                         }
                     }
-                } else if (message.getMessage().toLowerCase().contains("you've completed")) {
+                } else if (message.getMessage().toLowerCase().contains("you've completed") || message.getMessage()
+                        .toLowerCase().contains("you need something new to hunt.")) {
                     log("Task complete.");
                     stop(true);
                 }

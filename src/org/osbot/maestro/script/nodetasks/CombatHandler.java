@@ -84,6 +84,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             if (!provider.getMap().isWithinRange(monster, 7)) {
                 walkToMonster(monster);
             }
+            provider.getCamera().toEntity(monster);
         }
     }
 
