@@ -17,7 +17,7 @@ public class MaestroSlayer extends NodeScript {
     public MaestroSlayer() {
         super();
         if (SlayerVariables.eating) {
-            addTask(new FoodHandler(new Food("Monkfish"), 30));
+            addTask(new FoodHandler(new Food("Monkfish"), 35));
         }
         addTask(new PotionHandler.Builder().build());
         addTask(new CombatHandler());
