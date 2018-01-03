@@ -49,7 +49,9 @@ public class AntibanHandler extends NodeTimeTask {
                 provider.log("Antiban: Hover random inventory item");
                 Item[] items = provider.getInventory().getItems();
                 Item item = items[random.nextInt(items.length)];
-                item.hover();
+                if (item != null) {
+                    item.hover();
+                }
                 break;
             case 4:
                 provider.log("Antiban: Check kills left");

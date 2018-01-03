@@ -16,6 +16,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     public TaskValidator() {
         super(Priority.URGENT);
+        registerBroadcastReceiver(this);
     }
 
     @Override

@@ -1,5 +1,7 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
+import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.script.MethodProvider;
 
@@ -18,7 +20,12 @@ public class RequiredWornItem extends RequiredItem {
 
     @Override
     public boolean hasItem(MethodProvider provider) {
-        return provider.getEquipment().isWearingItem(slot, name) || provider.getInventory().contains(name);
+        return provider.getEquipment().isWearingItem(slot, name) || provider.getInventory().contains(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains(name);
+            }
+        });
     }
 
     @Override
