@@ -1,11 +1,14 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
-import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.script.MethodProvider;
 
 public class SlayerWornItem extends SlayerItem {
+
+    public static final SlayerWornItem DESERT_BOOTS = new SlayerWornItem("Desert boots", EquipmentSlot.FEET);
+    public static final SlayerWornItem DESERT_SHIRT = new SlayerWornItem("Desert shirt", EquipmentSlot.CHEST);
+    public static final SlayerWornItem DESERT_ROBE = new SlayerWornItem("Desert robe", EquipmentSlot.LEGS);
 
     private final EquipmentSlot slot;
 
@@ -23,21 +26,36 @@ public class SlayerWornItem extends SlayerItem {
         return slot;
     }
 
+    public void equip(MethodProvider provider) {
+        Item item = getItem(provider);
+        if (item != null) {
+            item.interact(slot == EquipmentSlot.WEAPON ? "Wield" : "Wear");
+        }
+    }
+
+    @Override
+    protected Item getItem(MethodProvider provider) {
+        if (provider.getEquipment().isWearingItem(slot, name)) {
+            return provider.getEquipment().getItemInSlot(slot.slot);
+        }
+        return provider.getInventory().getItem(name);
+    }
+
     @Override
     public boolean hasItem(MethodProvider provider) {
-        return provider.getEquipment().isWearingItem(slot, name) || provider.getInventory().contains(new Filter<Item>() {
-            @Override
-            public boolean match(Item item) {
-                return item.getName().contains(name);
-            }
-        });
+        return getItem(provider) != null;
     }
 
     @Override
     public int getCount(MethodProvider provider) {
-        if (provider.getEquipment().isWearingItem(slot, name)) {
-            return provider.getEquipment().getItemInSlot(slot.slot).getAmount();
+        Item item = getItem(provider);
+        if (item != null) {
+            return item.getAmount();
         }
         return 0;
+    }
+
+    public boolean isWearing(MethodProvider provider) {
+        return provider.getEquipment().isWearingItem(slot, name);
     }
 }

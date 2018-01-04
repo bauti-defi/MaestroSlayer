@@ -1,12 +1,14 @@
 package org.osbot.maestro.script.slayer.task;
 
 import org.osbot.rs07.api.map.Area;
+import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.MethodProvider;
 
 public enum SlayerMaster {
 
-    TURAEL("Turael", null, 3, 1), VANNAKA("Vannaka", null, 40, 1), CHAELDAR("Chaeldar", null, 70, 1), NIEVE("Nieve", null, 85, 1), DURADEL("Duradel", null, 100, 50);
+    TURAEL("Turael", null, 3, 1), VANNAKA("Vannaka", new Area(new Position(3144, 9909, 0), new Position(3149, 9915, 0)), 40, 1), CHAELDAR
+            ("Chaeldar", null, 70, 1), NIEVE("Nieve", null, 85, 1), DURADEL("Duradel", null, 100, 50);
 
     private final String name;
     private final Area area;

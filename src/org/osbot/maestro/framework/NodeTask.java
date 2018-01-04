@@ -8,7 +8,7 @@ public abstract class NodeTask extends Node {
     protected MethodProvider provider;
     private BroadcastReceiver receiver;
 
-    protected NodeTask(Priority priority) {
+    public NodeTask(Priority priority) {
         super(priority);
     }
 

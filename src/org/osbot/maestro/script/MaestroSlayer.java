@@ -41,6 +41,7 @@ public class MaestroSlayer extends NodeScript {
         if (SlayerVariables.cannon) {
             addTask(new CannonHandler());
         }
+        addTask(new EquipmentHandler());
         addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).addPotion(SlayerVariables.antipoisonChoice.getName()).build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());

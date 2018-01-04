@@ -5,10 +5,14 @@ import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 
+import java.util.List;
+
 public class SlayerInventoryItem extends SlayerItem {
 
 
     public static final SlayerInventoryItem BAG_OF_SALT = new SlayerInventoryItem("Bag of salt", 250, true);
+    public static final SlayerInventoryItem WATERSKIN = new SlayerInventoryItem("Waterskin", 4, false);
+    public static final SlayerInventoryItem ICE_COOLER = new SlayerInventoryItem("Ice cooler", 250, true);
     public static final SlayerInventoryItem ANTIDOTE = new SlayerInventoryItem("Antidote", 1, true, new ItemRequired() {
         @Override
         public boolean required(MethodProvider provider) {
@@ -64,17 +68,38 @@ public class SlayerInventoryItem extends SlayerItem {
 
     @Override
     public boolean hasItem(MethodProvider provider) {
-        return provider.getInventory().contains(new Filter<Item>() {
-            @Override
-            public boolean match(Item item) {
-                return item.getName().contains(name);
-            }
-        });
+        return getItem(provider) != null;
     }
 
     @Override
     public int getCount(MethodProvider provider) {
-        return provider.getInventory().getItem(name).getAmount();
+        if (!stackable) {
+            List<Item> items = provider.getInventory().filter(new Filter<Item>() {
+                @Override
+                public boolean match(Item item) {
+                    return item.getName().contains(name) && !item.getName().endsWith("(0)");
+                }
+            });
+            if (items != null) {
+                return items.size();
+            }
+        } else {
+            Item item = getItem(provider);
+            if (item != null) {
+                return item.getAmount();
+            }
+        }
+        return 0;
+    }
+
+    @Override
+    protected Item getItem(MethodProvider provider) {
+        return provider.getInventory().getItem(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains(name) && !item.getName().endsWith("(0)");
+            }
+        });
     }
 
 }

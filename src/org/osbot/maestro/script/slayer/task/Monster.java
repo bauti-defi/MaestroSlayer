@@ -3,6 +3,12 @@ package org.osbot.maestro.script.slayer.task;
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
 
 public enum Monster {
 
@@ -18,18 +24,34 @@ public enum Monster {
     EARTH_WARRIORS("Earth warrior", false, null),
     HOBGOBLINS("Hobgoblin", false, null),
     OTHERWORDLY_BEINGS("Otherworldy being", false, null),
-    PYREFIENDS("Pyrefiend", false, null, SlayerVariables.antipoisonChoice);
+    PYREFIENDS("Pyrefiend", false, null, SlayerVariables.antipoisonChoice),
+    DESERT_LIZARDS("Desert lizard", false, null, SlayerInventoryItem.ICE_COOLER, SlayerInventoryItem.WATERSKIN, SlayerWornItem
+            .DESERT_BOOTS, SlayerWornItem.DESERT_ROBE, SlayerWornItem.DESERT_SHIRT);
 
     private final String name;
     private final boolean poisonous;
     private final MonsterMechanic monsterMechanic;
-    private final SlayerItem[] slayerItems;
+    private final List<SlayerItem> slayerItems;
+    private final List<SlayerInventoryItem> inventoryItems;
+    private final List<SlayerWornItem> wornItems;
 
     Monster(String name, boolean poisonous, MonsterMechanic monsterMechanic, SlayerItem... slayerItems) {
         this.name = name;
         this.monsterMechanic = monsterMechanic;
-        this.slayerItems = slayerItems;
         this.poisonous = poisonous;
+        this.slayerItems = Arrays.asList(slayerItems);
+        this.inventoryItems = new ArrayList<>();
+        this.wornItems = new ArrayList<>();
+        this.slayerItems.forEach(new Consumer<SlayerItem>() {
+            @Override
+            public void accept(SlayerItem slayerItem) {
+                if (slayerItem instanceof SlayerWornItem) {
+                    wornItems.add((SlayerWornItem) slayerItem);
+                } else {
+                    inventoryItems.add((SlayerInventoryItem) slayerItem);
+                }
+            }
+        });
     }
 
     public boolean isPoisonous() {
@@ -48,7 +70,23 @@ public enum Monster {
         return name;
     }
 
-    public SlayerItem[] getSlayerItems() {
+    public List<SlayerItem> getSlayerItems() {
         return slayerItems;
+    }
+
+    public List<SlayerWornItem> getSlayerWornItems() {
+        return wornItems;
+    }
+
+    public List<SlayerInventoryItem> getSlayerInventoryItems() {
+        return inventoryItems;
+    }
+
+    public boolean requiresWornItems() {
+        return wornItems.size() > 0;
+    }
+
+    public boolean requiresInventoryItems() {
+        return inventoryItems.size() > 0;
     }
 }

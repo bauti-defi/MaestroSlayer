@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 
 public abstract class SlayerItem {
@@ -24,10 +25,13 @@ public abstract class SlayerItem {
 
     public abstract int getCount(MethodProvider provider);
 
+    protected abstract Item getItem(MethodProvider provider);
+
     public boolean required(MethodProvider provider) {
         if (condition == null) {
             return true;
         }
         return condition.required(provider);
     }
+
 }

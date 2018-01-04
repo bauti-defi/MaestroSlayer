@@ -1,6 +1,7 @@
 package org.osbot.maestro.script.slayer.task;
 
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
 import org.osbot.rs07.script.MethodProvider;
 
 public class SlayerTask {
@@ -33,11 +34,27 @@ public class SlayerTask {
     }
 
     public boolean hasRequiredItems(MethodProvider provider) {
-        for (SlayerItem item : monster.getSlayerItems()) {
-            if (!item.hasItem(provider)) {
+        return hasRequiredInventoryItems(provider) && hasRequiredWornItems(provider);
+    }
+
+    public boolean hasRequiredWornItems(MethodProvider provider) {
+        for (SlayerWornItem wornItem : monster.getSlayerWornItems()) {
+            if (!wornItem.hasItem(provider)) {
+                provider.log("Missing item: " + wornItem.getName());
                 return false;
             }
         }
         return true;
     }
+
+    public boolean hasRequiredInventoryItems(MethodProvider provider) {
+        for (SlayerInventoryItem item : monster.getSlayerInventoryItems()) {
+            if (!item.hasItem(provider)) {
+                provider.log("Missing item: " + item.getName());
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

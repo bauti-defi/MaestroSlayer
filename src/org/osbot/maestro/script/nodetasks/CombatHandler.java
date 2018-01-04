@@ -26,8 +26,8 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (!SlayerVariables.currentTask.hasRequiredItems(provider)) {
-            provider.log("Lacking required items. Stopping...");
+        if (!SlayerVariables.currentTask.hasRequiredInventoryItems(provider)) {
+            provider.log("Need bank, missing inventory item...");
             stopScript(true);
             return false;
         }
