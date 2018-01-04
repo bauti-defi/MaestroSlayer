@@ -26,15 +26,17 @@ public class EquipmentHandler extends NodeTask {
             this.startingPreset = getEquipmentAsPreset();
             this.currentPreset = startingPreset;
             provider.log("Current equipment preset saved");
-        } else if (!SlayerVariables.currentTask.hasRequiredWornItems(provider)) {
-            provider.log("Need bank, missing item...");
-            sendBroadcast(new Broadcast("bank-for-gear"));
-            return false;
-        }
-        for (SlayerWornItem wornItem : SlayerVariables.currentTask.getMonster().getSlayerWornItems()) {
-            if (!wornItem.isWearing(provider)) {
-                toWear = wornItem;
-                return true;
+        } else if (SlayerVariables.currentTask != null) {
+            if (!SlayerVariables.currentTask.hasRequiredWornItems(provider)) {
+                provider.log("Need bank, missing item...");
+                sendBroadcast(new Broadcast("bank-for-gear"));
+                return false;
+            }
+            for (SlayerWornItem wornItem : SlayerVariables.currentTask.getMonster().getSlayerWornItems()) {
+                if (!wornItem.isWearing(provider)) {
+                    toWear = wornItem;
+                    return true;
+                }
             }
         }
         return false;

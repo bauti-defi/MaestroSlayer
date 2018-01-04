@@ -161,6 +161,9 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private boolean isCannonSet() {
+        if (getCannon() != null) {
+            provider.log("here");
+        }
         return getCannon() != null && !holdingCannon() && !cannonSet;
     }
 

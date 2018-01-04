@@ -26,7 +26,27 @@ public enum Monster {
     OTHERWORDLY_BEINGS("Otherworldy being", false, null),
     PYREFIENDS("Pyrefiend", false, null, SlayerVariables.antipoisonChoice),
     DESERT_LIZARDS("Desert lizard", false, null, SlayerInventoryItem.ICE_COOLER, SlayerInventoryItem.WATERSKIN, SlayerWornItem
-            .DESERT_BOOTS, SlayerWornItem.DESERT_ROBE, SlayerWornItem.DESERT_SHIRT);
+            .DESERT_BOOTS, SlayerWornItem.DESERT_ROBE, SlayerWornItem.DESERT_SHIRT),
+    BANSHEES("Banshee", false, null, SlayerWornItem.EARMUFFS),
+    BATS("Bat", false, null),
+    BIRDS("Bird", false, null),
+    BEARS("Bear", false, null),
+    CAVE_BUGS("Cave bug", false, null, SlayerVariables.antipoisonChoice),
+    COWS("Cow", false, null),
+    CRAWLING_HANDS("Crawling hand", false, null),
+    DOGS("Dog", false, null),
+    DWARVES("Dwarf", false, null),
+    GHOSTS("Ghost", false, null),
+    GOBLINS("Goblin", false, null),
+    ICEFIENDS("Icefiend", false, null),
+    MINOTAURS("Minotaur", false, null),
+    MONKEYS("Monkey", false, null),
+    RATS("Rat", false, null),
+    SCORPIONS("Scorpion", false, null),
+    SKELETONS("Skeleton", false, null),
+    SPIDERS("Spider", true, null),
+    WOLVES("Wolf", false, null),
+    ZOMBIES("Zombie", false, null);
 
     private final String name;
     private final boolean poisonous;
