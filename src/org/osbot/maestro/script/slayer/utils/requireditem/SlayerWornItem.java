@@ -5,12 +5,17 @@ import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.script.MethodProvider;
 
-public class RequiredWornItem extends RequiredItem {
+public class SlayerWornItem extends SlayerItem {
 
     private final EquipmentSlot slot;
 
-    public RequiredWornItem(String name, EquipmentSlot slot) {
+    public SlayerWornItem(String name, EquipmentSlot slot) {
         super(name);
+        this.slot = slot;
+    }
+
+    public SlayerWornItem(String name, EquipmentSlot slot, ItemRequired condition) {
+        super(name, condition);
         this.slot = slot;
     }
 

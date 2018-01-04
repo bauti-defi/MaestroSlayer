@@ -10,6 +10,7 @@ import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.SkillTimer;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
@@ -32,6 +33,7 @@ public class MaestroSlayer extends NodeScript {
 
     public MaestroSlayer() {
         super();
+        SlayerVariables.antipoisonChoice = SlayerInventoryItem.ANTIDOTE;
         this.startTime = System.currentTimeMillis();
         if (SlayerVariables.eating) {
             addTask(new FoodHandler(new Food("Monkfish"), 50, 30));
@@ -39,8 +41,7 @@ public class MaestroSlayer extends NodeScript {
         if (SlayerVariables.cannon) {
             addTask(new CannonHandler());
         }
-        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).addPotion(SlayerVariables
-                .antidote ? "Antidote" : "poison").build());
+        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).addPotion(SlayerVariables.antipoisonChoice.getName()).build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());
         addTask(new TargetFinder());

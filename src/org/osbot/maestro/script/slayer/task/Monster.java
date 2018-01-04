@@ -1,14 +1,15 @@
 package org.osbot.maestro.script.slayer.task;
 
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
-import org.osbot.maestro.script.slayer.utils.requireditem.RequiredInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.RequiredItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
 
 public enum Monster {
 
+    //TODO: ALL RELEKA TASKS NEED ANTI UNTIL 46 CB
 
-    ROCKSLUGS("Rockslug", MonsterMechanic.ROCK_SLUG_MECHANIC, RequiredInventoryItem.BAG_OF_SALT),
-    CAVE_CRAWLERS("Cave crawler", null, SlayerVariables.antidote ? RequiredInventoryItem.ANTIDOTE : RequiredInventoryItem.ANTIPOISON),
+    ROCKSLUGS("Rockslug", MonsterMechanic.ROCK_SLUG_MECHANIC, SlayerInventoryItem.BAG_OF_SALT, SlayerVariables.antipoisonChoice),
+    CAVE_CRAWLERS("Cave crawler", null, SlayerVariables.antipoisonChoice),
     OGRES("Ogre", null),
     KALPHITES("Kalphite", null),
     HILL_GIANTS("Hill Giant", null),
@@ -21,12 +22,12 @@ public enum Monster {
 
     private final String name;
     private final MonsterMechanic monsterMechanic;
-    private final RequiredItem[] requiredItems;
+    private final SlayerItem[] slayerItems;
 
-    Monster(String name, MonsterMechanic monsterMechanic, RequiredItem... requiredItems) {
+    Monster(String name, MonsterMechanic monsterMechanic, SlayerItem... slayerItems) {
         this.name = name;
         this.monsterMechanic = monsterMechanic;
-        this.requiredItems = requiredItems;
+        this.slayerItems = slayerItems;
     }
 
     public boolean hasMechanic() {
@@ -41,7 +42,7 @@ public enum Monster {
         return name;
     }
 
-    public RequiredItem[] getRequiredItems() {
-        return requiredItems;
+    public SlayerItem[] getSlayerItems() {
+        return slayerItems;
     }
 }

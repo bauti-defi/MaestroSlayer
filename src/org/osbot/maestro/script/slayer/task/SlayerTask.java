@@ -1,6 +1,6 @@
 package org.osbot.maestro.script.slayer.task;
 
-import org.osbot.maestro.script.slayer.utils.requireditem.RequiredItem;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
 import org.osbot.rs07.script.MethodProvider;
 
 public class SlayerTask {
@@ -33,7 +33,7 @@ public class SlayerTask {
     }
 
     public boolean hasRequiredItems(MethodProvider provider) {
-        for (RequiredItem item : monster.getRequiredItems()) {
+        for (SlayerItem item : monster.getSlayerItems()) {
             if (!item.hasItem(provider)) {
                 return false;
             }

@@ -3,13 +3,14 @@ package org.osbot.maestro.script.slayer.data;
 import org.osbot.maestro.script.slayer.task.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
 import org.osbot.rs07.api.map.Position;
 
 public class SlayerVariables {
 
     public static SlayerTask currentTask;
     public static SlayerMaster currentMaster = SlayerMaster.VANNAKA;
-    public static boolean antidote = true;
+    public static SlayerInventoryItem antipoisonChoice;
     public static boolean eating = true;
     public static CombatStyle combatStyle;
     public static boolean cannon = false;
