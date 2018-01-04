@@ -18,7 +18,6 @@ import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -28,7 +27,6 @@ public class MaestroSlayer extends NodeScript {
     private final Font font1 = new Font("Arial", 0, 12);
     private final Font font2 = new Font("Arial", 1, 18);
     private final Font font3 = new Font("Arial", 0, 10);
-    private final SimpleDateFormat dateFormat = new SimpleDateFormat("dd:hh:mm:ss");
     private final long startTime;
     private SkillTimer slayerTimer;
     private int tasksFinished = 0;
@@ -66,9 +64,9 @@ public class MaestroSlayer extends NodeScript {
         switch (message.getType()) {
             case GAME:
                 if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
-                    //TODO:: cannon broke
-                } else if (message.getMessage().toLowerCase().contains("your cannon is out of ammo")) {
-                    //TODO:: cannon out of ammo
+                    sendBroadcast(new Broadcast("cannon-broken"));
+                } else if (message.getMessage().toLowerCase().contains("cannon is out of ammo")) {
+                    sendBroadcast(new Broadcast("cannon-reload"));
                 } else if (message.getMessage().toLowerCase().contains("assigned to kill")) {
                     String monsterName = message.getMessage().split("kill ")[1].split(";")[0];
                     int amount = Integer.parseInt(message.getMessage().split("only ")[1].split(" more")[0]);
@@ -84,6 +82,8 @@ public class MaestroSlayer extends NodeScript {
                     log("Task complete.");
                     tasksFinished++;
                     stop(true);
+                } else if (message.getMessage().contains("load the cannon with")) {
+                    sendBroadcast(new Broadcast("cannon-loaded"));
                 }
                 break;
         }

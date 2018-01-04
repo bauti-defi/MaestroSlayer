@@ -11,26 +11,26 @@ public abstract class NodeTimeTask extends NodeTask {
     private long currentDeviation;
     private final Random randomGenerator;
 
-    public NodeTimeTask(long refreshRate, long deviation, TimeUnit unit) {
-        super(Priority.VERY_LOW);
+    public NodeTimeTask(long refreshRate, long deviation, TimeUnit unit, Priority priority) {
+        super(priority);
         this.refreshRate = unit.toMillis(refreshRate);
         this.deviation = deviation;
         this.randomGenerator = new Random();
         resetTimer();
     }
 
+    public NodeTimeTask(long refreshRate, TimeUnit unit, Priority priority) {
+        this(refreshRate, 0, unit, priority);
+    }
+
+    public NodeTimeTask(long refreshRate, TimeUnit refreshUnit, long deviation, TimeUnit deviationUnit, Priority priority) {
+        this(refreshUnit.toMillis(refreshRate), deviationUnit.toMillis(deviation), TimeUnit.MILLISECONDS, priority);
+    }
+
     private void resetTimer() {
         this.startTime = System.currentTimeMillis();
         boolean positve = randomGenerator.nextBoolean();
         this.currentDeviation = randomGenerator.nextInt((int) deviation) * (positve ? 1 : -1);
-    }
-
-    public NodeTimeTask(long refreshRate, TimeUnit unit) {
-        this(refreshRate, 0, unit);
-    }
-
-    public NodeTimeTask(long refreshRate, TimeUnit refreshUnit, long deviation, TimeUnit deviationUnit) {
-        this(refreshUnit.toMillis(refreshRate), deviationUnit.toMillis(deviation), TimeUnit.MILLISECONDS);
     }
 
     protected final long getNextRefresh() {

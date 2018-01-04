@@ -2,6 +2,7 @@ package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTimeTask;
+import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.slayer.utils.AntibanCharacteristic;
 import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.rs07.api.filter.Filter;
@@ -17,7 +18,7 @@ public class AntibanHandler extends NodeTimeTask {
 
     public AntibanHandler(AntibanFrequency antibanFrequency) {
         super(antibanFrequency.getRate(), antibanFrequency.getRateUnit(), antibanFrequency.getDeviation(),
-                antibanFrequency.getDeviationUnit());
+                antibanFrequency.getDeviationUnit(), Priority.VERY_LOW);
         random = new Random();
     }
 

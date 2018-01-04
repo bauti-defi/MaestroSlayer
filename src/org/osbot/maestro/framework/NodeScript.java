@@ -13,6 +13,7 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
 
     private final List<NodeTask> tasks;
     private final List<BroadcastReceiver> receivers;
+    private volatile boolean run;
 
     public NodeScript() {
         this.tasks = new ArrayList<>();
@@ -23,6 +24,7 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
     @Override
     public void onStart() throws InterruptedException {
         sortTasks();
+        run = true;
     }
 
     protected void addTask(NodeTask task) {
@@ -41,6 +43,9 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
     }
 
     protected final void forceStopScript(boolean logout) {
+        if (run) {
+            run = false;
+        }
         if (logout && getClient().isLoggedIn()) {
             getLogoutTab().logOut();
             new ConditionalSleep(5000, 1000) {
@@ -73,10 +78,12 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
 
     @Override
     public int onLoop() throws InterruptedException {
-        for (NodeTask task : tasks) {
-            if (task.runnable()) {
-                log("Executing: " + task.getClass().getName());
-                task.execute();
+        if (run) {
+            for (NodeTask task : tasks) {
+                if (task.runnable()) {
+                    log("Executing: " + task.getClass().getName());
+                    task.execute();
+                }
             }
         }
         return random(400, 750);
