@@ -27,7 +27,7 @@ public abstract class NodeTimeTask extends NodeTask {
         this(refreshUnit.toMillis(refreshRate), deviationUnit.toMillis(deviation), TimeUnit.MILLISECONDS, priority);
     }
 
-    private void resetTimer() {
+    protected void resetTimer() {
         this.startTime = System.currentTimeMillis();
         boolean positve = randomGenerator.nextBoolean();
         this.currentDeviation = randomGenerator.nextInt((int) deviation) * (positve ? 1 : -1);

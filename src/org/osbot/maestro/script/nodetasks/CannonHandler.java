@@ -6,6 +6,7 @@ import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.slayer.data.Constants;
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.slayer.utils.CannonPlacementException;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.RS2Object;
@@ -18,8 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
-    private volatile boolean needLoad;
-    private boolean needRepair;
+    private boolean needRepair, cannonSet, needLoad, needPickUp;
 
     public CannonHandler() {
         super(15, 3, TimeUnit.SECONDS, Priority.MEDIUM);
@@ -33,7 +33,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
             stopScript(true);
         }
         if (isCannonSet()) {
-            return super.runnable() || needLoad || needRepair;
+            return super.runnable() || needLoad || needRepair || needPickUp;
         }
         return !isCannonSet();
     }
@@ -43,11 +43,11 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         if (!isCannonSet()) {
             if (provider.myPlayer().getPosition().distance(SlayerVariables.cannonPosition) > 0) {
                 provider.log("Walking to cannon position");
-                provider.getWalking().walk(SlayerVariables.cannonPosition);
+                provider.walking.walk(SlayerVariables.cannonPosition);
                 new ConditionalSleep(5000, 500) {
                     @Override
                     public boolean condition() throws InterruptedException {
-                        return provider.myPlayer().getPosition().distance(SlayerVariables.cannonPosition) == 0;
+                        return SlayerVariables.cannonPosition.equals(provider.myPosition());
                     }
                 }.sleep();
             }
@@ -63,66 +63,66 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
                     }
                 }.sleep();
             }
-            needLoad = true;
+            if (getCannon() != null && !holdingCannon()) {
+                needLoad = true;
+                cannonSet = true;
+            }
         }
         if (isCannonSet()) {
             if (needRepair) {
-                provider.log("Repairing cannon");
                 repairCannon();
+            } else if (needLoad) {
+                reloadCannon();
+                super.execute();
+            } else if (needPickUp) {
+                pickUpCannon();
             }
-            provider.log("Reloading cannon");
-            reloadCannon();
-            super.execute();
         }
+    }
+
+    private boolean interactWithCannon(String action, boolean condition) {
+        RS2Object cannon = getCannon();
+        if (cannon != null && cannon.exists()) {
+            if (cannon.hasAction(action)) {
+                cannon.interact(action);
+                new ConditionalSleep(5000, 500) {
+
+                    @Override
+                    public boolean condition() throws InterruptedException {
+                        return condition;
+                    }
+                }.sleep();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void repairCannon() {
-        RS2Object cannon = getCannon();
-        if (cannon != null) {
-            if (cannon.hasAction("Repair")) {
-                cannon.interact("Repair");
-                new ConditionalSleep(5000, 1000) {
-
-                    @Override
-                    public boolean condition() throws InterruptedException {
-                        return !needRepair;
-                    }
-                }.sleep();
-            } else {
-                needRepair = false;
-            }
+        provider.log("Repairing cannon");
+        if (interactWithCannon("Repair", !needRepair)) {
+            provider.log("Cannon repaired");
+            needRepair = false;
+            return;
         }
+        needRepair = true;
     }
 
     private void reloadCannon() {
-        RS2Object cannon = getCannon();
-        if (cannon != null) {
-            if (provider.getInventory().contains("Cannonball")) {
-                cannon.interact("Fire");
-                new ConditionalSleep(5000, 1000) {
-
-                    @Override
-                    public boolean condition() throws InterruptedException {
-                        return !needLoad;
-                    }
-                }.sleep();
-            } else {
-                provider.log("Out of cannonballs");
+        provider.log("Reloading cannon");
+        if (provider.getInventory().contains("Cannonball")) {
+            if (interactWithCannon("Fire", !needLoad)) {
+                provider.log("Cannon reloaded");
             }
+        } else {
+            provider.log("Out of cannonballs");
         }
     }
 
     private void pickUpCannon() {
-        RS2Object cannon = getCannon();
-        if (cannon != null) {
-            cannon.interact("Pick-up");
-            new ConditionalSleep(5000, 1000) {
-
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return !isCannonSet();
-                }
-            }.sleep();
+        provider.log("Picking up cannon");
+        if (interactWithCannon("Pick-Up", !isCannonSet())) {
+            provider.log("Cannon picked up");
         }
     }
 
@@ -134,7 +134,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
-                return provider.myPlayer().getPosition().distance(SlayerVariables.cannonPosition) == 0;
+                return provider.myPosition().distance(SlayerVariables.cannonPosition) == 0;
             }
         });
         provider.execute(walkingEvent);
@@ -144,8 +144,8 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         return provider.getObjects().closest(new Filter<RS2Object>() {
             @Override
             public boolean match(RS2Object rs2Object) {
-                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == Constants.CANNON_ID &&
-                        rs2Object.getPosition().distance(SlayerVariables.cannonPosition) == 0;
+                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? Constants.BROKEN_CANNON : Constants.CANNON_ID) &&
+                        rs2Object.getPosition().equals(provider.myPosition());
             }
         });
     }
@@ -161,28 +161,36 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private boolean isCannonSet() {
-        if (getCannon() == null) {
-            provider.log("here");
-        }
-        if (getCannon() != null && !holdingCannon()) {
-            provider.log("set");
-            return true;
-        }
-        return false;
+        return getCannon() != null && !holdingCannon() && !cannonSet;
     }
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
             case "cannon-loaded":
-                needLoad = false;
+                needLoad = (boolean) broadcast.getMessage();
+                if (!needLoad) {
+                    resetTimer();
+                }
                 break;
             case "cannon-broken":
-                needRepair = true;
+                needRepair = (boolean) broadcast.getMessage();
                 break;
-            case "cannon-reload":
-                needLoad = true;
+            case "cannon-error":
+                try {
+                    throw new CannonPlacementException(SlayerVariables.cannonPosition);
+                } catch (CannonPlacementException e) {
+                    e.printStackTrace();
+                    stopScript(true);
+                }
                 break;
+            case "cannon-set":
+                cannonSet = (boolean) broadcast.getMessage();
+                break;
+            case "cannon-pick-up":
+                needPickUp = (boolean) broadcast.getMessage();
+                break;
+
         }
     }
 }

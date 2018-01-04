@@ -14,7 +14,10 @@ public enum Monster {
     HILL_GIANTS("Hill Giant", null),
     MOSS_GIANTS("Moss giant", null),
     CAVE_SLIMES("Cave slime", null),
-    EARTH_WARRIORS("Earth warrior", null);
+    EARTH_WARRIORS("Earth warrior", null),
+    HOBGOBLINS("Hobgoblin", null),
+    OTHERWORDLY_BEINGS("Otherworldy being", null),
+    PYREFIENDS("Pyrefiend", null);
 
     private final String name;
     private final MonsterMechanic monsterMechanic;

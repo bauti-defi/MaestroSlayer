@@ -68,8 +68,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             provider.log("Requesting target");
             sendBroadcast(new Broadcast("request-target"));
             return;
-        }
-        if (monster.isOnScreen() && monster.isVisible()) {
+        } else if (monster.isOnScreen() && monster.isVisible()) {
             provider.log("Attacking " + SlayerVariables.currentTask.getMonster().getName());
             attackMonster(monster);
             provider.log("Moving mouse off screen.");
@@ -82,7 +81,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                 }
             }.sleep();
         } else {
-            if (!provider.getMap().isWithinRange(monster, 7)) {
+            if (!provider.getMap().isWithinRange(monster, 4)) {
                 walkToMonster(monster);
             } else {
                 provider.getCamera().toEntity(monster);
@@ -94,9 +93,9 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private void walkToMonster(NPC monster) {
         WalkingEvent walkingEvent = new WalkingEvent(monster);
         walkingEvent.setOperateCamera(true);
-        walkingEvent.setMinDistanceThreshold(4);
+        walkingEvent.setMinDistanceThreshold(3);
         walkingEvent.setEnergyThreshold(20);
-        walkingEvent.setMiniMapDistanceThreshold(6);
+        walkingEvent.setMiniMapDistanceThreshold(5);
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {

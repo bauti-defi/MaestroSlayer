@@ -17,7 +17,6 @@ import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
-import java.text.DecimalFormat;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -47,7 +46,7 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TaskValidator());
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
-        addTask(new AntibanHandler(AntibanFrequency.MAX));
+        addTask(new AntibanHandler(AntibanFrequency.HIGH));
     }
 
     @Override
@@ -64,10 +63,20 @@ public class MaestroSlayer extends NodeScript {
         switch (message.getType()) {
             case GAME:
                 if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
-                    sendBroadcast(new Broadcast("cannon-broken"));
+                    sendBroadcast(new Broadcast("cannon-broken", true));
                 } else if (message.getMessage().toLowerCase().contains("cannon is out of ammo")) {
-                    sendBroadcast(new Broadcast("cannon-reload"));
-                } else if (message.getMessage().toLowerCase().contains("assigned to kill")) {
+                    sendBroadcast(new Broadcast("cannon-reload", true));
+                } else if (message.getMessage().contains("you repair your cannon")) {
+                    sendBroadcast(new Broadcast("cannon-broken", false));
+                } else if (message.getMessage().contains("load the cannon with")) {
+                    sendBroadcast(new Broadcast("cannon-reload", false));
+                } else if (message.getMessage().contains("cannon already firing")) {
+                    sendBroadcast(new Broadcast("cannon-reload", false));
+                } else if (message.getMessage().contains("you pick up your cannon")) {
+                    sendBroadcast(new Broadcast("cannon-set", false));
+                } else if (message.getMessage().contains("there isn't enough space to set up here")) {
+                    sendBroadcast(new Broadcast("cannon-error"));
+                } else if (message.getMessage().toLowerCase().contains("assigned to " + "kill")) {
                     String monsterName = message.getMessage().split("kill ")[1].split(";")[0];
                     int amount = Integer.parseInt(message.getMessage().split("only ")[1].split(" more")[0]);
                     for (Monster monster : Monster.values()) {
@@ -82,8 +91,6 @@ public class MaestroSlayer extends NodeScript {
                     log("Task complete.");
                     tasksFinished++;
                     stop(true);
-                } else if (message.getMessage().contains("load the cannon with")) {
-                    sendBroadcast(new Broadcast("cannon-loaded"));
                 }
                 break;
         }
@@ -101,7 +108,7 @@ public class MaestroSlayer extends NodeScript {
         g.fillRoundRect(7, 10, 178, 113, 16, 16);
         g.setFont(font1);
         g.setColor(color2);
-        g.drawString("Time: " + (System.currentTimeMillis() - startTime), 12, 54);
+        g.drawString("Time: " + getRuntimeFormat(System.currentTimeMillis() - startTime), 12, 54);
         g.setFont(font2);
         g.drawString("MaestroSlayer", 12, 26);
         g.setFont(font3);
@@ -117,19 +124,6 @@ public class MaestroSlayer extends NodeScript {
             g.setColor(Color.RED);
             g.drawPolygon(targetToPaint.getPosition().getPolygon(getBot()));
         }
-
-    }
-
-    public static String formatNumber(int start) {
-        DecimalFormat nf = new DecimalFormat("0.0");
-        double i = start;
-        if (i >= 1000000) {
-            return nf.format((i / 1000000)) + "M";
-        }
-        if (i >= 1000) {
-            return nf.format((i / 1000)) + "K";
-        }
-        return "" + start;
     }
 
     private void setCombatStyle() {
