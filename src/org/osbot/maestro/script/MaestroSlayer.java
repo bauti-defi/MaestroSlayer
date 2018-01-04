@@ -56,6 +56,10 @@ public class MaestroSlayer extends NodeScript {
         log("Report any bugs to El Maestro.");
         SlayerVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
         log("Combat style: " + SlayerVariables.combatStyle.getName());
+        if (!SlayerVariables.currentMaster.hasRequirements(this)) {
+            log("You don't have the requirements for this slayer master, Stopping...");
+            forceStopScript(true);
+        }
     }
 
     @Override
