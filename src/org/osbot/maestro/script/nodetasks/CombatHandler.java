@@ -4,7 +4,6 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.Constants;
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.rs07.api.model.Character;
@@ -43,7 +42,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                 }
             }.sleep();
         }
-        if (provider.getConfigs().get(Constants.COMBAT_STYLE_ID) != SlayerVariables.combatStyle.getConfigId()) {
+        if (provider.getConfigs().get(SlayerVariables.combatStyle.getConfigParentId()) != SlayerVariables.combatStyle.getConfigId()) {
             provider.log("Switching back to original combat style.");
             if (provider.getTabs().open(Tab.ATTACK)) {
                 RS2Widget combatStyleWidget = provider.getWidgets().get(CombatStyle.ROOT_ID, SlayerVariables.combatStyle.getChildId());
@@ -53,7 +52,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
                         @Override
                         public boolean condition() throws InterruptedException {
-                            return provider.getConfigs().get(Constants.COMBAT_STYLE_ID) == SlayerVariables.combatStyle.getConfigId();
+                            return provider.getConfigs().get(SlayerVariables.combatStyle.getConfigParentId()) == SlayerVariables.combatStyle.getConfigId();
                         }
                     }.sleep();
                 }

@@ -3,7 +3,6 @@ package org.osbot.maestro.script;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeScript;
 import org.osbot.maestro.script.nodetasks.*;
-import org.osbot.maestro.script.slayer.data.Constants;
 import org.osbot.maestro.script.slayer.data.SlayerVariables;
 import org.osbot.maestro.script.slayer.task.Monster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
@@ -55,7 +54,8 @@ public class MaestroSlayer extends NodeScript {
         this.slayerTimer = new SkillTimer(this, Skill.SLAYER);
         log("MaestroSlayer started.");
         log("Report any bugs to El Maestro.");
-        setCombatStyle();
+        SlayerVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
+        log("Combat style: " + SlayerVariables.combatStyle.getName());
     }
 
     @Override
@@ -124,24 +124,6 @@ public class MaestroSlayer extends NodeScript {
             g.setColor(Color.RED);
             g.drawPolygon(targetToPaint.getPosition().getPolygon(getBot()));
         }
-    }
-
-    private void setCombatStyle() {
-        switch (getConfigs().get(Constants.COMBAT_STYLE_ID)) {
-            case 0:
-                SlayerVariables.combatStyle = CombatStyle.ACCURATE;
-                break;
-            case 1:
-                SlayerVariables.combatStyle = CombatStyle.AGGRESSIVE;
-                break;
-            case 2:
-                SlayerVariables.combatStyle = CombatStyle.CONTROLLED;
-                break;
-            case 3:
-                SlayerVariables.combatStyle = CombatStyle.BLOCK;
-                break;
-        }
-        log("Combat style: " + SlayerVariables.combatStyle.getName());
     }
 
     @Override

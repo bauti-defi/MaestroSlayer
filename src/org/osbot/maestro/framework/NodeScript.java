@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 
 public abstract class NodeScript extends Script implements BroadcastReceiver {
@@ -77,12 +76,12 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
         });
     }
 
-    protected final String getRuntimeFormat(long totalPlayTime) {
-        int sec = (int) (totalPlayTime / 1000L);
-        int h = sec / 3600;
-        int m = sec / 60 % 60;
-        int s = sec % 60;
-        return (h < 10 ? "0" + h : Integer.valueOf(h)) + ":" + (m < 10 ? "0" + m : Integer.valueOf(m)) + ":" + (s < 10 ? "0" + s : Integer.valueOf(s));
+    protected final String getRuntimeFormat(long ms) {
+        long s = ms / 1000, m = s / 60, h = m / 60;
+        s %= 60;
+        m %= 60;
+        h %= 24;
+        return String.format("%02d:%02d:%02d", h, m, s);
     }
 
     protected static String formatNumber(int start) {
@@ -95,25 +94,6 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
             return nf.format((i / 1000)) + "K";
         }
         return "" + start;
-    }
-
-    protected final String timeTolevel(long duration) {
-        String res = "";
-        long days = TimeUnit.MILLISECONDS.toDays(duration);
-        long hours = TimeUnit.MILLISECONDS.toHours(duration) -
-                TimeUnit.DAYS.toHours(TimeUnit.MILLISECONDS.toDays(duration));
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(duration) -
-                TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS
-                        .toHours(duration));
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(duration) -
-                TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS
-                        .toMinutes(duration));
-        if (days == 0L) {
-            res = hours + ":" + minutes + ":" + seconds;
-        } else {
-            res = days + ":" + hours + ":" + minutes + ":" + seconds;
-        }
-        return res;
     }
 
 
