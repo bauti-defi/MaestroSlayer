@@ -48,11 +48,7 @@ public class SlayerArea {
     }
 
     public Area unwrap() {
-        Position[] positions = new Position[area.size()];
-        for (int i = 0; i < area.size(); i++) {
-            positions[i] = area.get(i).unwrap();
-        }
-        return new Area(positions);
+        return new Area(area.get(0).unwrap(), area.get(area.size() - 1).unwrap());
     }
 
     public List<SlayerPosition> getSlayerPositions() {
