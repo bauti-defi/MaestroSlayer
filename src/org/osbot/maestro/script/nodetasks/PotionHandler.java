@@ -1,7 +1,9 @@
 package org.osbot.maestro.script.nodetasks;
 
+import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
@@ -21,10 +23,16 @@ public class PotionHandler extends NodeTask {
 
     @Override
     public boolean runnable() {
-        for (Map.Entry<Potion, Integer> entry : potions.entrySet()) {
-            if (entry.getKey().hasConsumable(provider) && entry.getKey().needConsume(provider, entry.getValue())) {
-                this.entry = entry;
-                return true;
+        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
+            for (Map.Entry<Potion, Integer> entry : potions.entrySet()) {
+                if (!entry.getKey().hasConsumable(provider)) {
+                    sendBroadcast(new Broadcast("bank-for-potions"));
+                    return false;
+                }
+                if (entry.getKey().hasConsumable(provider) && entry.getKey().needConsume(provider, entry.getValue())) {
+                    this.entry = entry;
+                    return true;
+                }
             }
         }
         return false;

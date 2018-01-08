@@ -21,7 +21,7 @@ public abstract class SlayerItem {
         return name;
     }
 
-    public abstract boolean hasItem(MethodProvider provider);
+    public abstract boolean haveItem(MethodProvider provider);
 
     public abstract int getCount(MethodProvider provider);
 

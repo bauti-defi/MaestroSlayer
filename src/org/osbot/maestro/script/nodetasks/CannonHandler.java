@@ -4,8 +4,8 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.Constants;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.data.Config;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CannonPlacementException;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
@@ -28,7 +28,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (SlayerVariables.cannonPosition == null) {
+        if (RuntimeVariables.cannonPosition == null) {
             provider.log("Cannon tile not set. Stopping...");
             stopScript(true);
         }
@@ -41,13 +41,13 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     @Override
     protected void execute() throws InterruptedException {
         if (!isCannonSet()) {
-            if (provider.myPlayer().getPosition().distance(SlayerVariables.cannonPosition) > 0) {
+            if (provider.myPlayer().getPosition().distance(RuntimeVariables.cannonPosition) > 0) {
                 provider.log("Walking to cannon position");
-                provider.walking.walk(SlayerVariables.cannonPosition);
+                provider.walking.walk(RuntimeVariables.cannonPosition);
                 new ConditionalSleep(5000, 500) {
                     @Override
                     public boolean condition() throws InterruptedException {
-                        return SlayerVariables.cannonPosition.equals(provider.myPosition());
+                        return RuntimeVariables.cannonPosition.equals(provider.myPosition());
                     }
                 }.sleep();
             }
@@ -127,14 +127,14 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private void walkToCannonPosition() {
-        WalkingEvent walkingEvent = new WalkingEvent(SlayerVariables.cannonPosition);
+        WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.cannonPosition);
         walkingEvent.setMiniMapDistanceThreshold(4);
         walkingEvent.setEnergyThreshold(20);
         walkingEvent.setOperateCamera(true);
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
-                return provider.myPosition().distance(SlayerVariables.cannonPosition) == 0;
+                return provider.myPosition().distance(RuntimeVariables.cannonPosition) == 0;
             }
         });
         provider.execute(walkingEvent);
@@ -144,7 +144,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         return provider.getObjects().closest(new Filter<RS2Object>() {
             @Override
             public boolean match(RS2Object rs2Object) {
-                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? Constants.BROKEN_CANNON : Constants.CANNON_ID) &&
+                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? Config.BROKEN_CANNON : Config.CANNON_ID) &&
                         rs2Object.getPosition().equals(provider.myPosition());
             }
         });
@@ -181,7 +181,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
                 break;
             case "cannon-error":
                 try {
-                    throw new CannonPlacementException(SlayerVariables.cannonPosition);
+                    throw new CannonPlacementException(RuntimeVariables.cannonPosition);
                 } catch (CannonPlacementException e) {
                     e.printStackTrace();
                     stopScript(true);

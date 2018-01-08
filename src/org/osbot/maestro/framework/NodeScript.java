@@ -6,7 +6,6 @@ import org.osbot.rs07.utility.ConditionalSleep;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -58,22 +57,12 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
             }.sleep();
             forceStopScript(true);
         } else {
-            stop();
+            stop(false);
         }
     }
 
     private void sortTasks() {
-        Collections.sort(this.tasks, new Comparator<NodeTask>() {
-            @Override
-            public int compare(final NodeTask o1, final NodeTask o2) {
-                if (o1.getPriority().priority() > o2.getPriority().priority()) {
-                    return 1;
-                } else if (o1.getPriority().priority() < o2.getPriority().priority()) {
-                    return -1;
-                }
-                return 0;
-            }
-        });
+        Collections.sort(this.tasks);
     }
 
     protected final String getRuntimeFormat(long ms) {
@@ -101,6 +90,9 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
     public int onLoop() throws InterruptedException {
         if (run) {
             for (NodeTask task : tasks) {
+                if (!run) {
+                    break;
+                }
                 if (task.runnable()) {
                     log("Executing: " + task.getClass().getName());
                     task.execute();

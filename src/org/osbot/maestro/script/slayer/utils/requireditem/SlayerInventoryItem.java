@@ -1,6 +1,5 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
@@ -8,40 +7,6 @@ import org.osbot.rs07.script.MethodProvider;
 import java.util.List;
 
 public class SlayerInventoryItem extends SlayerItem {
-
-
-    public static final SlayerInventoryItem BAG_OF_SALT = new SlayerInventoryItem("Bag of salt", 250, true);
-    public static final SlayerInventoryItem WATERSKIN = new SlayerInventoryItem("Waterskin", 4, false);
-    public static final SlayerInventoryItem ICE_COOLER = new SlayerInventoryItem("Ice cooler", 250, true);
-    public static final SlayerInventoryItem ANTIDOTE = new SlayerInventoryItem("Antidote", 1, true, new ItemRequired() {
-        @Override
-        public boolean required(MethodProvider provider) {
-            switch (SlayerVariables.currentTask.getMonster()) {
-                case ROCKSLUGS:
-                case PYREFIENDS:
-                case CAVE_SLIMES:
-                    if (provider.myPlayer().getCombatLevel() < 46) {
-                        return true;
-                    }
-                    return false;
-            }
-            return SlayerVariables.currentTask.getMonster().isPoisonous();
-        }
-    });
-    public static final SlayerInventoryItem ANTIPOISON = new SlayerInventoryItem("Antipoison", 1, true, new ItemRequired() {
-        @Override
-        public boolean required(MethodProvider provider) {
-            if (provider.myPlayer().getCombatLevel() < 46) {
-                switch (SlayerVariables.currentTask.getMonster()) {
-                    case ROCKSLUGS:
-                    case PYREFIENDS:
-                        return true;
-                }
-            }
-            return SlayerVariables.currentTask.getMonster().isPoisonous();
-        }
-    });
-
 
     private final int amount;
     private final boolean stackable;
@@ -67,7 +32,7 @@ public class SlayerInventoryItem extends SlayerItem {
     }
 
     @Override
-    public boolean hasItem(MethodProvider provider) {
+    public boolean haveItem(MethodProvider provider) {
         return getItem(provider) != null;
     }
 

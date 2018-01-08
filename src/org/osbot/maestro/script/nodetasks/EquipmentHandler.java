@@ -3,7 +3,7 @@ package org.osbot.maestro.script.nodetasks;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.EquipmentPreset;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
 import org.osbot.rs07.api.model.Item;
@@ -26,13 +26,13 @@ public class EquipmentHandler extends NodeTask {
             this.startingPreset = getEquipmentAsPreset();
             this.currentPreset = startingPreset;
             provider.log("Current equipment preset saved");
-        } else if (SlayerVariables.currentTask != null) {
-            if (!SlayerVariables.currentTask.hasRequiredWornItems(provider)) {
+        } else if (RuntimeVariables.currentTask != null) {
+            if (!RuntimeVariables.currentTask.haveRequiredWornItems(provider)) {
                 provider.log("Need bank, missing item...");
                 sendBroadcast(new Broadcast("bank-for-gear"));
                 return false;
             }
-            for (SlayerWornItem wornItem : SlayerVariables.currentTask.getMonster().getSlayerWornItems()) {
+            for (SlayerWornItem wornItem : RuntimeVariables.currentTask.getAllSlayerWornItems()) {
                 if (!wornItem.isWearing(provider)) {
                     toWear = wornItem;
                     return true;
@@ -45,7 +45,7 @@ public class EquipmentHandler extends NodeTask {
     @Override
     protected void execute() throws InterruptedException {
         if (toWear != null) {
-            if (toWear.hasItem(provider) && !toWear.isWearing(provider)) {
+            if (toWear.haveItem(provider) && !toWear.isWearing(provider)) {
                 provider.log("Equiping item: " + toWear.getName());
                 toWear.equip(provider);
                 new ConditionalSleep(2000, 500) {

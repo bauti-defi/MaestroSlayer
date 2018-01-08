@@ -1,17 +1,27 @@
-package org.osbot.maestro.script.slayer.task;
+package org.osbot.maestro.script.data;
 
+import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
+import org.osbot.maestro.script.slayer.task.monster.MonsterMechanicException;
+import org.osbot.maestro.script.slayer.utils.templates.MonsterMechanicTemplate;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-public interface MonsterMechanic {
+public class MonsterMechanics {
 
-    public static final MonsterMechanic ROCK_SLUG_MECHANIC = new MonsterMechanic() {
+
+    public static final MonsterMechanic SALT_MONSTER = new MonsterMechanic() {
+
         @Override
-        public boolean condition(NPC monster, MethodProvider provider) {
-            return monster.getName().contains(Monster.ROCKSLUGS.getName()) && monster.getHealthPercent() <= 15;
+        public MonsterMechanicTemplate getTemplate() {
+            return MonsterMechanicTemplate.SALT_MONSTER;
+        }
+
+        @Override
+        public boolean condition(String name, NPC monster, MethodProvider provider) {
+            return monster.getName().contains(name) && monster.getHealthPercent() <= 15;
         }
 
         @Override
@@ -47,7 +57,5 @@ public interface MonsterMechanic {
         }
     };
 
-    boolean condition(NPC monster, MethodProvider provider);
 
-    void execute(NPC monster, MethodProvider provider) throws MonsterMechanicException;
 }

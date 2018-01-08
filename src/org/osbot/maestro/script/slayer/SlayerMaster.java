@@ -1,21 +1,18 @@
-package org.osbot.maestro.script.slayer.task;
+package org.osbot.maestro.script.slayer;
 
-import org.osbot.rs07.api.map.Area;
-import org.osbot.rs07.api.map.Position;
+import org.osbot.maestro.script.slayer.utils.position.SlayerArea;
+import org.osbot.maestro.script.slayer.utils.templates.SlayerMasterTemplate;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.MethodProvider;
 
-public enum SlayerMaster {
-
-    TURAEL("Turael", null, 3, 1), VANNAKA("Vannaka", new Area(new Position(3144, 9909, 0), new Position(3149, 9915, 0)), 40, 1), CHAELDAR
-            ("Chaeldar", null, 70, 1), NIEVE("Nieve", null, 85, 1), DURADEL("Duradel", null, 100, 50);
+public class SlayerMaster {
 
     private final String name;
-    private final Area area;
+    private final SlayerArea area;
     private final int requiredCombat, requiredSlayer;
 
 
-    SlayerMaster(String name, Area area, int requiredCombat, int requiredSlayer) {
+    private SlayerMaster(String name, SlayerArea area, int requiredCombat, int requiredSlayer) {
         this.area = area;
         this.name = name;
         this.requiredCombat = requiredCombat;
@@ -26,7 +23,7 @@ public enum SlayerMaster {
         return requiredCombat;
     }
 
-    public int getRequiredSlayer() {
+    public int getRequiredSlayerLevel() {
         return requiredSlayer;
     }
 
@@ -34,12 +31,16 @@ public enum SlayerMaster {
         return name;
     }
 
-    public Area getArea() {
+    public SlayerArea getArea() {
         return area;
     }
 
 
     public boolean hasRequirements(MethodProvider provider) {
         return provider.myPlayer().getCombatLevel() >= requiredCombat && provider.getSkills().getStatic(Skill.SLAYER) >= requiredSlayer;
+    }
+
+    public static SlayerMaster wrap(SlayerMasterTemplate template) {
+        return new SlayerMaster(template.getName(), template.getArea(), template.getCombatLevel(), template.getSlayerLevel());
     }
 }

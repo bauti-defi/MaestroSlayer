@@ -1,22 +1,33 @@
 package org.osbot.maestro.script;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeScript;
+import org.osbot.maestro.script.data.Config;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.nodetasks.*;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
-import org.osbot.maestro.script.slayer.task.Monster;
+import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
+import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
-import org.osbot.maestro.script.slayer.utils.SkillTimer;
+import org.osbot.maestro.script.slayer.utils.SlayerContainer;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
+import org.osbot.maestro.script.util.directory.Directory;
+import org.osbot.maestro.script.util.directory.exceptions.InvalidFileNameException;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
+import org.osbot.rs07.api.util.ExperienceTracker;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.function.Predicate;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -27,22 +38,13 @@ public class MaestroSlayer extends NodeScript {
     private final Font font2 = new Font("Arial", 1, 18);
     private final Font font3 = new Font("Arial", 0, 10);
     private final long startTime;
-    private SkillTimer slayerTimer;
-    private int tasksFinished = 0;
     private NPC targetToPaint;
 
     public MaestroSlayer() {
         super();
-        SlayerVariables.antipoisonChoice = SlayerInventoryItem.ANTIDOTE;
         this.startTime = System.currentTimeMillis();
-        if (SlayerVariables.eating) {
-            addTask(new FoodHandler(new Food("Monkfish"), 50, 30));
-        }
-        if (SlayerVariables.cannon) {
-            addTask(new CannonHandler());
-        }
         addTask(new EquipmentHandler());
-        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).addPotion(SlayerVariables.antipoisonChoice.getName()).build());
+        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());
         addTask(new TargetFinder());
@@ -52,20 +54,58 @@ public class MaestroSlayer extends NodeScript {
 
     @Override
     public void onStart() throws InterruptedException {
-        super.onStart();
-        this.slayerTimer = new SkillTimer(this, Skill.SLAYER);
-        log("MaestroSlayer started.");
-        log("Report any bugs to El Maestro.");
-        SlayerVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
-        log("Combat style: " + SlayerVariables.combatStyle.getName());
-        if (!SlayerVariables.currentMaster.hasRequirements(this)) {
+        log("MaestroSlayer initializing...");
+        RuntimeVariables.saveDirectory = new Directory(getDirectoryData() + "MaestroSlayer");
+        if (!RuntimeVariables.saveDirectory.exists()) {
+            try {
+                if (RuntimeVariables.saveDirectory.create()) {
+                    log("Script directory created at: " + RuntimeVariables.saveDirectory.getPath());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        loadSlayerDataLocal();
+        //TODO:START GUI
+        for (SlayerMaster master : RuntimeVariables.slayerContainer.getMasters()) {
+            if (master.getName().equalsIgnoreCase("vannaka")) {
+                log("Slayer master set to: " + master.getName());
+                RuntimeVariables.currentMaster = master;
+                break;
+            }
+        }
+        log("Initializing trackers...");
+        RuntimeVariables.experienceTracker = new ExperienceTracker();
+        RuntimeVariables.experienceTracker.exchangeContext(getBot());
+        RuntimeVariables.experienceTracker.start(Skill.SLAYER);
+        RuntimeVariables.experienceTracker.start(Skill.ATTACK);
+        RuntimeVariables.experienceTracker.start(Skill.STRENGTH);
+        RuntimeVariables.experienceTracker.start(Skill.HITPOINTS);
+        RuntimeVariables.experienceTracker.start(Skill.RANGED);
+        RuntimeVariables.experienceTracker.start(Skill.MAGIC);
+        RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
+        if (RuntimeVariables.eating) {
+            log("Adding eating support.");
+            addTask(new FoodHandler(new Food("Monkfish"), 50, 30));
+        }
+        if (RuntimeVariables.cannon) {
+            log("Adding cannon support");
+            addTask(new CannonHandler());
+        }
+        RuntimeVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
+        log("Combat style set to: " + RuntimeVariables.combatStyle.getName());
+        if (!RuntimeVariables.currentMaster.hasRequirements(this)) {
             log("You don't have the requirements for this slayer master, Stopping...");
             forceStopScript(true);
         }
+        log("MaestroSlayer started!");
+        log("Please report any bugs to El Maestro.");
+        super.onStart();
     }
 
     @Override
     public void onMessage(final Message message) throws InterruptedException {
+        outter:
         switch (message.getType()) {
             case GAME:
                 if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
@@ -83,20 +123,30 @@ public class MaestroSlayer extends NodeScript {
                 } else if (message.getMessage().contains("there isn't enough space to set up here")) {
                     sendBroadcast(new Broadcast("cannon-error"));
                 } else if (message.getMessage().toLowerCase().contains("assigned to " + "kill")) {
-                    String monsterName = message.getMessage().split("kill ")[1].split(";")[0];
-                    int amount = Integer.parseInt(message.getMessage().split("only ")[1].split(" more")[0]);
-                    for (Monster monster : Monster.values()) {
-                        if (monsterName.toLowerCase().contains(monster.getName().toLowerCase())) {
-                            SlayerVariables.currentTask = new SlayerTask(monster, amount);
-                            log("Current task: " + SlayerVariables.currentTask.getMonster().getName());
-                            break;
+                    if (RuntimeVariables.currentTask == null || !RuntimeVariables.currentTask.isFinished()) {
+                        String monsterName = message.getMessage().split("kill ")[1].split(";")[0];
+                        int amount = Integer.parseInt(message.getMessage().split("only ")[1].split(" more")[0]);
+                        for (SlayerTask task : RuntimeVariables.slayerContainer.getTasks()) {
+                            if (task.getName().equalsIgnoreCase(monsterName)) {
+                                RuntimeVariables.currentTask = task;
+                                RuntimeVariables.currentMonster = task.getNewMonster(new Predicate<Monster>() {
+                                    @Override
+                                    public boolean test(Monster monster) {
+                                        return monster.getCombatLevel() > 1;
+                                    }
+                                }, amount);
+                                log("Current task: " + task.getName());
+                                break outter;
+                            }
                         }
+                        log("Task not supported.");
+                        forceStopScript(true);
                     }
                 } else if (message.getMessage().toLowerCase().contains("you've completed") || message.getMessage()
                         .toLowerCase().contains("you need something new to hunt.")) {
                     log("Task complete.");
-                    tasksFinished++;
-                    stop(true);
+                    RuntimeVariables.tasksFinished++;
+                    RuntimeVariables.currentTask.forceFinish();
                 }
                 break;
         }
@@ -118,14 +168,14 @@ public class MaestroSlayer extends NodeScript {
         g.setFont(font2);
         g.drawString("MaestroSlayer", 12, 26);
         g.setFont(font3);
-        g.drawString("Version: " + this.getVersion(), 12, 36);
+        g.drawString("Version: " + getVersion(), 12, 36);
         g.setFont(font1);
         g.drawString("Kills left: ", 12, 86);
-        g.drawString("Slayer Exp: " + (slayerTimer == null ? "" : formatNumber(slayerTimer.getXpGained())), 12, 102);
-        g.drawString("Current Task: " + ((SlayerVariables.currentTask == null || SlayerVariables.currentTask.isFinished())
-                        ? "None" : SlayerVariables.currentTask.getMonster().getName()),
+        g.drawString("Slayer Exp: " + formatNumber(RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER)), 12, 102);
+        g.drawString("Current Task: " + ((RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished())
+                        ? "None" : RuntimeVariables.currentTask.getCurrentMonster().getName()),
                 12, 118);
-        g.drawString("Tasks: " + tasksFinished, 12, 70);
+        g.drawString("Tasks: " + RuntimeVariables.tasksFinished, 12, 70);
         if (targetToPaint != null && targetToPaint.exists()) {
             g.setColor(Color.RED);
             g.drawPolygon(targetToPaint.getPosition().getPolygon(getBot()));
@@ -139,5 +189,43 @@ public class MaestroSlayer extends NodeScript {
                 targetToPaint = (NPC) broadcast.getMessage();
                 break;
         }
+    }
+
+    private void downloadSlayerData() {
+        log("Downloading latest version...");
+        //logic
+        log("Download finished.");
+    }
+
+    private void loadSlayerDataLocal() {
+        log("Loading slayer data...");
+        try {
+            if (!RuntimeVariables.saveDirectory.getFile(Config.SLAYER_DATA_FILE_NAME).exists()) {
+                warn("NO LOCAL SLAYER DATA FOUND!");
+                downloadSlayerData();
+                loadSlayerDataLocal();
+            }
+        } catch (InvalidFileNameException e) {
+            e.printStackTrace();
+        }
+        JSONParser parser = new JSONParser();
+        JSONObject slayerData = null;
+        try (FileReader reader = new FileReader(RuntimeVariables.saveDirectory.getFile(Config.SLAYER_DATA_FILE_NAME))) {
+            slayerData = (JSONObject) parser.parse(reader);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFileNameException e) {
+            e.printStackTrace();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (slayerData == null) {
+            warn("ERROR LOADING LOCAL SLAYER DATA!");
+            forceStopScript(true);
+        }
+        RuntimeVariables.slayerContainer = SlayerContainer.wrap(slayerData);
+        log("Slayer data loaded.");
     }
 }

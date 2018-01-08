@@ -32,8 +32,9 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
     @Override
     public boolean runnable() {
         if (!food.hasConsumable(provider)) {
-            provider.warn("Out of food. Stopping...");
-            stopScript(true);
+            provider.warn("Out of " + food.getName() + " banking...");
+            sendBroadcast(new Broadcast("bank-for-food"));
+            return false;
         }
         return food.needConsume(provider, percentToEatAt);
     }

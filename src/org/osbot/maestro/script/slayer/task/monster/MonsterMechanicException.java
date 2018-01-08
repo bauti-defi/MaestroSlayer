@@ -1,4 +1,4 @@
-package org.osbot.maestro.script.slayer.task;
+package org.osbot.maestro.script.slayer.task.monster;
 
 public class MonsterMechanicException extends Exception {
 

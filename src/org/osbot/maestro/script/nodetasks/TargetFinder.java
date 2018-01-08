@@ -4,7 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
@@ -20,9 +20,13 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        return target == null || !target.exists() || inCombat(target) && !inCombat(provider.myPlayer()) || targetRequested ||
-                target.getHealthPercent() == 0 || inCombat(provider.myPlayer()) && target != null && (!inCombat(target)
-                || !target.isInteracting(provider.myPlayer()));
+        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider
+                .myPosition())) {
+            return target == null || !target.exists() || inCombat(target) && !inCombat(provider.myPlayer()) || targetRequested ||
+                    target.getHealthPercent() == 0 || inCombat(provider.myPlayer()) && target != null && (!inCombat(target)
+                    || !target.isInteracting(provider.myPlayer()));
+        }
+        return false;
     }
 
     @Override
@@ -38,7 +42,7 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                     if (npc.isInteracting(provider.myPlayer())) {
                         return true;
                     }
-                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(SlayerVariables.currentTask.getMonster().getName())
+                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(RuntimeVariables.currentMonster.getName())
                             && provider.getMap().canReach(npc);
                 }
             });

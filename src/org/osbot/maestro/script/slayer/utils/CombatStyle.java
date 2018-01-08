@@ -21,22 +21,6 @@ public enum CombatStyle {
         this.configParentId = configParentId;
     }
 
-    public int getConfigParentId() {
-        return configParentId;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public int getChildId() {
-        return childId;
-    }
-
-    public int getConfigId() {
-        return configId;
-    }
-
     public static CombatStyle getCurrentCombatStyle(MethodProvider provider) {
         switch (provider.getConfigs().get(MELEE_COMBAT_STYLE_CONFIG_ID)) {
             case 0:
@@ -58,5 +42,21 @@ public enum CombatStyle {
                 break;
         }
         return null;
+    }
+
+    public int getConfigParentId() {
+        return configParentId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getChildId() {
+        return childId;
+    }
+
+    public int getConfigId() {
+        return configId;
     }
 }

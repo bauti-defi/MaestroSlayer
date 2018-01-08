@@ -4,7 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -21,8 +21,12 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() {
-        if (SlayerVariables.currentTask == null ? true : SlayerVariables.currentTask.isFinished() || forceCheck) {
-            return provider.getInventory().contains("Enchanted Gem");
+        if (RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished() || forceCheck) {
+            if (!provider.getInventory().contains("Enchanted Gem")) {
+                sendBroadcast(new Broadcast("bank-for-gem"));
+                return false;
+            }
+            return true;
         }
         return false;
     }
@@ -39,7 +43,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
                         @Override
                         public boolean condition() throws InterruptedException {
-                            return SlayerVariables.currentTask != null && !SlayerVariables.currentTask.isFinished();
+                            return RuntimeVariables.currentTask != null;
                         }
                     }.sleep();
                 }

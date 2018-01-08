@@ -4,7 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.data.SlayerVariables;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
@@ -26,11 +26,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (!SlayerVariables.currentTask.hasRequiredInventoryItems(provider)) {
-            provider.log("Need bank, missing inventory item...");
-            stopScript(true);
-            return false;
-        }
         if (!provider.getCombat().isAutoRetaliateOn()) {
             provider.log("Turning auto retaliate on...");
             provider.getCombat().toggleAutoRetaliate(true);
@@ -42,23 +37,32 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                 }
             }.sleep();
         }
-        if (provider.getConfigs().get(SlayerVariables.combatStyle.getConfigParentId()) != SlayerVariables.combatStyle.getConfigId()) {
+        if (provider.getConfigs().get(RuntimeVariables.combatStyle.getConfigParentId()) != RuntimeVariables.combatStyle.getConfigId()) {
             provider.log("Switching back to original combat style.");
             if (provider.getTabs().open(Tab.ATTACK)) {
-                RS2Widget combatStyleWidget = provider.getWidgets().get(CombatStyle.ROOT_ID, SlayerVariables.combatStyle.getChildId());
+                RS2Widget combatStyleWidget = provider.getWidgets().get(CombatStyle.ROOT_ID, RuntimeVariables.combatStyle.getChildId());
                 if (combatStyleWidget != null && combatStyleWidget.isVisible()) {
                     combatStyleWidget.interact(combatStyleWidget.getInteractActions()[0]);
                     new ConditionalSleep(2500, 500) {
 
                         @Override
                         public boolean condition() throws InterruptedException {
-                            return provider.getConfigs().get(SlayerVariables.combatStyle.getConfigParentId()) == SlayerVariables.combatStyle.getConfigId();
+                            return provider.getConfigs().get(RuntimeVariables.combatStyle.getConfigParentId()) == RuntimeVariables.combatStyle.getConfigId();
                         }
                     }.sleep();
                 }
             }
         }
-        return monster != null && monster.exists() && !inCombat(provider.myPlayer());
+        if (RuntimeVariables.currentTask != null) {
+            if (!RuntimeVariables.currentTask.haveRequiredInventoryItems(provider)) {
+                provider.log("Need bank, missing inventory item...");
+                //TODO:request bank
+                return false;
+            } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
+                return monster != null && monster.exists() && !inCombat(provider.myPlayer());
+            }
+        }
+        return false;
     }
 
     @Override
@@ -68,7 +72,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             sendBroadcast(new Broadcast("request-target"));
             return;
         } else if (monster.isOnScreen() && monster.isVisible()) {
-            provider.log("Attacking " + SlayerVariables.currentTask.getMonster().getName());
+            provider.log("Attacking " + RuntimeVariables.currentMonster.getName());
             attackMonster(monster);
             provider.log("Moving mouse off screen.");
             provider.getMouse().moveOutsideScreen();

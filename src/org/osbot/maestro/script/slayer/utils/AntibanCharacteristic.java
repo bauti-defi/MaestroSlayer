@@ -15,11 +15,11 @@ public class AntibanCharacteristic {
         this.cameraMoveCount = cameraMoveCountDeviation - randomGenerator.nextInt(3);
     }
 
-    public int getCameraMoveCount() {
-        return cameraMoveCount;
-    }
-
     public static AntibanCharacteristic getInstance() {
         return instance == null ? instance = new AntibanCharacteristic() : instance;
+    }
+
+    public int getCameraMoveCount() {
+        return cameraMoveCount;
     }
 }
