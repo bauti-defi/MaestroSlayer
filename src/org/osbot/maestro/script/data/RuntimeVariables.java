@@ -15,6 +15,9 @@ public class RuntimeVariables {
     public static SlayerTask currentTask;
     public static SlayerMaster currentMaster;
     public static Monster currentMonster;
+    public static boolean drinkPotions = true;
+    public static int maxHpPercentToEat = 50;
+    public static int minHpPercentToEat = 30;
     public static SlayerInventoryItem antipoisonChoice;
     public static boolean eating = true;
     public static CombatStyle combatStyle;
@@ -26,5 +29,6 @@ public class RuntimeVariables {
     public static int tasksFinished = 0;
     public static Directory saveDirectory;
     public static SlayerContainer slayerContainer;
+    public static String antipoisonType = "Antidote";
 
 }

@@ -4,20 +4,37 @@ import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;
 
+import java.util.Random;
+
 public class Food extends Consumable {
 
-    public Food(String name) {
-        super(name);
+    private final int maxPercentToEatAt, minPercentToEatAt;
+    private int percentToEatAt;
+
+    public Food(String name, int amount, int minPercentToEatAt, int maxPercentToEatAt) {
+        super(name, amount, true);
+        this.maxPercentToEatAt = maxPercentToEatAt;
+        this.minPercentToEatAt = minPercentToEatAt;
+        generateRandomPercentToEatAt();
+    }
+
+
+    private void generateRandomPercentToEatAt() {
+        percentToEatAt = new Random().nextInt(maxPercentToEatAt - minPercentToEatAt + 1) + minPercentToEatAt;
+    }
+
+    public int getNextEatAt() {
+        return percentToEatAt;
     }
 
     @Override
-    public boolean needConsume(MethodProvider provider, int percentToConsumeAt) {
-        return provider.myPlayer().getHealthPercent() <= percentToConsumeAt;
+    public boolean needConsume(MethodProvider provider) {
+        return provider.myPlayer().getHealthPercent() <= percentToEatAt;
     }
 
-    @Override
-    public void consume(MethodProvider provider, int percentToConsumeAt) {
+    public void consume(MethodProvider provider) {
         Item food = provider.getInventory().getItem(getName());
+        int startingHpPercent = provider.myPlayer().getHealthPercent();
         if (food != null) {
             provider.log("Eating: " + getName());
             food.interact("Eat");
@@ -26,16 +43,14 @@ public class Food extends Consumable {
 
                 @Override
                 public boolean condition() throws InterruptedException {
-                    return percentToConsumeAt < provider.myPlayer().getHealthPercent();
+                    if (startingHpPercent < provider.myPlayer().getHealthPercent()) {
+                        generateRandomPercentToEatAt();
+                        return true;
+                    }
+                    return false;
                 }
             }.sleep();
         }
     }
-
-    @Override
-    public void hoverOver(MethodProvider provider) {
-
-    }
-
 
 }

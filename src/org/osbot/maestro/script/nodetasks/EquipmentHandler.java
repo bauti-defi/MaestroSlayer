@@ -1,6 +1,5 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
@@ -26,12 +25,7 @@ public class EquipmentHandler extends NodeTask {
             this.startingPreset = getEquipmentAsPreset();
             this.currentPreset = startingPreset;
             provider.log("Current equipment preset saved");
-        } else if (RuntimeVariables.currentTask != null) {
-            if (!RuntimeVariables.currentTask.haveRequiredWornItems(provider)) {
-                provider.log("Need bank, missing item...");
-                sendBroadcast(new Broadcast("bank-for-gear"));
-                return false;
-            }
+        } else if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.haveRequiredWornItems(provider)) {
             for (SlayerWornItem wornItem : RuntimeVariables.currentTask.getAllSlayerWornItems()) {
                 if (!wornItem.isWearing(provider)) {
                     toWear = wornItem;

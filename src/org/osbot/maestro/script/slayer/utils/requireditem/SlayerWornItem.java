@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
+import org.osbot.maestro.script.slayer.utils.Condition;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.script.MethodProvider;
@@ -8,13 +9,13 @@ public class SlayerWornItem extends SlayerItem {
 
     private final EquipmentSlot slot;
 
-    public SlayerWornItem(String name, EquipmentSlot slot) {
-        super(name);
+    public SlayerWornItem(String name, int amount, EquipmentSlot slot) {
+        super(name, amount);
         this.slot = slot;
     }
 
-    public SlayerWornItem(String name, EquipmentSlot slot, ItemRequired condition) {
-        super(name, condition);
+    public SlayerWornItem(String name, int amount, EquipmentSlot slot, Condition condition) {
+        super(name, amount, condition);
         this.slot = slot;
     }
 

@@ -1,4 +1,4 @@
-package org.osbot.maestro.script.slayer.utils;
+package org.osbot.maestro.script.slayer.utils.antiban;
 
 import java.util.concurrent.TimeUnit;
 

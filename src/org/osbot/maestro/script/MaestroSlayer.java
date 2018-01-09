@@ -11,9 +11,9 @@ import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
-import org.osbot.maestro.script.slayer.utils.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.SlayerContainer;
+import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.maestro.script.util.directory.Directory;
 import org.osbot.maestro.script.util.directory.exceptions.InvalidFileNameException;
@@ -43,8 +43,8 @@ public class MaestroSlayer extends NodeScript {
     public MaestroSlayer() {
         super();
         this.startTime = System.currentTimeMillis();
+        addTask(new BankHandler());
         addTask(new EquipmentHandler());
-        addTask(new PotionHandler.Builder().addPotion("Super attack", Skill.ATTACK, 0).build());
         addTask(new CombatHandler());
         addTask(new TaskValidator());
         addTask(new TargetFinder());
@@ -86,7 +86,12 @@ public class MaestroSlayer extends NodeScript {
         RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
         if (RuntimeVariables.eating) {
             log("Adding eating support.");
-            addTask(new FoodHandler(new Food("Monkfish"), 50, 30));
+            addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
+        }
+        if (RuntimeVariables.drinkPotions) {
+            log("Adding potion support");
+            addTask(new PotionHandler.Builder().addPotion("Super attack", 1, Skill.ATTACK, 0, false).addPotion(RuntimeVariables
+                    .antipoisonType, 1, true).build());
         }
         if (RuntimeVariables.cannon) {
             log("Adding cannon support");
@@ -135,6 +140,7 @@ public class MaestroSlayer extends NodeScript {
                                         return monster.getCombatLevel() > 1;
                                     }
                                 }, amount);
+                                //TODO: add antidote if poisonous
                                 log("Current task: " + task.getName());
                                 break outter;
                             }

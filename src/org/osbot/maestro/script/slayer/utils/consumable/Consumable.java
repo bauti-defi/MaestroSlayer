@@ -7,22 +7,42 @@ import org.osbot.rs07.script.MethodProvider;
 public abstract class Consumable {
 
     private final String name;
+    private final boolean required;
+    private final int amount;
 
-    public Consumable(String name) {
+    public Consumable(String name, int amount, boolean required) {
         this.name = name;
+        this.amount = amount;
+        this.required = required;
+    }
+
+    public int getAmount() {
+        return amount;
     }
 
     public String getName() {
         return name;
     }
 
+    public boolean isRequired() {
+        return required;
+    }
+
+    public boolean withdrawFromBank(MethodProvider provider) {
+        provider.log("Withdrawing " + amount + " " + getName());
+        if (amount >= 28) {
+            return provider.getBank().withdrawAll(getName());
+        }
+        return provider.getBank().withdraw(getName(), amount);
+    }
+
     public boolean hasConsumable(MethodProvider provider) {
         return provider.getInventory().contains(name);
     }
 
-    public abstract boolean needConsume(MethodProvider provider, int consumeAt);
+    public abstract boolean needConsume(MethodProvider provider);
 
-    public abstract void consume(MethodProvider provider, int consumeAt);
+    public abstract void consume(MethodProvider provider);
 
     public void hoverOver(MethodProvider provider) {
         Item consumable = provider.getInventory().getItem(new Filter<Item>() {

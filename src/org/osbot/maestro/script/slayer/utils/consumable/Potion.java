@@ -9,14 +9,16 @@ import org.osbot.rs07.utility.ConditionalSleep;
 public class Potion extends Consumable {
 
     private Skill skill;
+    private int requiredBuff;
 
-    public Potion(String name, Skill skill) {
-        super(name);
+    public Potion(String name, int amount, Skill skill, int requiredBuff, boolean required) {
+        super(name, amount, required);
         this.skill = skill;
+        this.requiredBuff = requiredBuff;
     }
 
-    public Potion(String name) {
-        super(name);
+    public Potion(String name, int amount, boolean required) {
+        super(name, amount, required);
     }
 
     @Override
@@ -30,7 +32,17 @@ public class Potion extends Consumable {
     }
 
     @Override
-    public boolean needConsume(MethodProvider provider, int requiredBuff) {
+    public boolean withdrawFromBank(MethodProvider provider) {
+        provider.log("Withdrawing " + getAmount() + " " + getName());
+        return provider.getBank().withdraw(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains(getName()) && (item.getName().contains("(3)") || item.getName().contains("(4)"));
+            }
+        }, getAmount());
+    }
+
+    public boolean needConsume(MethodProvider provider) {
         if (skill != null) {
             if (requiredBuff == 0) {
                 return provider.getSkills().getDynamic(skill) == provider.getSkills().getStatic(skill);
@@ -42,7 +54,7 @@ public class Potion extends Consumable {
     }
 
     @Override
-    public void consume(MethodProvider provider, int requiredBuff) {
+    public void consume(MethodProvider provider) {
         Item potion = provider.getInventory().getItem(new Filter<Item>() {
             @Override
             public boolean match(Item item) {
@@ -57,18 +69,10 @@ public class Potion extends Consumable {
 
                 @Override
                 public boolean condition() throws InterruptedException {
-                    if (skill != null) {
-                        return (provider.getSkills().getStatic(skill) + requiredBuff) < provider.getSkills().getDynamic
-                                (skill);
-                    }
-                    return !provider.getCombat().isPoisoned();
+                    return !needConsume(provider);
                 }
             }.sleep();
         }
     }
 
-    @Override
-    public void hoverOver(MethodProvider provider) {
-
-    }
 }

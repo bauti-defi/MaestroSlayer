@@ -2,6 +2,8 @@ package org.osbot.maestro.script.data;
 
 import org.osbot.maestro.script.slayer.utils.MechanicMapper;
 import org.osbot.maestro.script.slayer.utils.SlayerItemMapper;
+import org.osbot.rs07.api.map.Area;
+import org.osbot.rs07.api.map.constants.Banks;
 
 public class Config {
 
@@ -37,6 +39,12 @@ public class Config {
     public static final String SLAYER_DATA_FILE_NAME = "slayer.txt";
     public static final MechanicMapper mechanicMapper;
     public static final SlayerItemMapper itemMapper;
+    public static final Area[] GAME_BANKS = new Area[]{
+            Banks.AL_KHARID, Banks.ARCEUUS_HOUSE, Banks.ARDOUGNE_NORTH, Banks.ARDOUGNE_SOUTH, Banks.CAMELOT,
+            Banks.CASTLE_WARS, Banks.CANIFIS, Banks.CATHERBY, Banks.DRAYNOR, Banks.DUEL_ARENA, Banks.EDGEVILLE, Banks.FALADOR_EAST, Banks
+            .FALADOR_WEST, Banks.HOSIDIUS_HOUSE, Banks.LOVAKENGJ_HOUSE, Banks.LOVAKITE_MINE, Banks.GNOME_STRONGHOLD, Banks
+            .GNOME_STRONGHOLD, Banks.LUMBRIDGE_LOWER, Banks.LUMBRIDGE_UPPER, Banks.VARROCK_EAST, Banks.VARROCK_WEST, Banks
+            .YANILLE, Banks.TZHAAR};
 
 
     static {

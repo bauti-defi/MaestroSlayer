@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
+import org.osbot.maestro.script.slayer.utils.Condition;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
@@ -8,18 +9,15 @@ import java.util.List;
 
 public class SlayerInventoryItem extends SlayerItem {
 
-    private final int amount;
     private final boolean stackable;
 
-    public SlayerInventoryItem(String name, int amount, boolean stackable, ItemRequired condition) {
-        super(name, condition);
-        this.amount = amount;
+    public SlayerInventoryItem(String name, int amount, boolean stackable, Condition condition) {
+        super(name, amount, condition);
         this.stackable = stackable;
     }
 
     public SlayerInventoryItem(String name, int amount, boolean stackable) {
-        super(name);
-        this.amount = amount;
+        super(name, amount);
         this.stackable = stackable;
     }
 
@@ -27,9 +25,6 @@ public class SlayerInventoryItem extends SlayerItem {
         return stackable;
     }
 
-    public int getAmount() {
-        return amount;
-    }
 
     @Override
     public boolean haveItem(MethodProvider provider) {
@@ -55,6 +50,16 @@ public class SlayerInventoryItem extends SlayerItem {
             }
         }
         return 0;
+    }
+
+    @Override
+    public boolean withdrawFromBank(MethodProvider provider) {
+        return provider.getBank().withdraw(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains(name) && !item.getName().endsWith("(0)");
+            }
+        }, getAmount());
     }
 
     @Override

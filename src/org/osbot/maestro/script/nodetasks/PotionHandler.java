@@ -3,36 +3,32 @@ package org.osbot.maestro.script.nodetasks;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PotionHandler extends NodeTask {
 
-    private final HashMap<Potion, Integer> potions;
-    private Map.Entry<Potion, Integer> entry;
+    private final List<Potion> potions;
+    private Potion potion;
 
     private PotionHandler(Builder builder) {
-        super(Priority.HIGH);
+        super(Priority.URGENT);
         this.potions = builder.potions;
     }
 
     @Override
     public boolean runnable() {
-        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-            for (Map.Entry<Potion, Integer> entry : potions.entrySet()) {
-                if (!entry.getKey().hasConsumable(provider)) {
-                    sendBroadcast(new Broadcast("bank-for-potions"));
-                    return false;
-                }
-                if (entry.getKey().hasConsumable(provider) && entry.getKey().needConsume(provider, entry.getValue())) {
-                    this.entry = entry;
-                    return true;
-                }
+        for (Potion potion : potions) {
+            if (!potion.hasConsumable(provider) && potion.isRequired()) {
+                sendBroadcast(new Broadcast("bank-for-potions", potion));
+                return false;
+            } else if (potion.hasConsumable(provider) && potion.needConsume(provider)) {
+                this.potion = potion;
+                return true;
             }
         }
         return false;
@@ -42,7 +38,9 @@ public class PotionHandler extends NodeTask {
     public void execute() throws InterruptedException {
         if (provider.getTabs().open(Tab.INVENTORY)) {
             if (provider.getInventory().getSelectedItemName() == null) {
-                entry.getKey().consume(provider, entry.getValue());
+                if (potion != null) {
+                    potion.consume(provider);
+                }
             } else {
                 provider.getInventory().deselectItem();
             }
@@ -51,19 +49,19 @@ public class PotionHandler extends NodeTask {
 
     public static class Builder {
 
-        private final HashMap<Potion, Integer> potions;
+        private final List<Potion> potions;
 
         public Builder() {
-            this.potions = new HashMap<>();
+            this.potions = new ArrayList<>();
         }
 
-        public Builder addPotion(String name, Skill skill, int requiredBuff) {
-            potions.put(new Potion(name, skill), requiredBuff);
+        public Builder addPotion(String name, int amount, Skill skill, int requiredBuff, boolean required) {
+            potions.add(new Potion(name, amount, skill, requiredBuff, required));
             return this;
         }
 
-        public Builder addPotion(String name) {
-            potions.put(new Potion(name), 0);
+        public Builder addPotion(String name, int amount, boolean required) {
+            potions.add(new Potion(name, amount, required));
             return this;
         }
 
