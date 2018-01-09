@@ -8,6 +8,10 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.event.WalkingEvent;
+import org.osbot.rs07.event.WebWalkEvent;
+import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
+import org.osbot.rs07.utility.Condition;
 
 public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
@@ -20,8 +24,11 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider
-                .myPosition())) {
+        if (RuntimeVariables.currentTask != null) {
+            if (!RuntimeVariables.currentMonster.getArea().contains(provider.myPosition())) {
+                walkToTask();
+                return false;
+            }
             return target == null || !target.exists() || inCombat(target) && !inCombat(provider.myPlayer()) || targetRequested ||
                     target.getHealthPercent() == 0 || inCombat(provider.myPlayer()) && target != null && (!inCombat(target)
                     || !target.isInteracting(provider.myPlayer()));
@@ -58,6 +65,48 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                     .getInteracting() != null;
         }
         return false;
+    }
+
+    private void walkToTask() {
+        if (provider.getMap().isWithinRange(RuntimeVariables.currentMonster.getArea().unwrap().getRandomPosition(), provider
+                .myPlayer(), 10) && provider.getMap().canReach(RuntimeVariables.currentMonster.getArea().unwrap().getRandomPosition())) {
+            provider.log("Task in normal walking range");
+            WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentMonster.getArea().unwrap());
+            walkingEvent.setOperateCamera(true);
+            walkingEvent.setBreakCondition(new Condition() {
+                @Override
+                public boolean evaluate() {
+                    return RuntimeVariables.currentMonster.getArea().contains(provider.myPosition());
+                }
+            });
+            provider.log("Walking to task...");
+            provider.execute(walkingEvent);
+        } else {
+            provider.log("Task in web walking range");
+            WebWalkEvent webWalkEvent = new WebWalkEvent(RuntimeVariables.currentMonster.getArea().unwrap());
+            webWalkEvent.useSimplePath();
+            webWalkEvent.setPathPreferenceProfile(getToTaskPathPreference());
+            webWalkEvent.setBreakCondition(new Condition() {
+                @Override
+                public boolean evaluate() {
+                    return provider.getBank().isOpen() || RuntimeVariables.currentMonster.getArea().contains(provider.myPosition());
+                }
+            });
+            provider.log("Walking to task...");
+            provider.execute(webWalkEvent);
+        }
+    }
+
+    private PathPreferenceProfile getToTaskPathPreference() {
+        PathPreferenceProfile profile = new PathPreferenceProfile();
+        profile.setAllowTeleports(true);
+        profile.setAllowObstacles(true);
+        profile.setAllowCharters(true);
+        profile.setAllowGliders(true);
+        profile.checkInventoryForItems(true);
+        profile.checkEquipmentForItems(true);
+        profile.checkBankForItems(true);
+        return profile;
     }
 
     @Override

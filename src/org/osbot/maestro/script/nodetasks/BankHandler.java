@@ -38,7 +38,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             return !RuntimeVariables.currentTask.haveAllRequiredItems(provider) || RuntimeVariables.currentTask.isFinished() ||
                     !consumablesToRestockNow.isEmpty();
         }
-        return provider.getBank().isOpen();
+        return provider.getBank().isOpen() || !provider.getInventory().contains("Enchanted gem");
     }
 
     @Override
@@ -51,7 +51,20 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 openBank(bank);
             }
         } else {
-            if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
+            if (!provider.getInventory().contains("Enchanted gemn")) {
+                provider.log("Withdrawing enchanted gem...");
+                if (provider.getBank().withdraw("Enchanted gem", 1)) {
+                    new ConditionalSleep(3000, 500) {
+
+                        @Override
+                        public boolean condition() throws InterruptedException {
+                            return provider.getInventory().contains("Enchanted gem");
+                        }
+                    }.sleep();
+                } else {
+                    outOfItem("Enchanted gem");
+                }
+            } else if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
                 for (SlayerItem item : RuntimeVariables.currentTask.getAllSlayerItems()) {
                     if (!item.haveItem(provider)) {
                         provider.log("Withdrawing " + item.getAmount() + " " + item.getName());
@@ -84,6 +97,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         }
     }
 
+
     private void outOfItem(String name) {
         provider.log(name + " not found in bank, stopping...");
         provider.getBank().close();
@@ -94,7 +108,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         provider.log("Walking to nearest bank...");
         WebWalkEvent walkToBank = new WebWalkEvent(Config.GAME_BANKS);
         walkToBank.useSimplePath();
-        walkToBank.setPathPreferenceProfile(getPathPreferenceProfile());
+        walkToBank.setPathPreferenceProfile(getToBankPathPreference());
         walkToBank.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
@@ -105,7 +119,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         provider.execute(walkToBank);
     }
 
-    private PathPreferenceProfile getPathPreferenceProfile() {
+    private PathPreferenceProfile getToBankPathPreference() {
         PathPreferenceProfile profile = new PathPreferenceProfile();
         profile.setAllowGliders(true);
         profile.setAllowCharters(true);
@@ -151,17 +165,18 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 Consumable consumable = (Consumable) broadcast.getMessage();
                 if (consumable.isRequired()) {
                     consumablesToRestockNow.add(consumable);
-                    sort(consumablesToRestockNow);
+                    organize(consumablesToRestockNow);
                     break;
                 }
                 consumablesToRestock.add((Consumable) broadcast.getMessage());
-                sort(consumablesToRestock);
+                organize(consumablesToRestock);
             case "bank-for-gem":
                 break;
         }
     }
 
-    private void sort(List<Consumable> consumables) {
+    private void organize(List<Consumable> consumables) {
+        //TODO:TAKE OUT DUPLICATES
         consumables.sort(new Comparator<Consumable>() {
             @Override
             public int compare(Consumable o1, Consumable o2) {
