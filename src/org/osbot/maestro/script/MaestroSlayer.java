@@ -138,7 +138,7 @@ public class MaestroSlayer extends NodeScript {
                                         return monster.getCombatLevel() > 1;
                                     }
                                 }, amount);
-                                //TODO: add antidote if poisonous
+                                sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentMonster.isPoisonous()));
                                 log("Current task: " + task.getName());
                                 break outter;
                             }
