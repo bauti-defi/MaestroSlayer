@@ -113,14 +113,19 @@ public class MaestroSlayer extends NodeScript {
             case GAME:
                 if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
                     sendBroadcast(new Broadcast("cannon-broken", true));
+                    sendBroadcast(new Broadcast("cannon-set", true));
                 } else if (message.getMessage().toLowerCase().contains("cannon is out of ammo")) {
                     sendBroadcast(new Broadcast("cannon-reload", true));
+                    sendBroadcast(new Broadcast("cannon-set", true));
                 } else if (message.getMessage().contains("you repair your cannon")) {
                     sendBroadcast(new Broadcast("cannon-broken", false));
+                    sendBroadcast(new Broadcast("cannon-set", true));
                 } else if (message.getMessage().contains("load the cannon with")) {
                     sendBroadcast(new Broadcast("cannon-reload", false));
+                    sendBroadcast(new Broadcast("cannon-set", true));
                 } else if (message.getMessage().contains("cannon already firing")) {
                     sendBroadcast(new Broadcast("cannon-reload", false));
+                    sendBroadcast(new Broadcast("cannon-set", true));
                 } else if (message.getMessage().contains("you pick up your cannon")) {
                     sendBroadcast(new Broadcast("cannon-set", false));
                 } else if (message.getMessage().contains("there isn't enough space to set up here")) {

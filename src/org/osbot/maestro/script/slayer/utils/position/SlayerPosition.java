@@ -45,11 +45,12 @@ public class SlayerPosition {
 
     @Override
     public boolean equals(final Object obj) {
+        Position position = null;
         if (obj instanceof SlayerPosition) {
-            SlayerPosition position = (SlayerPosition) obj;
-            return position.getX() == x && position.getX() == y && position.getZ() == z;
-        } else if (obj instanceof Position) {
-            return unwrap().equals((Position) obj);
+            position = ((SlayerPosition) obj).unwrap();
+        }
+        if (position != null) {
+            return position.equals(unwrap());
         }
         return false;
     }

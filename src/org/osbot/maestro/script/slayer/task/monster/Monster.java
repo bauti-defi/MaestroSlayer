@@ -41,6 +41,10 @@ public class Monster {
         this.requiredWornItems = requiredWornItems;
     }
 
+    public boolean canCannon() {
+        return cannonPosition != null;
+    }
+
     public boolean isPoisonous() {
         return poisonous;
     }

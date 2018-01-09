@@ -22,7 +22,6 @@ public class RuntimeVariables {
     public static CombatStyle combatStyle;
     public static boolean cannon = false;
     public static boolean safespot = false;
-    public static Position cannonPosition = new Position(2528, 3371, 0);
     public static Position safespotPosition;
     public static ExperienceTracker experienceTracker;
     public static int tasksFinished = 0;

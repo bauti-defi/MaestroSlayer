@@ -4,7 +4,6 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CannonPlacementException;
 import org.osbot.rs07.api.filter.Filter;
@@ -19,6 +18,10 @@ import java.util.concurrent.TimeUnit;
 
 public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
+    private static final int CANNON_ID = 6;
+    private static final int BROKEN_CANNON_ID = 14916;
+    private static final int CANNON_PARENT_CONFIG_ID = 1;
+    private static final int FIRING_CANNON_CONFIG_CHILD = 1048576;
     private boolean needRepair, cannonSet, needLoad, needPickUp;
 
     public CannonHandler() {
@@ -28,34 +31,27 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (RuntimeVariables.cannonPosition == null) {
-            provider.log("Cannon tile not set. Stopping...");
-            stopScript(true);
+        if (RuntimeVariables.currentMonster.canCannon()) {
+            if (isCannonSet()) {
+                return super.runnable() || needReload() || needRepair || needPickUp;
+            }
+            return !isCannonSet();
         }
-        if (isCannonSet()) {
-            return super.runnable() || needLoad || needRepair || needPickUp;
-        }
-        return !isCannonSet();
+        return false;
     }
 
     @Override
     protected void execute() throws InterruptedException {
         if (!isCannonSet()) {
-            if (provider.myPlayer().getPosition().distance(RuntimeVariables.cannonPosition) > 0) {
+            if (!RuntimeVariables.currentMonster.getCannonPosition().equals(provider.myPosition())) {
                 provider.log("Walking to cannon position");
-                provider.walking.walk(RuntimeVariables.cannonPosition);
-                new ConditionalSleep(5000, 500) {
-                    @Override
-                    public boolean condition() throws InterruptedException {
-                        return RuntimeVariables.cannonPosition.equals(provider.myPosition());
-                    }
-                }.sleep();
+                walkToCannonPosition();
             }
             Item cannonBase = provider.getInventory().getItem("Cannon base");
             if (cannonBase != null) {
                 provider.log("Setting up cannon");
                 cannonBase.interact("Set-up");
-                new ConditionalSleep(10000, 1000) {
+                new ConditionalSleep(10000, 600) {
 
                     @Override
                     public boolean condition() throws InterruptedException {
@@ -63,15 +59,12 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
                     }
                 }.sleep();
             }
-            if (getCannon() != null && !holdingCannon()) {
-                needLoad = true;
-                cannonSet = true;
-            }
+            needLoad = true;
         }
         if (isCannonSet()) {
             if (needRepair) {
                 repairCannon();
-            } else if (needLoad) {
+            } else if (needReload()) {
                 reloadCannon();
                 super.execute();
             } else if (needPickUp) {
@@ -98,6 +91,14 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         return false;
     }
 
+    private boolean needReload() {
+        return needLoad || !isCannonFiring();
+    }
+
+    private boolean isCannonFiring() {
+        return provider.getConfigs().get(CANNON_PARENT_CONFIG_ID) == FIRING_CANNON_CONFIG_CHILD;
+    }
+
     private void repairCannon() {
         provider.log("Repairing cannon");
         if (interactWithCannon("Repair", !needRepair)) {
@@ -111,7 +112,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     private void reloadCannon() {
         provider.log("Reloading cannon");
         if (provider.getInventory().contains("Cannonball")) {
-            if (interactWithCannon("Fire", !needLoad)) {
+            if (interactWithCannon("Fire", !needReload())) {
                 provider.log("Cannon reloaded");
             }
         } else {
@@ -127,14 +128,12 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private void walkToCannonPosition() {
-        WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.cannonPosition);
+        WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentMonster.getCannonPosition().unwrap());
         walkingEvent.setMiniMapDistanceThreshold(4);
-        walkingEvent.setEnergyThreshold(20);
-        walkingEvent.setOperateCamera(true);
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
-                return provider.myPosition().distance(RuntimeVariables.cannonPosition) == 0;
+                return RuntimeVariables.currentMonster.getCannonPosition().equals(provider.myPosition());
             }
         });
         provider.execute(walkingEvent);
@@ -144,8 +143,8 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         return provider.getObjects().closest(new Filter<RS2Object>() {
             @Override
             public boolean match(RS2Object rs2Object) {
-                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? Config.BROKEN_CANNON : Config.CANNON_ID) &&
-                        rs2Object.getPosition().equals(provider.myPosition());
+                return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? BROKEN_CANNON_ID : CANNON_ID) &&
+                        RuntimeVariables.currentMonster.getCannonPosition().equals(rs2Object.getPosition());
             }
         });
     }
@@ -161,10 +160,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private boolean isCannonSet() {
-        if (getCannon() != null) {
-            provider.log("here");
-        }
-        return getCannon() != null && !holdingCannon() && !cannonSet;
+        return getCannon() != null && !holdingCannon() && cannonSet;
     }
 
     @Override
@@ -172,7 +168,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         switch (broadcast.getKey()) {
             case "cannon-loaded":
                 needLoad = (boolean) broadcast.getMessage();
-                if (!needLoad) {
+                if (!needReload()) {
                     resetTimer();
                 }
                 break;
@@ -181,7 +177,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
                 break;
             case "cannon-error":
                 try {
-                    throw new CannonPlacementException(RuntimeVariables.cannonPosition);
+                    throw new CannonPlacementException(RuntimeVariables.currentMonster.getCannonPosition().unwrap());
                 } catch (CannonPlacementException e) {
                     e.printStackTrace();
                     stopScript(true);

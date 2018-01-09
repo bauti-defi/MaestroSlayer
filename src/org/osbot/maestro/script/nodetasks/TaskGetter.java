@@ -31,7 +31,7 @@ public class TaskGetter extends NodeTask {
         if (master != null) {
             if (provider.getDialogues().inDialogue()) {
                 sendBroadcast(new Broadcast("need-first-task", false));
-                //Your task is to kill X Monsters
+                //TODO: either close dialogues and default to gem or read dialogue widget
                 provider.getDialogues().clickContinue();
             } else {
                 provider.log("Talking to " + master.getName());

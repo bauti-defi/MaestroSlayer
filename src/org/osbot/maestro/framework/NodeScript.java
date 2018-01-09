@@ -96,10 +96,11 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
                 if (task.runnable()) {
                     log("Executing: " + task.getClass().getSimpleName());
                     task.execute();
+                    break;
                 }
             }
         }
-        return random(400, 750);
+        return random(200, 550);
     }
 
 }

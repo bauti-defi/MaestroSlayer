@@ -7,9 +7,6 @@ import org.osbot.rs07.api.map.constants.Banks;
 
 public class Config {
 
-
-    public static final int CANNON_ID = 6;
-    public static final int BROKEN_CANNON = 14916;
     public static final String POSITION = "A";
     public static final String AREA = "B";
     public static final String NAME = "C";
@@ -29,13 +26,13 @@ public class Config {
     public static final String REQUIRED_WORN_ITEM = "Q";
     public static final String WILDERNESS_LEVEL = "R";
     public static final String NPC_COUNT = "S";
-    public static final String ID = "R";
     public static final String POISONOUS = "T";
     public static final String CANT_MELEE = "U";
     public static final String MULTICOMBAT = "V";
     public static final String SAFESPOT = "W";
     public static final String CANNONSPOT = "X";
     public static final String MASTERS = "Y";
+    public static final String ID = "Z";
     public static final String SLAYER_DATA_FILE_NAME = "slayer.txt";
     public static final MechanicMapper mechanicMapper;
     public static final SlayerItemMapper itemMapper;
