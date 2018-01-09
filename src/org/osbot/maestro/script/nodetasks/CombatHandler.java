@@ -56,7 +56,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.haveRequiredInventoryItems(provider)) {
                 provider.log("Need bank, missing inventory item...");
-                //TODO:request bank
                 return false;
             } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 return monster != null && monster.exists() && !inCombat(provider.myPlayer());

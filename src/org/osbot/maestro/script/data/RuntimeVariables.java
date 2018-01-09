@@ -19,7 +19,6 @@ public class RuntimeVariables {
     public static int maxHpPercentToEat = 50;
     public static int minHpPercentToEat = 30;
     public static SlayerInventoryItem antipoisonChoice;
-    public static boolean eating = true;
     public static CombatStyle combatStyle;
     public static boolean cannon = false;
     public static boolean safespot = false;

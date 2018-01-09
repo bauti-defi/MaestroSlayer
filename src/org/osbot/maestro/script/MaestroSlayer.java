@@ -50,6 +50,7 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
         addTask(new AntibanHandler(AntibanFrequency.HIGH));
+        addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
     }
 
     @Override
@@ -84,10 +85,6 @@ public class MaestroSlayer extends NodeScript {
         RuntimeVariables.experienceTracker.start(Skill.RANGED);
         RuntimeVariables.experienceTracker.start(Skill.MAGIC);
         RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
-        if (RuntimeVariables.eating) {
-            log("Adding eating support.");
-            addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
-        }
         if (RuntimeVariables.drinkPotions) {
             log("Adding potion support");
             addTask(new PotionHandler.Builder().addPotion("Super attack", 1, Skill.ATTACK, 0, false).addPotion(RuntimeVariables
