@@ -56,21 +56,25 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                     if (!item.haveItem(provider)) {
                         provider.log("Withdrawing " + item.getAmount() + " " + item.getName());
                         if (!item.withdrawFromBank(provider)) {
-                            provider.log(item.getName() + " not found in bank, stopping...");
-                            provider.getBank().close();
-                            stopScript(true);
+                            outOfItem(item.getName());
                             return;
                         }
                     }
                 }
             } else if (!consumablesToRestockNow.isEmpty()) {
                 for (Consumable consumable : consumablesToRestockNow) {
-                    consumable.withdrawFromBank(provider);
+                    if (!consumable.withdrawFromBank(provider)) {
+                        outOfItem(consumable.getName());
+                        return;
+                    }
                 }
                 consumablesToRestockNow.clear();
             } else if (!consumablesToRestock.isEmpty()) {
                 for (Consumable consumable : consumablesToRestock) {
-                    consumable.withdrawFromBank(provider);
+                    if (!consumable.withdrawFromBank(provider)) {
+                        outOfItem(consumable.getName());
+                        return;
+                    }
                 }
                 consumablesToRestock.clear();
             } else {
@@ -78,6 +82,12 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 provider.getBank().close();
             }
         }
+    }
+
+    private void outOfItem(String name) {
+        provider.log(name + " not found in bank, stopping...");
+        provider.getBank().close();
+        stopScript(true);
     }
 
     private void walkToBank() {
@@ -146,6 +156,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 }
                 consumablesToRestock.add((Consumable) broadcast.getMessage());
                 sort(consumablesToRestock);
+            case "bank-for-gem":
                 break;
         }
     }
