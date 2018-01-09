@@ -73,17 +73,8 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         } else if (monster.isOnScreen() && monster.isVisible()) {
             provider.log("Attacking " + RuntimeVariables.currentMonster.getName());
             attackMonster(monster);
-            provider.log("Moving mouse off screen.");
-            provider.getMouse().moveOutsideScreen();
-            new ConditionalSleep(4500, 500) {
-
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return provider.getCombat().isFighting() || provider.myPlayer().isUnderAttack();
-                }
-            }.sleep();
         } else {
-            if (!provider.getMap().isWithinRange(monster, 4)) {
+            if (!provider.getMap().isWithinRange(monster, 7)) {
                 walkToMonster(monster);
             } else {
                 provider.getCamera().toEntity(monster);
@@ -111,8 +102,17 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         InteractionEvent attackMonster = new InteractionEvent(monster, "Attack");
         attackMonster.setMaximumAttempts(5);
         attackMonster.setWalkTo(false);
-        attackMonster.setOperateCamera(true);
-        provider.execute(attackMonster);
+        if (provider.execute(attackMonster).hasFinished()) {
+            provider.log("Moving mouse off screen.");
+            provider.getMouse().moveOutsideScreen();
+            new ConditionalSleep(4500, 500) {
+
+                @Override
+                public boolean condition() throws InterruptedException {
+                    return inCombat(monster) || inCombat(provider.myPlayer());
+                }
+            }.sleep();
+        }
     }
 
     private boolean inCombat(Character character) {

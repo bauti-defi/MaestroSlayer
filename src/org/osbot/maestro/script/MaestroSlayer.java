@@ -50,6 +50,7 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
         addTask(new AntibanHandler(AntibanFrequency.HIGH));
+        addTask(new TaskGetter());
         addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
     }
 
@@ -145,11 +146,16 @@ public class MaestroSlayer extends NodeScript {
                         log("Task not supported.");
                         forceStopScript(true);
                     }
-                } else if (message.getMessage().toLowerCase().contains("you've completed") || message.getMessage()
-                        .toLowerCase().contains("you need something new to hunt.")) {
+                } else if (message.getMessage().toLowerCase().contains("you've completed")) {
                     log("Task complete.");
                     RuntimeVariables.tasksFinished++;
                     RuntimeVariables.currentTask.forceFinish();
+                } else if (message.getMessage().toLowerCase().contains("you need something new to hunt.")) {
+                    if (RuntimeVariables.currentTask != null) {
+                        RuntimeVariables.currentTask.forceFinish();
+                        break;
+                    }
+                    sendBroadcast(new Broadcast("need-first-task", true));
                 }
                 break;
         }
@@ -174,7 +180,9 @@ public class MaestroSlayer extends NodeScript {
         g.drawString("Version: " + getVersion(), 12, 36);
         g.setFont(font1);
         g.drawString("Kills left: ", 12, 86);
-        g.drawString("Slayer Exp: " + formatNumber(RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER)), 12, 102);
+        g.drawString("Slayer Exp: " + formatNumber(RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER)) + "(" + formatNumber
+                        (RuntimeVariables.experienceTracker.getGainedXPPerHour(Skill.SLAYER)) + ")", 12,
+                102);
         g.drawString("Current Task: " + ((RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished())
                         ? "None" : RuntimeVariables.currentTask.getCurrentMonster().getName()),
                 12, 118);

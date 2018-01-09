@@ -50,7 +50,7 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                         return true;
                     }
                     return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(RuntimeVariables.currentMonster.getName())
-                            && provider.getMap().canReach(npc);
+                            && provider.getMap().canReach(npc) && RuntimeVariables.currentMonster.getArea().contains(npc.getPosition());
                 }
             });
             provider.log("Target found");

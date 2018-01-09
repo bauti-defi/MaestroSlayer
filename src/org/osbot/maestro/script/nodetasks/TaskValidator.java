@@ -13,6 +13,7 @@ import org.osbot.rs07.utility.ConditionalSleep;
 public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     private boolean forceCheck;
+    private boolean needFirstTask;
 
     public TaskValidator() {
         super(Priority.URGENT);
@@ -21,7 +22,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() {
-        if (RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished() || forceCheck) {
+        if (RuntimeVariables.currentTask == null && !needFirstTask || forceCheck) {
             if (provider.getInventory().contains("Enchanted Gem")) {
                 return true;
             }
@@ -54,8 +55,13 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
-        if (broadcast.getKey().equalsIgnoreCase("check-kills-antiban")) {
-            forceCheck = true;
+        switch (broadcast.getKey()) {
+            case "need-first-task":
+                needFirstTask = (boolean) broadcast.getMessage();
+                break;
+            case "check-kills-antiban":
+                forceCheck = true;
+                break;
         }
     }
 }

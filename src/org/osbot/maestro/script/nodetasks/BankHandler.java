@@ -26,7 +26,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     private final List<Consumable> consumablesToRestockNow;
 
     public BankHandler() {
-        super(Priority.HIGH);
+        super(Priority.URGENT);
         this.consumablesToRestockNow = new ArrayList<>();
         this.consumablesToRestock = new ArrayList<>();
         registerBroadcastReceiver(this::receivedBroadcast);
@@ -141,17 +141,17 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         if (bank != null) {
             provider.log("Opening bank...");
             InteractionEvent openBank = new InteractionEvent(bank, "Bank");
-            openBank.setMaximumAttempts(5);
             openBank.setOperateCamera(true);
             openBank.setWalkingDistanceThreshold(7);
-            provider.execute(openBank);
-            new ConditionalSleep(4000, 1000) {
+            if (provider.execute(openBank).hasFinished()) {
+                new ConditionalSleep(4000, 1000) {
 
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return provider.getBank().isOpen();
-                }
-            }.sleep();
+                    @Override
+                    public boolean condition() throws InterruptedException {
+                        return provider.getBank().isOpen();
+                    }
+                }.sleep();
+            }
         }
     }
 
@@ -171,8 +171,6 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                     consumablesToRestock.add(consumable);
                     organize(consumablesToRestock);
                 }
-                break;
-            case "bank-for-gem":
                 break;
         }
     }
