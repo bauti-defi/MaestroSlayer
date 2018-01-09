@@ -50,50 +50,48 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             } else {
                 openBank(bank);
             }
-        } else {
-            if (!provider.getInventory().contains("Enchanted gemn")) {
-                provider.log("Withdrawing enchanted gem...");
-                if (provider.getBank().withdraw("Enchanted gem", 1)) {
-                    new ConditionalSleep(3000, 500) {
+        } else if (!provider.getInventory().contains("Enchanted gemn")) {
+            provider.log("Withdrawing enchanted gem...");
+            if (provider.getBank().withdraw("Enchanted gem", 1)) {
+                new ConditionalSleep(3000, 500) {
 
-                        @Override
-                        public boolean condition() throws InterruptedException {
-                            return provider.getInventory().contains("Enchanted gem");
-                        }
-                    }.sleep();
-                } else {
-                    outOfItem("Enchanted gem");
-                }
-            } else if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
-                for (SlayerItem item : RuntimeVariables.currentTask.getAllSlayerItems()) {
-                    if (!item.haveItem(provider)) {
-                        provider.log("Withdrawing " + item.getAmount() + " " + item.getName());
-                        if (!item.withdrawFromBank(provider)) {
-                            outOfItem(item.getName());
-                            return;
-                        }
+                    @Override
+                    public boolean condition() throws InterruptedException {
+                        return provider.getInventory().contains("Enchanted gem");
                     }
-                }
-            } else if (!consumablesToRestockNow.isEmpty()) {
-                for (Consumable consumable : consumablesToRestockNow) {
-                    if (!consumable.withdrawFromBank(provider)) {
-                        outOfItem(consumable.getName());
-                        return;
-                    }
-                }
-                consumablesToRestockNow.clear();
-            } else if (!consumablesToRestock.isEmpty()) {
-                for (Consumable consumable : consumablesToRestock) {
-                    if (!consumable.withdrawFromBank(provider)) {
-                        outOfItem(consumable.getName());
-                        return;
-                    }
-                }
-                consumablesToRestock.clear();
+                }.sleep();
             } else {
-                provider.log("Closing bank...");
-                provider.getBank().close();
+                outOfItem("Enchanted gem");
             }
+        } else if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
+            for (SlayerItem item : RuntimeVariables.currentTask.getAllSlayerItems()) {
+                if (!item.haveItem(provider)) {
+                    provider.log("Withdrawing " + item.getAmount() + " " + item.getName());
+                    if (!item.withdrawFromBank(provider)) {
+                        outOfItem(item.getName());
+                        return;
+                    }
+                }
+            }
+        } else if (!consumablesToRestockNow.isEmpty()) {
+            for (Consumable consumable : consumablesToRestockNow) {
+                if (!consumable.withdrawFromBank(provider)) {
+                    outOfItem(consumable.getName());
+                    return;
+                }
+            }
+            consumablesToRestockNow.clear();
+        } else if (!consumablesToRestock.isEmpty()) {
+            for (Consumable consumable : consumablesToRestock) {
+                if (!consumable.withdrawFromBank(provider)) {
+                    outOfItem(consumable.getName());
+                    return;
+                }
+            }
+            consumablesToRestock.clear();
+        } else {
+            provider.log("Closing bank...");
+            provider.getBank().close();
         }
     }
 
@@ -164,23 +162,26 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             case "bank-for-food":
                 Consumable consumable = (Consumable) broadcast.getMessage();
                 if (consumable.isRequired()) {
-                    consumablesToRestockNow.add(consumable);
-                    organize(consumablesToRestockNow);
+                    if (!consumablesToRestockNow.contains(consumable)) {
+                        consumablesToRestockNow.add(consumable);
+                        organize(consumablesToRestockNow);
+                    }
                     break;
+                } else if (!consumablesToRestock.contains(consumable)) {
+                    consumablesToRestock.add(consumable);
+                    organize(consumablesToRestock);
                 }
-                consumablesToRestock.add((Consumable) broadcast.getMessage());
-                organize(consumablesToRestock);
+                break;
             case "bank-for-gem":
                 break;
         }
     }
 
     private void organize(List<Consumable> consumables) {
-        //TODO:TAKE OUT DUPLICATES
         consumables.sort(new Comparator<Consumable>() {
             @Override
             public int compare(Consumable o1, Consumable o2) {
-                return o1.getAmount() - o2.getAmount();
+                return o2.getAmount() - o1.getAmount();
             }
         });
     }
