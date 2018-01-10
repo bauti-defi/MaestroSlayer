@@ -1,6 +1,7 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
 import org.osbot.maestro.script.slayer.utils.Condition;
+import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
@@ -37,7 +38,7 @@ public class SlayerInventoryItem extends SlayerItem {
             List<Item> items = provider.getInventory().filter(new Filter<Item>() {
                 @Override
                 public boolean match(Item item) {
-                    return item.getName().contains(name) && !item.getName().endsWith("(0)");
+                    return item.getName().contains(getName()) && !item.getName().endsWith("(0)");
                 }
             });
             if (items != null) {
@@ -54,12 +55,18 @@ public class SlayerInventoryItem extends SlayerItem {
 
     @Override
     public boolean withdrawFromBank(MethodProvider provider) {
-        return provider.getBank().withdraw(new Filter<Item>() {
-            @Override
-            public boolean match(Item item) {
-                return item.getName().contains(name) && !item.getName().endsWith("(0)");
-            }
-        }, getAmount());
+        if (stackable) {
+            provider.log("Withdrawing " + getAmount() + " " + getName());
+            BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(getName(), new Filter<Item>() {
+                @Override
+                public boolean match(Item item) {
+                    return item.getName().equalsIgnoreCase(getName()) || (!item.getName().contains("(0)") && item.getName().contains(getName()));
+                }
+            }, getAmount(), true);
+            withdrawEvent.setNeedExactAmount(true);
+            return provider.execute(withdrawEvent).hasFinished();
+        }
+        return super.withdrawFromBank(provider);
     }
 
     @Override
@@ -67,7 +74,7 @@ public class SlayerInventoryItem extends SlayerItem {
         return provider.getInventory().getItem(new Filter<Item>() {
             @Override
             public boolean match(Item item) {
-                return item.getName().contains(name) && !item.getName().endsWith("(0)");
+                return item.getName().contains(getName()) && !item.getName().endsWith("(0)");
             }
         });
     }

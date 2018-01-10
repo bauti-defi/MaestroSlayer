@@ -1,12 +1,14 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
 import org.osbot.maestro.script.slayer.utils.Condition;
+import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
+import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 
 public abstract class SlayerItem {
 
-    protected final String name;
+    private final String name;
     private final int amount;
     private final Condition condition;
 
@@ -29,7 +31,15 @@ public abstract class SlayerItem {
     }
 
     public boolean withdrawFromBank(MethodProvider provider) {
-        return provider.getBank().withdraw(getName(), amount);
+        provider.log("Withdrawing " + getAmount() + " " + getName());
+        BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(getName(), new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().equalsIgnoreCase(getName()) || (!item.getName().contains("(0)") && item.getName().contains(getName()));
+            }
+        }, getAmount(), false);
+        withdrawEvent.setNeedExactAmount(true);
+        return provider.execute(withdrawEvent).hasFinished();
     }
 
     public abstract boolean haveItem(MethodProvider provider);

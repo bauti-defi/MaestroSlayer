@@ -1,6 +1,7 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
 import org.osbot.maestro.script.slayer.utils.Condition;
+import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.script.MethodProvider;
@@ -30,12 +31,21 @@ public class SlayerWornItem extends SlayerItem {
         }
     }
 
+    public boolean withdrawFromBank(MethodProvider provider) {
+        if (slot == EquipmentSlot.ARROWS) {
+            provider.log("Withdrawing " + getAmount() + " " + getName());
+            BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(getName(), getAmount(), true);
+            return provider.execute(withdrawEvent).hasFinished();
+        }
+        return super.withdrawFromBank(provider);
+    }
+
     @Override
     protected Item getItem(MethodProvider provider) {
-        if (provider.getEquipment().isWearingItem(slot, name)) {
+        if (provider.getEquipment().isWearingItem(slot, getName())) {
             return provider.getEquipment().getItemInSlot(slot.slot);
         }
-        return provider.getInventory().getItem(name);
+        return provider.getInventory().getItem(getName());
     }
 
     @Override
@@ -53,6 +63,6 @@ public class SlayerWornItem extends SlayerItem {
     }
 
     public boolean isWearing(MethodProvider provider) {
-        return provider.getEquipment().isWearingItem(slot, name);
+        return provider.getEquipment().isWearingItem(slot, getName());
     }
 }
