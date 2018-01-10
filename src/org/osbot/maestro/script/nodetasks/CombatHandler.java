@@ -83,7 +83,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         }
     }
 
-
     private boolean inCombat(Character character) {
         if (character != null && character.exists()) {
             return !character.isAttackable() || character.isUnderAttack() || character

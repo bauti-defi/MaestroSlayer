@@ -4,7 +4,6 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
@@ -31,8 +30,7 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
                 provider.log("Out of " + potion.getName() + " banking...");
                 sendBroadcast(new Broadcast("bank-for-potions", potion));
                 return false;
-            } else if (potion.hasConsumable(provider) && potion.needConsume(provider) && RuntimeVariables.currentTask.getCurrentMonster().getArea()
-                    .contains(provider.myPosition())) {
+            } else if (potion.hasConsumable(provider) && potion.needConsume(provider)) {
                 this.potion = potion;
                 return true;
             }

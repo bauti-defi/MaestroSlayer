@@ -6,6 +6,7 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.event.WalkingEvent;
@@ -25,7 +26,12 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
     public boolean runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-                walkToTask();
+                Position monsterAreaPosition = RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition();
+                if (provider.getMap().isWithinRange(monsterAreaPosition, provider.myPlayer(), 25) && provider.getMap().canReach(monsterAreaPosition)) {
+                    normalWalkToTask(monsterAreaPosition);
+                } else {
+                    webWalkToTask();
+                }
                 return false;
             } else if (target == null || !target.exists()) {
                 return true;
@@ -38,25 +44,23 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     @Override
     protected void execute() throws InterruptedException {
-        if (target != null && target.exists()) {
-            if (inCombat(provider.myPlayer()) && (!target.isInteracting(provider.myPlayer()) || !inCombat(target))) {
-                provider.log("Updating target");
-                target = (NPC) provider.myPlayer().getInteracting();
-            }
-        } else {
-            target = provider.getNpcs().closest(new Filter<NPC>() {
-                @Override
-                public boolean match(NPC npc) {
-                    if (npc.isInteracting(provider.myPlayer())) {
-                        return true;
-                    }
-                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(RuntimeVariables.currentTask.getCurrentMonster().getName())
+        target = provider.getNpcs().closest(new Filter<NPC>() {
+            @Override
+            public boolean match(NPC npc) {
+                if (!inCombat(provider.myPlayer())) {
+                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getId() == RuntimeVariables.currentTask.getCurrentMonster()
+                            .getId() && npc.getName().contains(RuntimeVariables.currentTask.getCurrentMonster().getName())
                             && provider.getMap().canReach(npc) && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(npc.getPosition());
                 }
-            });
+                return npc.isInteracting(provider.myPlayer());
+            }
+        });
+        if (target != null && target.exists()) {
             provider.log("Target found");
+            sendBroadcast(new Broadcast("new-target", target));
+        } else {
+            provider.log("No targets found");
         }
-        sendBroadcast(new Broadcast("new-target", target));
     }
 
     private boolean inCombat(Character character) {
@@ -66,34 +70,37 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         return false;
     }
 
-    private void walkToTask() {
-        if (provider.getMap().isWithinRange(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition(), provider
-                .myPlayer(), 10) && provider.getMap().canReach(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition())) {
-            provider.log("Task in normal walking range");
-            WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap());
-            walkingEvent.setOperateCamera(true);
-            walkingEvent.setBreakCondition(new Condition() {
-                @Override
-                public boolean evaluate() {
-                    return RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
-                }
-            });
-            provider.log("Walking to task...");
-            provider.execute(walkingEvent);
-        } else {
-            provider.log("Task in web walking range");
-            WebWalkEvent webWalkEvent = new WebWalkEvent(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap());
-            webWalkEvent.useSimplePath();
-            webWalkEvent.setPathPreferenceProfile(getToTaskPathPreference());
-            webWalkEvent.setBreakCondition(new Condition() {
-                @Override
-                public boolean evaluate() {
-                    return provider.getBank().isOpen() || RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
-                }
-            });
+    private void webWalkToTask() {
+        provider.log("Task in web walking range");
+        WebWalkEvent webWalkEvent = new WebWalkEvent(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap());
+        webWalkEvent.setPathPreferenceProfile(getToTaskPathPreference());
+        webWalkEvent.setEnergyThreshold(10);
+        webWalkEvent.setBreakCondition(new Condition() {
+            @Override
+            public boolean evaluate() {
+                return provider.getBank().isOpen() || RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
+            }
+        });
+        if (webWalkEvent.prefetchRequirements(provider)) {
             provider.log("Walking to task...");
             provider.execute(webWalkEvent);
+        } else {
+            provider.log("Couldn't find path to " + RuntimeVariables.currentTask.getCurrentMonster().getName());
         }
+    }
+
+    private void normalWalkToTask(Position position) {
+        provider.log("Walking back into monster area");
+        WalkingEvent walkingEvent = new WalkingEvent(position);
+        walkingEvent.setMiniMapDistanceThreshold(3);
+        walkingEvent.setEnergyThreshold(10);
+        walkingEvent.setBreakCondition(new Condition() {
+            @Override
+            public boolean evaluate() {
+                return RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
+            }
+        });
+        provider.execute(walkingEvent);
     }
 
     private PathPreferenceProfile getToTaskPathPreference() {

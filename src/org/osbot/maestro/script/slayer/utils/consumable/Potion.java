@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.consumable;
 
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
@@ -47,11 +48,9 @@ public class Potion extends Consumable {
     }
 
     public boolean needConsume(MethodProvider provider) {
-        if (skill != null) {
-            if (requiredBuff == 0) {
-                return provider.getSkills().getDynamic(skill) == provider.getSkills().getStatic(skill);
-            }
-            return provider.getSkills().getDynamic(skill) < (provider.getSkills().getStatic(skill) + requiredBuff);
+        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider
+                .myPosition()) && skill != null) {
+            return provider.getSkills().getDynamic(skill) <= (provider.getSkills().getStatic(skill) + requiredBuff);
         }
         return (getName().contains("poison") || getName().contains("Antidote")) && provider
                 .getCombat().isPoisoned();

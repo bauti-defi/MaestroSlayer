@@ -7,10 +7,10 @@ import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Consumable;
+import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.RS2Object;
-import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
@@ -104,7 +104,6 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     private void walkToBank() {
         provider.log("Walking to nearest bank...");
         WebWalkEvent walkToBank = new WebWalkEvent(Config.GAME_BANKS);
-        walkToBank.useSimplePath();
         walkToBank.setPathPreferenceProfile(getToBankPathPreference());
         walkToBank.setBreakCondition(new Condition() {
             @Override
@@ -113,7 +112,12 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 return bank != null && provider.getMap().canReach(bank);
             }
         });
-        provider.execute(walkToBank);
+        if (walkToBank.prefetchRequirements(provider)) {
+            provider.execute(walkToBank);
+        } else {
+            provider.log("Can't find path to bank.");
+            stopScript(true);
+        }
     }
 
     private PathPreferenceProfile getToBankPathPreference() {
@@ -140,19 +144,16 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     private void openBank(RS2Object bank) {
         if (bank != null) {
             provider.log("Opening bank...");
-            InteractionEvent openBank = new InteractionEvent(bank, "Bank");
-            openBank.setOperateCamera(true);
-            openBank.setWalkingDistanceThreshold(5);
-            openBank.setWalkTo(true);
-            if (provider.execute(openBank).hasFinished()) {
-                new ConditionalSleep(4000, 1000) {
-
-                    @Override
-                    public boolean condition() throws InterruptedException {
-                        return provider.getBank().isOpen();
-                    }
-                }.sleep();
-            }
+            EntityInteractionEvent bankInteraction = new EntityInteractionEvent(bank, "Bank");
+            bankInteraction.setWalkTo(true);
+            bankInteraction.setEnergyThreshold(10, 30);
+            bankInteraction.setBreakCondition(new ConditionalSleep(4000, 1000) {
+                @Override
+                public boolean condition() throws InterruptedException {
+                    return provider.getBank().isOpen();
+                }
+            });
+            provider.execute(bankInteraction);
         }
     }
 

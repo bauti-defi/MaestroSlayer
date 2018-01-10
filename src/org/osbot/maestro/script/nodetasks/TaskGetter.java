@@ -5,9 +5,9 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
+import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
-import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
@@ -56,19 +56,19 @@ public class TaskGetter extends NodeTask {
     }
 
     private void talkToMaster(NPC master) {
-        InteractionEvent talkToMaster = new InteractionEvent(master, "Assignment");
-        talkToMaster.setOperateCamera(true);
-        talkToMaster.setWalkingDistanceThreshold(5);
+        EntityInteractionEvent talkToMaster = new EntityInteractionEvent(master, "Assignment");
         talkToMaster.setWalkTo(true);
-        if (provider.execute(talkToMaster).hasFinished()) {
-            new ConditionalSleep(5000, 1000) {
+        talkToMaster.setEnergyThreshold(10, 30);
+        talkToMaster.setMinDistanceThreshold(2);
+        talkToMaster.setMiniMapDistanceThreshold(8);
+        talkToMaster.setBreakCondition(new ConditionalSleep(5000, 1000) {
 
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return provider.getDialogues().inDialogue();
-                }
-            }.sleep();
-        }
+            @Override
+            public boolean condition() throws InterruptedException {
+                return provider.getDialogues().inDialogue();
+            }
+        });
+        provider.execute(talkToMaster);
     }
 
     private NPC getMaster() {
@@ -77,7 +77,6 @@ public class TaskGetter extends NodeTask {
 
     private void walkToMaster() {
         WebWalkEvent walkToMaster = new WebWalkEvent(RuntimeVariables.currentMaster.getArea().unwrap());
-        walkToMaster.useSimplePath();
         walkToMaster.setPathPreferenceProfile(getToMasterPathPreference());
         walkToMaster.setBreakCondition(new Condition() {
             @Override
@@ -85,7 +84,12 @@ public class TaskGetter extends NodeTask {
                 return getMaster() != null || provider.getBank().isOpen();
             }
         });
-        provider.execute(walkToMaster);
+        if (walkToMaster.prefetchRequirements(provider)) {
+            provider.execute(walkToMaster);
+        } else {
+            provider.log("Could not find path to " + RuntimeVariables.currentMaster.getName());
+            stopScript(true);
+        }
     }
 
 
