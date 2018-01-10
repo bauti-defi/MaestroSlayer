@@ -9,6 +9,7 @@ import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.map.Position;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.event.WalkingEvent;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
@@ -17,6 +18,7 @@ import org.osbot.rs07.utility.Condition;
 public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     private NPC target;
+    private int currentExp = 0;
 
     public TargetFinder() {
         super(Priority.LOW);
@@ -25,6 +27,10 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
     @Override
     public boolean runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null) {
+            if (RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER) != currentExp) {
+                RuntimeVariables.currentTask.registerKill();
+                currentExp = RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER);
+            }
             if (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 Position monsterAreaPosition = RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition();
                 if (provider.getMap().isWithinRange(monsterAreaPosition, provider.myPlayer(), 25) && provider.getMap().canReach(monsterAreaPosition)) {

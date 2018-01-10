@@ -52,6 +52,13 @@ public class SlayerTask {
         return killsLeft;
     }
 
+    public void registerKill() {
+        if (killsLeft == 0) {
+            return;
+        }
+        this.killsLeft--;
+    }
+
     public Monster getCurrentMonster() {
         return currentMonster;
     }

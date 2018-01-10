@@ -171,13 +171,12 @@ public class MaestroSlayer extends NodeScript {
         g.setFont(font3);
         g.drawString("Version: " + getVersion(), 12, 36);
         g.setFont(font1);
-        g.drawString("Kills left: ", 12, 86);
+        g.drawString("Kills left: " + formatNumber(RuntimeVariables.currentTask != null ? RuntimeVariables.currentTask.getKillsLeft() : 0), 12, 86);
         g.drawString("Slayer Exp: " + formatNumber(RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER)) + "(" + formatNumber
                         (RuntimeVariables.experienceTracker.getGainedXPPerHour(Skill.SLAYER)) + ")", 12,
                 102);
         g.drawString("Current Task: " + ((RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished())
-                        ? "None" : RuntimeVariables.currentTask.getCurrentMonster().getName()),
-                12, 118);
+                ? "None" : RuntimeVariables.currentTask.getCurrentMonster().getName()), 12, 118);
         g.drawString("Tasks: " + RuntimeVariables.tasksFinished, 12, 70);
         if (targetToPaint != null && targetToPaint.exists()) {
             g.setColor(Color.RED);
