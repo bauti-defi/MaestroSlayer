@@ -6,7 +6,7 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
-import org.osbot.maestro.script.slayer.utils.NPCInteractionEvent;
+import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
@@ -73,7 +73,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             return;
         }
         provider.log("Attacking: " + monster.getName());
-        NPCInteractionEvent attackMonster = new NPCInteractionEvent(monster, "Attack");
+        EntityInteractionEvent attackMonster = new EntityInteractionEvent(monster, "Attack");
         attackMonster.setWalkTo(true);
         attackMonster.setEnergyThreshold(10, 30);
         attackMonster.setBreakCondition(new ConditionalSleep(5000, 500) {

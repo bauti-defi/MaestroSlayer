@@ -5,6 +5,7 @@ import org.osbot.maestro.framework.NodeTimeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanCharacteristic;
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
+import org.osbot.maestro.script.slayer.utils.events.CameraMovementEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
@@ -74,7 +75,8 @@ public class AntibanHandler extends NodeTimeTask {
                     }
                 });
                 if (npc != null && npc.exists()) {
-                    provider.getCamera().toEntity(npc);
+                    CameraMovementEvent movementEvent = new CameraMovementEvent(npc);
+                    provider.execute(movementEvent);
                 }
                 break;
             case 7:

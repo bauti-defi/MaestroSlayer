@@ -1,14 +1,14 @@
-package org.osbot.maestro.script.slayer.utils;
+package org.osbot.maestro.script.slayer.utils.events;
 
-import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.event.Event;
 import org.osbot.rs07.event.WalkingEvent;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-public class NPCInteractionEvent extends Event {
+public class EntityInteractionEvent extends Event {
 
     private final String action;
-    private final NPC npc;
+    private final Entity entity;
     private ConditionalSleep condition;
     private CameraMovementEvent cameraMovementEvent;
     private WalkingEvent walkingEvent;
@@ -18,9 +18,9 @@ public class NPCInteractionEvent extends Event {
     private int energyThreshold = 15;
 
 
-    public NPCInteractionEvent(NPC npc, String action) {
+    public EntityInteractionEvent(Entity entity, String action) {
         this.action = action;
-        this.npc = npc;
+        this.entity = entity;
         setBlocking();
     }
 
@@ -54,17 +54,26 @@ public class NPCInteractionEvent extends Event {
 
     @Override
     public int execute() throws InterruptedException {
-        if (npc == null) {
-            log("NPC null");
+        if (entity == null) {
+            log("EntityInteractionEvent: Entity null");
             setFailed();
             return -1;
-        } else if (!npc.hasAction(action) || !npc.exists() || !getMap().canReach(npc)) {
-            log("Invalid NPC");
+        } else if (!entity.hasAction(action) || !entity.exists() || !getMap().canReach(entity)) {
+            log("EntityInteractionEvent: Invalid Entity");
             setFailed();
             return -1;
-        } else if (walkTo && !getMap().isWithinRange(npc, minDistanceThreshold)) {
-            if (walkingEvent == null) {
-                walkingEvent = new WalkingEvent(npc);
+        } else if (!entity.isVisible()) {
+            if (cameraMovementEvent == null || cameraMovementEvent.hasFinished()) {
+                cameraMovementEvent = new CameraMovementEvent(entity);
+                cameraMovementEvent.setAsync();
+            }
+            if (!cameraMovementEvent.isWorking() && !cameraMovementEvent.isQueued()) {
+                execute(cameraMovementEvent);
+            }
+        }
+        if (walkTo && !getMap().isWithinRange(entity, minDistanceThreshold)) {
+            if (walkingEvent == null || walkingEvent.hasFinished() || walkingEvent.hasFailed()) {
+                walkingEvent = new WalkingEvent(entity);
                 walkingEvent.setOperateCamera(false);
                 walkingEvent.setEnergyThreshold(energyThreshold);
                 walkingEvent.setMiniMapDistanceThreshold(miniMapDistanceThreshold);
@@ -74,16 +83,7 @@ public class NPCInteractionEvent extends Event {
                 execute(walkingEvent);
             }
         }
-        if (!npc.isOnScreen()) {
-            if (cameraMovementEvent == null || cameraMovementEvent.hasFinished()) {
-                cameraMovementEvent = new CameraMovementEvent(npc);
-                cameraMovementEvent.setAsync();
-            }
-            if (!cameraMovementEvent.isWorking() && !cameraMovementEvent.isQueued()) {
-                execute(cameraMovementEvent);
-            }
-        }
-        if (npc.interact(action)) {
+        if (entity.interact(action)) {
             if (hasBreakCondition()) {
                 condition.sleep();
                 setFinished();
