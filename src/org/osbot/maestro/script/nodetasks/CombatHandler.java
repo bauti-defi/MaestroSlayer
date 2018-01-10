@@ -11,9 +11,6 @@ import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
-import org.osbot.rs07.event.InteractionEvent;
-import org.osbot.rs07.event.WalkingEvent;
-import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class CombatHandler extends NodeTask implements BroadcastReceiver {
@@ -67,9 +64,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public void execute() throws InterruptedException {
-        if (monster == null) {
-            provider.log("Requesting target");
-            sendBroadcast(new Broadcast("request-target"));
+        if (monster == null || !monster.exists()) {
             return;
         }
         provider.log("Attacking: " + monster.getName());
@@ -83,42 +78,11 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             }
         });
         if (provider.execute(attackMonster).hasFinished()) {
+            provider.log("Moving mouse off screen");
             provider.getMouse().moveOutsideScreen();
         }
     }
 
-
-    private void walkToMonster(NPC monster) {
-        WalkingEvent walkingEvent = new WalkingEvent(monster);
-        walkingEvent.setOperateCamera(true);
-        walkingEvent.setMinDistanceThreshold(3);
-        walkingEvent.setEnergyThreshold(20);
-        walkingEvent.setMiniMapDistanceThreshold(5);
-        walkingEvent.setBreakCondition(new Condition() {
-            @Override
-            public boolean evaluate() {
-                return monster.isOnScreen() && monster.isVisible() || inCombat(monster);
-            }
-        });
-        provider.execute(walkingEvent);
-    }
-
-    private void attackMonster(NPC monster) {
-        InteractionEvent attackMonster = new InteractionEvent(monster, "Attack");
-        attackMonster.setMaximumAttempts(5);
-        attackMonster.setWalkTo(false);
-        if (provider.execute(attackMonster).hasFinished()) {
-            provider.log("Moving mouse off screen.");
-            provider.getMouse().moveOutsideScreen();
-            new ConditionalSleep(4500, 500) {
-
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return inCombat(monster) || inCombat(provider.myPlayer());
-                }
-            }.sleep();
-        }
-    }
 
     private boolean inCombat(Character character) {
         if (character != null && character.exists()) {

@@ -21,7 +21,7 @@ public class MonsterMechanicHandler extends NodeTask implements BroadcastReceive
     public boolean runnable() {
         if (monster != null && monster.exists()) {
             return RuntimeVariables.currentTask.hasMechanic() && RuntimeVariables.currentTask.getMonsterMechanic().condition
-                    (RuntimeVariables.currentMonster.getName(), monster, provider);
+                    (RuntimeVariables.currentTask.getCurrentMonster().getName(), monster, provider);
         }
         return false;
     }

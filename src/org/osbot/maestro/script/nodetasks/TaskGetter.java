@@ -37,7 +37,7 @@ public class TaskGetter extends NodeTask {
                 if (taskWidget != null) {
                     SlayerTask.setCurrentTask(taskWidget.getMessage());
                     if (RuntimeVariables.currentTask != null) {
-                        sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentMonster.isPoisonous()));
+                        sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentTask.getCurrentMonster().isPoisonous()));
                         provider.log("Current task: " + RuntimeVariables.currentTask.getName());
                         provider.getDialogues().clickContinue();
                         return;

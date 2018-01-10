@@ -31,7 +31,7 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
                 provider.log("Out of " + potion.getName() + " banking...");
                 sendBroadcast(new Broadcast("bank-for-potions", potion));
                 return false;
-            } else if (potion.hasConsumable(provider) && potion.needConsume(provider) && RuntimeVariables.currentMonster.getArea()
+            } else if (potion.hasConsumable(provider) && potion.needConsume(provider) && RuntimeVariables.currentTask.getCurrentMonster().getArea()
                     .contains(provider.myPosition())) {
                 this.potion = potion;
                 return true;

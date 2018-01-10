@@ -48,17 +48,17 @@ public class SlayerTask {
         return monsterMechanic != null;
     }
 
-    public Monster getNewMonster(Comparator<Monster> comparator, int killsLeft) {
-        this.killsLeft = killsLeft;
-        return currentMonster = monsters.stream().sorted(comparator).findFirst().orElse(null);
+    public int getKillsLeft() {
+        return killsLeft;
     }
 
     public Monster getCurrentMonster() {
         return currentMonster;
     }
 
-    public int getKillsLeft() {
-        return killsLeft;
+    private void setNewMonster(Comparator<Monster> comparator, int amount) {
+        this.killsLeft = amount;
+        this.currentMonster = monsters.stream().sorted(comparator).findFirst().orElse(null);
     }
 
     public boolean isFinished() {
@@ -133,17 +133,16 @@ public class SlayerTask {
         for (SlayerTask task : RuntimeVariables.slayerContainer.getTasks()) {
             if (task.getName().equalsIgnoreCase(monsterName)) {
                 RuntimeVariables.currentTask = task;
-                RuntimeVariables.currentMonster = task.getNewMonster(new Comparator<Monster>() {
+                task.setNewMonster(new Comparator<Monster>() {
                     @Override
                     public int compare(Monster o1, Monster o2) {
-                        return o2.getCombatLevel() - o1.getCombatLevel();
+                        return o1.getCombatLevel() - o2.getCombatLevel();
                     }
                 }, amount);
                 return;
             }
         }
         RuntimeVariables.currentTask = null;
-        RuntimeVariables.currentMonster = null;
     }
 
     public static SlayerTask wrap(SlayerTaskTemplate template) {

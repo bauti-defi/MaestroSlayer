@@ -31,7 +31,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (RuntimeVariables.currentMonster.canCannon()) {
+        if (RuntimeVariables.currentTask.getCurrentMonster().canCannon()) {
             if (isCannonSet()) {
                 return super.runnable() || needReload() || needRepair || needPickUp;
             }
@@ -43,7 +43,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     @Override
     protected void execute() throws InterruptedException {
         if (!isCannonSet()) {
-            if (!RuntimeVariables.currentMonster.getCannonPosition().equals(provider.myPosition())) {
+            if (!RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().equals(provider.myPosition())) {
                 provider.log("Walking to cannon position");
                 walkToCannonPosition();
             }
@@ -128,12 +128,12 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     private void walkToCannonPosition() {
-        WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentMonster.getCannonPosition().unwrap());
+        WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().unwrap());
         walkingEvent.setMiniMapDistanceThreshold(4);
         walkingEvent.setBreakCondition(new Condition() {
             @Override
             public boolean evaluate() {
-                return RuntimeVariables.currentMonster.getCannonPosition().equals(provider.myPosition());
+                return RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().equals(provider.myPosition());
             }
         });
         provider.execute(walkingEvent);
@@ -144,7 +144,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
             @Override
             public boolean match(RS2Object rs2Object) {
                 return rs2Object != null && rs2Object.exists() && rs2Object.getId() == (needRepair ? BROKEN_CANNON_ID : CANNON_ID) &&
-                        RuntimeVariables.currentMonster.getCannonPosition().equals(rs2Object.getPosition());
+                        RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().equals(rs2Object.getPosition());
             }
         });
     }
@@ -177,7 +177,7 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
                 break;
             case "cannon-error":
                 try {
-                    throw new CannonPlacementException(RuntimeVariables.currentMonster.getCannonPosition().unwrap());
+                    throw new CannonPlacementException(RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().unwrap());
                 } catch (CannonPlacementException e) {
                     e.printStackTrace();
                     stopScript(true);

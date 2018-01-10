@@ -16,7 +16,6 @@ import org.osbot.rs07.utility.Condition;
 public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     private NPC target;
-    private boolean targetRequested;
 
     public TargetFinder() {
         super(Priority.LOW);
@@ -25,23 +24,25 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
     @Override
     public boolean runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null) {
-            if (!RuntimeVariables.currentMonster.getArea().contains(provider.myPosition())) {
+            if (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 walkToTask();
                 return false;
+            } else if (target == null || !target.exists()) {
+                return true;
             }
-            return target == null || !target.exists() || inCombat(target) && !inCombat(provider.myPlayer()) || targetRequested ||
-                    target.getHealthPercent() == 0 || inCombat(provider.myPlayer()) && target != null && (!inCombat(target)
-                    || !target.isInteracting(provider.myPlayer()));
+            return inCombat(target) && !inCombat(provider.myPlayer()) || target.getHealthPercent() == 0 ||
+                    inCombat(provider.myPlayer()) && (!inCombat(target) || !target.isInteracting(provider.myPlayer()));
         }
         return false;
     }
 
     @Override
     protected void execute() throws InterruptedException {
-        if (inCombat(provider.myPlayer()) && target != null && target.exists() && (!target.isInteracting(provider
-                .myPlayer()) || !inCombat(target))) {
-            provider.log("Updating target");
-            target = (NPC) provider.myPlayer().getInteracting();
+        if (target != null && target.exists()) {
+            if (inCombat(provider.myPlayer()) && (!target.isInteracting(provider.myPlayer()) || !inCombat(target))) {
+                provider.log("Updating target");
+                target = (NPC) provider.myPlayer().getInteracting();
+            }
         } else {
             target = provider.getNpcs().closest(new Filter<NPC>() {
                 @Override
@@ -49,47 +50,45 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                     if (npc.isInteracting(provider.myPlayer())) {
                         return true;
                     }
-                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(RuntimeVariables.currentMonster.getName())
-                            && provider.getMap().canReach(npc) && RuntimeVariables.currentMonster.getArea().contains(npc.getPosition());
+                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getName().contains(RuntimeVariables.currentTask.getCurrentMonster().getName())
+                            && provider.getMap().canReach(npc) && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(npc.getPosition());
                 }
             });
             provider.log("Target found");
         }
         sendBroadcast(new Broadcast("new-target", target));
-        targetRequested = false;
     }
 
     private boolean inCombat(Character character) {
         if (character != null && character.exists()) {
-            return !character.isAttackable() || character.isUnderAttack() || character
-                    .getInteracting() != null;
+            return !character.isAttackable() || character.isUnderAttack() || character.getInteracting() != null;
         }
         return false;
     }
 
     private void walkToTask() {
-        if (provider.getMap().isWithinRange(RuntimeVariables.currentMonster.getArea().unwrap().getRandomPosition(), provider
-                .myPlayer(), 10) && provider.getMap().canReach(RuntimeVariables.currentMonster.getArea().unwrap().getRandomPosition())) {
+        if (provider.getMap().isWithinRange(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition(), provider
+                .myPlayer(), 10) && provider.getMap().canReach(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap().getRandomPosition())) {
             provider.log("Task in normal walking range");
-            WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentMonster.getArea().unwrap());
+            WalkingEvent walkingEvent = new WalkingEvent(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap());
             walkingEvent.setOperateCamera(true);
             walkingEvent.setBreakCondition(new Condition() {
                 @Override
                 public boolean evaluate() {
-                    return RuntimeVariables.currentMonster.getArea().contains(provider.myPosition());
+                    return RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
                 }
             });
             provider.log("Walking to task...");
             provider.execute(walkingEvent);
         } else {
             provider.log("Task in web walking range");
-            WebWalkEvent webWalkEvent = new WebWalkEvent(RuntimeVariables.currentMonster.getArea().unwrap());
+            WebWalkEvent webWalkEvent = new WebWalkEvent(RuntimeVariables.currentTask.getCurrentMonster().getArea().unwrap());
             webWalkEvent.useSimplePath();
             webWalkEvent.setPathPreferenceProfile(getToTaskPathPreference());
             webWalkEvent.setBreakCondition(new Condition() {
                 @Override
                 public boolean evaluate() {
-                    return provider.getBank().isOpen() || RuntimeVariables.currentMonster.getArea().contains(provider.myPosition());
+                    return provider.getBank().isOpen() || RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition());
                 }
             });
             provider.log("Walking to task...");
@@ -112,9 +111,6 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "request-target":
-                targetRequested = true;
-                break;
             case "hover-target-antiban":
                 if (target != null) {
                     target.hover();

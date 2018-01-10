@@ -2,7 +2,6 @@ package org.osbot.maestro.script.data;
 
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
-import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.SlayerContainer;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
@@ -14,7 +13,6 @@ public class RuntimeVariables {
 
     public static SlayerTask currentTask;
     public static SlayerMaster currentMaster;
-    public static Monster currentMonster;
     public static boolean drinkPotions = true;
     public static int maxHpPercentToEat = 50;
     public static int minHpPercentToEat = 30;
