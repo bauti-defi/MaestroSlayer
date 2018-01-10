@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.task;
 
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
@@ -9,8 +10,8 @@ import org.osbot.maestro.script.slayer.utils.templates.SlayerTaskTemplate;
 import org.osbot.rs07.script.MethodProvider;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.function.Predicate;
 
 public class SlayerTask {
 
@@ -47,9 +48,9 @@ public class SlayerTask {
         return monsterMechanic != null;
     }
 
-    public Monster getNewMonster(Predicate<Monster> filter, int killsLeft) {
+    public Monster getNewMonster(Comparator<Monster> comparator, int killsLeft) {
         this.killsLeft = killsLeft;
-        return currentMonster = monsters.stream().filter(filter).findFirst().orElse(null);
+        return currentMonster = monsters.stream().sorted(comparator).findFirst().orElse(null);
     }
 
     public Monster getCurrentMonster() {
@@ -117,6 +118,32 @@ public class SlayerTask {
             }
         }
         return true;
+    }
+
+    public static void setCurrentTask(String message) {
+        String monsterName;
+        int amount = 0;
+        if (message.contains("new task")) {
+            amount = Integer.parseInt(message.split("kill ")[1].split(" ")[0]);
+            monsterName = message.split(String.valueOf(amount) + " ")[1].replace(".", "");
+        } else {
+            monsterName = message.split("assigned to kill ")[1].split(";")[0];
+            amount = Integer.parseInt(message.split("only ")[1].split(" more")[0]);
+        }
+        for (SlayerTask task : RuntimeVariables.slayerContainer.getTasks()) {
+            if (task.getName().equalsIgnoreCase(monsterName)) {
+                RuntimeVariables.currentTask = task;
+                RuntimeVariables.currentMonster = task.getNewMonster(new Comparator<Monster>() {
+                    @Override
+                    public int compare(Monster o1, Monster o2) {
+                        return o2.getCombatLevel() - o1.getCombatLevel();
+                    }
+                }, amount);
+                return;
+            }
+        }
+        RuntimeVariables.currentTask = null;
+        RuntimeVariables.currentMonster = null;
     }
 
     public static SlayerTask wrap(SlayerTaskTemplate template) {

@@ -95,7 +95,6 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         }
     }
 
-
     private void outOfItem(String name) {
         provider.log(name + " not found in bank, stopping...");
         provider.getBank().close();
@@ -132,7 +131,8 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         return provider.getObjects().closest(new Filter<RS2Object>() {
             @Override
             public boolean match(RS2Object rs2Object) {
-                return rs2Object.getName().contains("Bank") && provider.getMap().canReach(rs2Object);
+                return rs2Object.getName().contains("Bank") && provider.getMap().canReach(rs2Object) && provider.getMap().isWithinRange
+                        (rs2Object, 10);
             }
         });
     }
@@ -142,7 +142,8 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             provider.log("Opening bank...");
             InteractionEvent openBank = new InteractionEvent(bank, "Bank");
             openBank.setOperateCamera(true);
-            openBank.setWalkingDistanceThreshold(7);
+            openBank.setWalkingDistanceThreshold(5);
+            openBank.setWalkTo(true);
             if (provider.execute(openBank).hasFinished()) {
                 new ConditionalSleep(4000, 1000) {
 
@@ -183,4 +184,5 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             }
         });
     }
+
 }

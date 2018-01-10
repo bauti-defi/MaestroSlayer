@@ -10,7 +10,6 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
-import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.SlayerContainer;
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
@@ -27,7 +26,6 @@ import java.awt.*;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.function.Predicate;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -88,8 +86,7 @@ public class MaestroSlayer extends NodeScript {
         RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
         if (RuntimeVariables.drinkPotions) {
             log("Adding potion support");
-            addTask(new PotionHandler.Builder().addPotion("Super attack", 1, Skill.ATTACK, 0, false).addPotion(RuntimeVariables
-                    .antipoisonType, 1, true).build());
+            addTask(new PotionHandler.Builder().addPotion("Super attack", 1, Skill.ATTACK, 0, false).build());
         }
         if (RuntimeVariables.cannon) {
             log("Adding cannon support");
@@ -132,21 +129,11 @@ public class MaestroSlayer extends NodeScript {
                     sendBroadcast(new Broadcast("cannon-error"));
                 } else if (message.getMessage().toLowerCase().contains("assigned to " + "kill")) {
                     if (RuntimeVariables.currentTask == null || !RuntimeVariables.currentTask.isFinished()) {
-                        String monsterName = message.getMessage().split("kill ")[1].split(";")[0];
-                        int amount = Integer.parseInt(message.getMessage().split("only ")[1].split(" more")[0]);
-                        for (SlayerTask task : RuntimeVariables.slayerContainer.getTasks()) {
-                            if (task.getName().equalsIgnoreCase(monsterName)) {
-                                RuntimeVariables.currentTask = task;
-                                RuntimeVariables.currentMonster = task.getNewMonster(new Predicate<Monster>() {
-                                    @Override
-                                    public boolean test(Monster monster) {
-                                        return monster.getCombatLevel() > 1;
-                                    }
-                                }, amount);
-                                sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentMonster.isPoisonous()));
-                                log("Current task: " + task.getName());
-                                break outter;
-                            }
+                        SlayerTask.setCurrentTask(message.getMessage());
+                        if (RuntimeVariables.currentTask != null) {
+                            sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentMonster.isPoisonous()));
+                            log("Current task: " + RuntimeVariables.currentTask.getName());
+                            break outter;
                         }
                         log("Task not supported.");
                         forceStopScript(true);

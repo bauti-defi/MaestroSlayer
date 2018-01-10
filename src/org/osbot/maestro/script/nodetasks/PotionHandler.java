@@ -4,6 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
@@ -20,15 +21,18 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
     private PotionHandler(Builder builder) {
         super(Priority.URGENT);
         this.potions = builder.potions;
+        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override
     public boolean runnable() {
         for (Potion potion : potions) {
             if (!potion.hasConsumable(provider) && potion.isRequired()) {
+                provider.log("Out of " + potion.getName() + " banking...");
                 sendBroadcast(new Broadcast("bank-for-potions", potion));
                 return false;
-            } else if (potion.hasConsumable(provider) && potion.needConsume(provider)) {
+            } else if (potion.hasConsumable(provider) && potion.needConsume(provider) && RuntimeVariables.currentMonster.getArea()
+                    .contains(provider.myPosition())) {
                 this.potion = potion;
                 return true;
             }
@@ -53,7 +57,8 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
             case "requires-anti":
-                if ((boolean) broadcast.getMessage()) {
+                boolean poisonous = (boolean) broadcast.getMessage();
+                if (poisonous) {
                     if (!potions.contains(ANTIDOTE)) {
                         potions.add(ANTIDOTE);
                     }

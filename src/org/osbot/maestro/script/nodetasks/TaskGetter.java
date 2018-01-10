@@ -4,7 +4,9 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
+import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.event.InteractionEvent;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
@@ -31,8 +33,18 @@ public class TaskGetter extends NodeTask {
         if (master != null) {
             if (provider.getDialogues().inDialogue()) {
                 sendBroadcast(new Broadcast("need-first-task", false));
-                //TODO: either close dialogues and default to gem or read dialogue widget
-                provider.getDialogues().clickContinue();
+                RS2Widget taskWidget = provider.getWidgets().get(231, 3);
+                if (taskWidget != null) {
+                    SlayerTask.setCurrentTask(taskWidget.getMessage());
+                    if (RuntimeVariables.currentTask != null) {
+                        sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentMonster.isPoisonous()));
+                        provider.log("Current task: " + RuntimeVariables.currentTask.getName());
+                        provider.getDialogues().clickContinue();
+                        return;
+                    }
+                    provider.log("Task not supported.");
+                    stopScript(true);
+                }
             } else {
                 provider.log("Talking to " + master.getName());
                 talkToMaster(master);

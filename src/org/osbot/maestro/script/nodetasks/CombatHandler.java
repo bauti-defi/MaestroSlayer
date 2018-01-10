@@ -6,6 +6,7 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
+import org.osbot.maestro.script.slayer.utils.NPCInteractionEvent;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
@@ -70,15 +71,19 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             provider.log("Requesting target");
             sendBroadcast(new Broadcast("request-target"));
             return;
-        } else if (monster.isOnScreen() && monster.isVisible()) {
-            provider.log("Attacking " + RuntimeVariables.currentMonster.getName());
-            attackMonster(monster);
-        } else {
-            if (!provider.getMap().isWithinRange(monster, 7)) {
-                walkToMonster(monster);
-            } else {
-                provider.getCamera().toEntity(monster);
+        }
+        provider.log("Attacking: " + monster.getName());
+        NPCInteractionEvent attackMonster = new NPCInteractionEvent(monster, "Attack");
+        attackMonster.setWalkTo(true);
+        attackMonster.setEnergyThreshold(10, 30);
+        attackMonster.setBreakCondition(new ConditionalSleep(5000, 500) {
+            @Override
+            public boolean condition() throws InterruptedException {
+                return inCombat(monster) || inCombat(provider.myPlayer());
             }
+        });
+        if (provider.execute(attackMonster).hasFinished()) {
+            provider.getMouse().moveOutsideScreen();
         }
     }
 

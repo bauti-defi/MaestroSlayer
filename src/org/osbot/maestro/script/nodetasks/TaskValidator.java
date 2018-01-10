@@ -23,7 +23,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
     @Override
     public boolean runnable() {
         if (RuntimeVariables.currentTask == null && !needFirstTask || forceCheck) {
-            if (provider.getInventory().contains("Enchanted Gem")) {
+            if (provider.getInventory().contains("Enchanted gem")) {
                 return true;
             }
         }
