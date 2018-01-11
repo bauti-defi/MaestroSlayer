@@ -23,6 +23,9 @@ public class MainFrame extends JFrame implements ActionListener {
     public MainFrame(SlayerSettings settings) {
         super("MaestroSlayer");
         this.settings = settings;
+        if (settings != null) {
+            applySettings();
+        }
 
         this.menuBar = new JMenuBar();
         this.fileMenu = new JMenu("File");
@@ -46,6 +49,10 @@ public class MainFrame extends JFrame implements ActionListener {
 
         setContentPane(tabbedPane);
         pack();
+    }
+
+    private void applySettings() {
+        //set values
     }
 
     @Override
