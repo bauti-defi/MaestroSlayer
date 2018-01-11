@@ -8,7 +8,7 @@ public interface MonsterMechanic {
 
     MonsterMechanicTemplate getTemplate();
 
-    boolean condition(String name, NPC monster, MethodProvider provider);
+    boolean condition(NPC monster, MethodProvider provider);
 
     void execute(NPC monster, MethodProvider provider) throws MonsterMechanicException;
 }

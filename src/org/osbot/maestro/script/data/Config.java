@@ -49,6 +49,7 @@ public class Config {
     static {
         mechanicMapper = new MechanicMapper();
         mechanicMapper.map(MonsterMechanics.SALT_MONSTER);
+        mechanicMapper.map(MonsterMechanics.ICE_MONSTER);
 
         itemMapper = new SlayerItemMapper();
         itemMapper.map(SlayerItems.BAG_OF_SALT);

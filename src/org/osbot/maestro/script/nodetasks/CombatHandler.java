@@ -70,6 +70,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         provider.log("Attacking: " + monster.getName());
         EntityInteractionEvent attackMonster = new EntityInteractionEvent(monster, "Attack");
         attackMonster.setWalkTo(true);
+        attackMonster.setMinDistanceThreshold(5);
         attackMonster.setEnergyThreshold(10, 30);
         attackMonster.setBreakCondition(new ConditionalSleep(5000, 500) {
             @Override

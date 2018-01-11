@@ -4,11 +4,10 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.consumable.Potion;
-import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.ui.Tab;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class PotionHandler extends NodeTask implements BroadcastReceiver {
@@ -16,10 +15,11 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
     private final List<Potion> potions;
     private Potion potion;
     private final Potion ANTIDOTE = new Potion("Antidote", 1, true);
+    private final Potion ANTIPOISON = new Potion("Antipoison", 1, true);
 
-    private PotionHandler(Builder builder) {
+    public PotionHandler(List<Potion> potions) {
         super(Priority.URGENT);
-        this.potions = builder.potions;
+        this.potions = potions;
         registerBroadcastReceiver(this::receivedBroadcast);
     }
 
@@ -58,35 +58,12 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
                 boolean poisonous = (boolean) broadcast.getMessage();
                 if (poisonous) {
                     if (!potions.contains(ANTIDOTE)) {
-                        potions.add(ANTIDOTE);
+                        potions.add(RuntimeVariables.settings.isUseAntidote() ? ANTIDOTE : ANTIPOISON);
                     }
                     break;
                 }
-                potions.remove(ANTIDOTE);
+                potions.remove(RuntimeVariables.settings.isUseAntidote() ? ANTIDOTE : ANTIPOISON);
                 break;
-        }
-    }
-
-    public static class Builder {
-
-        private final List<Potion> potions;
-
-        public Builder() {
-            this.potions = new ArrayList<>();
-        }
-
-        public Builder addPotion(String name, int amount, Skill skill, int requiredBuff, boolean required) {
-            potions.add(new Potion(name, amount, skill, requiredBuff, required));
-            return this;
-        }
-
-        public Builder addPotion(String name, int amount, boolean required) {
-            potions.add(new Potion(name, amount, required));
-            return this;
-        }
-
-        public PotionHandler build() {
-            return new PotionHandler(this);
         }
     }
 

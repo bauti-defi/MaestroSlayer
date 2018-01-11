@@ -165,4 +165,8 @@ public class SlayerTask {
                 template.getSlayerWornItems());
     }
 
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

@@ -4,6 +4,9 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.data.SlayerSettings;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
@@ -15,17 +18,15 @@ public class MainFrame extends JFrame implements ActionListener {
 
     private final SlayerSettings settings;
     private final JTabbedPane tabbedPane;
-    private final SlayerPanel slayerPanel;
+    private final JPanel slayerPanel, consumablesPanel;
     private final JMenuBar menuBar;
     private final JMenu fileMenu;
-    private final JMenuItem rebuildCache, save;
+    private final JMenuItem rebuildCache, save, debug;
+    private final JButton start;
 
     public MainFrame(SlayerSettings settings) {
         super("MaestroSlayer");
         this.settings = settings;
-        if (settings != null) {
-            applySettings();
-        }
 
         this.menuBar = new JMenuBar();
         this.fileMenu = new JMenu("File");
@@ -38,21 +39,35 @@ public class MainFrame extends JFrame implements ActionListener {
         this.rebuildCache.setActionCommand("rebuild");
         this.rebuildCache.addActionListener(this::actionPerformed);
 
+        this.debug = new JCheckBoxMenuItem("Debug");
+        this.debug.setSelected(true);
+        this.debug.setEnabled(false);
+        this.debug.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                settings.setDebug(debug.isSelected());
+            }
+        });
+
         this.fileMenu.add(save);
         this.fileMenu.add(rebuildCache);
+        this.fileMenu.add(debug);
         this.menuBar.add(fileMenu);
         setJMenuBar(menuBar);
 
         this.tabbedPane = new JTabbedPane();
         this.slayerPanel = new SlayerPanel(settings);
         this.tabbedPane.addTab("Slayer", slayerPanel);
+        this.consumablesPanel = new ConsumablesPanel(settings);
+        this.tabbedPane.addTab("Potions & Food", consumablesPanel);
+        add(tabbedPane, BorderLayout.CENTER);
 
-        setContentPane(tabbedPane);
+        this.start = new JButton("Start");
+        this.start.setActionCommand("start");
+        this.start.addActionListener(this::actionPerformed);
+        add(start, BorderLayout.SOUTH);
+
         pack();
-    }
-
-    private void applySettings() {
-        //set values
     }
 
     @Override
@@ -73,7 +88,9 @@ public class MainFrame extends JFrame implements ActionListener {
                     e1.printStackTrace();
                 }
                 break;
-
+            case "start":
+                dispose();
+                break;
         }
     }
 }

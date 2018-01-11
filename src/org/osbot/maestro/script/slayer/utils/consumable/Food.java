@@ -1,12 +1,14 @@
 package org.osbot.maestro.script.slayer.utils.consumable;
 
+import org.osbot.maestro.script.data.Foods;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;
 
+import java.io.Serializable;
 import java.util.Random;
 
-public class Food extends Consumable {
+public class Food extends Consumable implements Serializable {
 
     private final int maxPercentToEatAt, minPercentToEatAt;
     private int percentToEatAt;
@@ -18,6 +20,17 @@ public class Food extends Consumable {
         generateRandomPercentToEatAt();
     }
 
+    public Food(Foods food, int amount, int minPercentToEatAt, int maxPercentToEatAt) {
+        this(food.getName(), amount, minPercentToEatAt, maxPercentToEatAt);
+    }
+
+    public int getMinPercentToEatAt() {
+        return minPercentToEatAt;
+    }
+
+    public int getMaxPercentToEatAt() {
+        return maxPercentToEatAt;
+    }
 
     private void generateRandomPercentToEatAt() {
         percentToEatAt = new Random().nextInt(maxPercentToEatAt - minPercentToEatAt + 1) + minPercentToEatAt;

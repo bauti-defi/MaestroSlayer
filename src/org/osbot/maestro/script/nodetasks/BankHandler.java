@@ -10,6 +10,7 @@ import org.osbot.maestro.script.slayer.utils.consumable.Consumable;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
 import org.osbot.rs07.api.filter.Filter;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.RS2Object;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
@@ -38,7 +39,12 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             return !RuntimeVariables.currentTask.haveAllRequiredItems(provider) || RuntimeVariables.currentTask.isFinished() ||
                     !consumablesToRestockNow.isEmpty();
         }
-        return provider.getBank().isOpen() || !provider.getInventory().contains("Enchanted gem");
+        return provider.getBank().isOpen() || !provider.getInventory().contains("Enchanted gem") || !provider.getInventory().contains(new Filter<Item>() {
+            @Override
+            public boolean match(Item item) {
+                return item.getName().contains("Teleport");
+            }
+        });
     }
 
     @Override
@@ -144,7 +150,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     private void openBank(RS2Object bank) {
         if (bank != null) {
             provider.log("Opening bank...");
-            EntityInteractionEvent bankInteraction = new EntityInteractionEvent(bank, "Bank");
+            EntityInteractionEvent bankInteraction = new EntityInteractionEvent(bank, bank.getName().contains("chest") ? "Use" : "Bank");
             bankInteraction.setWalkTo(true);
             bankInteraction.setEnergyThreshold(10, 30);
             bankInteraction.setBreakCondition(new ConditionalSleep(4000, 1000) {

@@ -9,7 +9,6 @@ import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
-import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.maestro.script.ui.MainFrame;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Message;
@@ -72,16 +71,16 @@ public class MaestroSlayer extends NodeScript {
         RuntimeVariables.experienceTracker.start(Skill.RANGED);
         RuntimeVariables.experienceTracker.start(Skill.MAGIC);
         RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
-        if (RuntimeVariables.drinkPotions) {
+        if (RuntimeVariables.settings.isDrinkPotion()) {
             log("Adding potion support");
-            addTask(new PotionHandler.Builder().addPotion("Super attack", 1, Skill.ATTACK, 0, false).build());
+            addTask(new PotionHandler(RuntimeVariables.settings.getPotions()));
         }
-        if (RuntimeVariables.cannon) {
+        if (RuntimeVariables.settings.isUseCannon()) {
             log("Adding cannon support");
             addTask(new CannonHandler());
         }
         log("Adding eating support");
-        addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
+        addTask(new FoodHandler(RuntimeVariables.settings.getFood()));
         log("Configuring Antiban");
         addTask(new AntibanHandler(RuntimeVariables.settings.getAntibanFrequency()));
         RuntimeVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
@@ -168,7 +167,7 @@ public class MaestroSlayer extends NodeScript {
                         (RuntimeVariables.experienceTracker.getGainedXPPerHour(Skill.SLAYER)) + ")", 12,
                 102);
         g.drawString("Current Task: " + ((RuntimeVariables.currentTask == null || RuntimeVariables.currentTask.isFinished())
-                ? "None" : RuntimeVariables.currentTask.getCurrentMonster().getName()), 12, 118);
+                ? "None" : RuntimeVariables.currentTask.getName()), 12, 118);
         g.drawString("Tasks: " + RuntimeVariables.tasksFinished, 12, 70);
         if (targetToPaint != null && targetToPaint.exists()) {
             g.setColor(Color.RED);

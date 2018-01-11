@@ -75,6 +75,7 @@ public class SlayerPanel extends JPanel implements ActionListener {
 
         this.cannon = new JCheckBox("Use cannon when possible");
         this.cannon.setActionCommand("cannon");
+        this.cannon.setSelected(settings.isUseCannon());
         this.cannon.addActionListener(this::actionPerformed);
         add(cannon, BorderLayout.SOUTH);
 

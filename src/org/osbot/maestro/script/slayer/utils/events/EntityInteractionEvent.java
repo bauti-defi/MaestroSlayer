@@ -58,12 +58,12 @@ public class EntityInteractionEvent extends Event {
             log("EntityInteractionEvent: Entity null");
             setFailed();
             return -1;
-        } else if (!entity.hasAction(action) || !entity.exists() || !getMap().canReach(entity)) {
+        } else if (!entity.exists() || !getMap().canReach(entity)) {
             log("EntityInteractionEvent: Invalid Entity");
             setFailed();
             return -1;
         } else if (!entity.isVisible()) {
-            if (cameraMovementEvent == null || cameraMovementEvent.hasFinished()) {
+            if (cameraMovementEvent == null || cameraMovementEvent.hasFinished() || cameraMovementEvent.hasFailed()) {
                 cameraMovementEvent = new CameraMovementEvent(entity);
                 cameraMovementEvent.setAsync();
             }
@@ -79,7 +79,7 @@ public class EntityInteractionEvent extends Event {
                 walkingEvent.setMiniMapDistanceThreshold(miniMapDistanceThreshold);
                 walkingEvent.setMinDistanceThreshold(minDistanceThreshold);
                 walkingEvent.setAsync();
-            } else if (!walkingEvent.isQueued() || !walkingEvent.isWorking()) {
+            } else if (!walkingEvent.isQueued() && !walkingEvent.isWorking()) {
                 execute(walkingEvent);
             }
         }

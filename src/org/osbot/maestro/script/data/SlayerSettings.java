@@ -1,6 +1,8 @@
 package org.osbot.maestro.script.data;
 
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
+import org.osbot.maestro.script.slayer.utils.consumable.Food;
+import org.osbot.maestro.script.slayer.utils.consumable.Potion;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,15 +10,45 @@ import java.util.List;
 
 public class SlayerSettings implements Serializable {
 
-    private String slayerMaster, food, antipoisonOption;
-    private int minimumLootPrice, baseEatPercentage, maxEatPercentage;
-    private boolean eatToLoot, drinkPotion, useCannon;
-    private List<String> potions, tasksToSkip;
+    private String slayerMaster;
+    private int minimumLootPrice;
+    private boolean eatToLoot, drinkPotion, useCannon, debug, useAntidote;
+    private List<String> tasksToSkip;
+    private List<Potion> potions;
+    private Food food;
     private AntibanFrequency antibanFrequency;
 
     public SlayerSettings() {
         this.potions = new ArrayList<>();
         this.tasksToSkip = new ArrayList<>();
+        food = new Food(Foods.MONKFISH.getName(), 15, 30, 50);
+        drinkPotion = true;
+        potions.add(new Potion(Potions.SUPER_ATTACK, 1, 0));
+        debug = true;
+        useCannon = false;
+        minimumLootPrice = 3000;
+        eatToLoot = false;
+        drinkPotion = false;
+        slayerMaster = "Vannaka";
+        useAntidote = true;
+        antibanFrequency = AntibanFrequency.HIGH;
+    }
+
+
+    public boolean isUseAntidote() {
+        return useAntidote;
+    }
+
+    public void setUseAntidote(boolean useAntidote) {
+        this.useAntidote = useAntidote;
+    }
+
+    public boolean isDebug() {
+        return debug;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 
     public AntibanFrequency getAntibanFrequency() {
@@ -47,22 +79,6 @@ public class SlayerSettings implements Serializable {
         this.slayerMaster = slayerMaster;
     }
 
-    public String getFood() {
-        return food;
-    }
-
-    public void setFood(String food) {
-        this.food = food;
-    }
-
-    public String getAntipoisonOption() {
-        return antipoisonOption;
-    }
-
-    public void setAntipoisonOption(String antipoisonOption) {
-        this.antipoisonOption = antipoisonOption;
-    }
-
     public int getMinimumLootPrice() {
         return minimumLootPrice;
     }
@@ -71,21 +87,6 @@ public class SlayerSettings implements Serializable {
         this.minimumLootPrice = minimumLootPrice;
     }
 
-    public int getBaseEatPercentage() {
-        return baseEatPercentage;
-    }
-
-    public void setBaseEatPercentage(int baseEatPercentage) {
-        this.baseEatPercentage = baseEatPercentage;
-    }
-
-    public int getMaxEatPercentage() {
-        return maxEatPercentage;
-    }
-
-    public void setMaxEatPercentage(int maxEatPercentage) {
-        this.maxEatPercentage = maxEatPercentage;
-    }
 
     public boolean isEatToLoot() {
         return eatToLoot;
@@ -111,11 +112,19 @@ public class SlayerSettings implements Serializable {
         this.useCannon = useCannon;
     }
 
-    public List<String> getPotions() {
+    public List<Potion> getPotions() {
         return potions;
     }
 
-    public void addPotion(String potions) {
-        this.potions.add(potions);
+    public void setPotions(List<Potion> potions) {
+        this.potions = potions;
+    }
+
+    public Food getFood() {
+        return food;
+    }
+
+    public void setFood(Food food) {
+        this.food = food;
     }
 }

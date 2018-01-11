@@ -1,5 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.consumable;
 
+import org.osbot.maestro.script.data.Potions;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
@@ -8,7 +9,9 @@ import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-public class Potion extends Consumable {
+import java.io.Serializable;
+
+public class Potion extends Consumable implements Serializable {
 
     private Skill skill;
     private int requiredBuff;
@@ -21,6 +24,10 @@ public class Potion extends Consumable {
 
     public Potion(String name, int amount, boolean required) {
         super(name, amount, required);
+    }
+
+    public Potion(Potions potion, int amount, int requiredBuff) {
+        this(potion.getName(), amount, potion.getSkill(), requiredBuff, potion.isRequired());
     }
 
     @Override

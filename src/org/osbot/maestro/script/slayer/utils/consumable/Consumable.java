@@ -5,7 +5,9 @@ import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
 
-public abstract class Consumable {
+import java.io.Serializable;
+
+public abstract class Consumable implements Serializable {
 
     private final String name;
     private final boolean required;

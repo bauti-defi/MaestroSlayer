@@ -20,21 +20,17 @@ public class MonsterMechanicHandler extends NodeTask implements BroadcastReceive
     @Override
     public boolean runnable() {
         if (monster != null && monster.exists()) {
-            return RuntimeVariables.currentTask.hasMechanic() && RuntimeVariables.currentTask.getMonsterMechanic().condition
-                    (RuntimeVariables.currentTask.getCurrentMonster().getName(), monster, provider);
+            return RuntimeVariables.currentTask.hasMechanic() && RuntimeVariables.currentTask.getMonsterMechanic().condition(monster, provider);
         }
         return false;
     }
 
     @Override
     protected void execute() throws InterruptedException {
-        if (monster.isOnScreen() && monster.isVisible()) {
-            try {
-                RuntimeVariables.currentTask.getMonsterMechanic().execute(monster, provider);
-            } catch (MonsterMechanicException e) {
-                e.printStackTrace();
-                stopScript(true);
-            }
+        try {
+            RuntimeVariables.currentTask.getMonsterMechanic().execute(monster, provider);
+        } catch (MonsterMechanicException e) {
+            e.printStackTrace();
         }
     }
 

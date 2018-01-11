@@ -17,6 +17,8 @@ public class Cache {
         this.directory = new Directory(path);
         if (!validate()) {
             rebuild();
+        } else {
+            loadSlayerDataLocal();
         }
     }
 
@@ -37,15 +39,16 @@ public class Cache {
             }
         } catch (InvalidFileNameException e) {
             e.printStackTrace();
-            return null;
+            return new SlayerSettings();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return new SlayerSettings();
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return new SlayerSettings();
     }
 
     public void rebuild() {
