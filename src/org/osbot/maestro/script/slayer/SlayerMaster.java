@@ -43,4 +43,9 @@ public class SlayerMaster {
     public static SlayerMaster wrap(SlayerMasterTemplate template) {
         return new SlayerMaster(template.getName(), template.getArea(), template.getCombatLevel(), template.getSlayerLevel());
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }

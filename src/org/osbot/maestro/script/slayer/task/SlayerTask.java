@@ -52,6 +52,10 @@ public class SlayerTask {
         return killsLeft;
     }
 
+    public void setKillsLeft(int killsLeft) {
+        this.killsLeft = killsLeft;
+    }
+
     public void registerKill() {
         if (killsLeft == 0) {
             return;
@@ -136,6 +140,10 @@ public class SlayerTask {
         } else {
             monsterName = message.split("assigned to kill ")[1].split(";")[0];
             amount = Integer.parseInt(message.split("only ")[1].split(" more")[0]);
+        }
+        if (RuntimeVariables.currentTask != null && !RuntimeVariables.currentTask.isFinished()) {
+            RuntimeVariables.currentTask.setKillsLeft(amount);
+            return;
         }
         for (SlayerTask task : RuntimeVariables.slayerContainer.getTasks()) {
             if (task.getName().equalsIgnoreCase(monsterName)) {

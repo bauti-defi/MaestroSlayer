@@ -1,21 +1,16 @@
 package org.osbot.maestro.script;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeScript;
+import org.osbot.maestro.script.data.Cache;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
-import org.osbot.maestro.script.slayer.utils.SlayerContainer;
-import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
-import org.osbot.maestro.script.util.directory.Directory;
-import org.osbot.maestro.script.util.directory.exceptions.InvalidFileNameException;
+import org.osbot.maestro.script.ui.MainFrame;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
@@ -23,9 +18,6 @@ import org.osbot.rs07.api.util.ExperienceTracker;
 import org.osbot.rs07.script.ScriptManifest;
 
 import java.awt.*;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 
 @ScriptManifest(author = "El Maestro", info = "Slays monsters.", name = "MaestroSlayer", version = 1.0, logo = "")
 public class MaestroSlayer extends NodeScript {
@@ -36,6 +28,7 @@ public class MaestroSlayer extends NodeScript {
     private final Font font2 = new Font("Arial", 1, 18);
     private final Font font3 = new Font("Arial", 0, 10);
     private final long startTime;
+    private MainFrame mainFrame;
     private NPC targetToPaint;
 
     public MaestroSlayer() {
@@ -47,26 +40,21 @@ public class MaestroSlayer extends NodeScript {
         addTask(new TaskValidator());
         addTask(new TargetFinder());
         addTask(new MonsterMechanicHandler());
-        addTask(new AntibanHandler(AntibanFrequency.HIGH));
         addTask(new TaskGetter());
-        addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
     }
 
     @Override
     public void onStart() throws InterruptedException {
         log("MaestroSlayer initializing...");
-        RuntimeVariables.saveDirectory = new Directory(getDirectoryData() + "MaestroSlayer");
-        if (!RuntimeVariables.saveDirectory.exists()) {
-            try {
-                if (RuntimeVariables.saveDirectory.create()) {
-                    log("Script directory created at: " + RuntimeVariables.saveDirectory.getPath());
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+        RuntimeVariables.cache = new Cache(getDirectoryData() + "MaestroSlayer");
+        RuntimeVariables.settings = RuntimeVariables.cache.getSettings();
+        if (Config.USE_GUI) {
+            this.mainFrame = new MainFrame(RuntimeVariables.settings);
+            this.mainFrame.setVisible(true);
+            while (mainFrame.isVisible()) {
+                sleep(random(500, 1000));
             }
         }
-        loadSlayerDataLocal();
-        //TODO:START GUI
         for (SlayerMaster master : RuntimeVariables.slayerContainer.getMasters()) {
             if (master.getName().equalsIgnoreCase("vannaka")) {
                 log("Slayer master set to: " + master.getName());
@@ -92,6 +80,10 @@ public class MaestroSlayer extends NodeScript {
             log("Adding cannon support");
             addTask(new CannonHandler());
         }
+        log("Adding eating support");
+        addTask(new FoodHandler(new Food("Monkfish", 28, RuntimeVariables.minHpPercentToEat, RuntimeVariables.maxHpPercentToEat)));
+        log("Configuring Antiban");
+        addTask(new AntibanHandler(RuntimeVariables.settings.getAntibanFrequency()));
         RuntimeVariables.combatStyle = CombatStyle.getCurrentCombatStyle(this);
         log("Combat style set to: " + RuntimeVariables.combatStyle.getName());
         if (!RuntimeVariables.currentMaster.hasRequirements(this)) {
@@ -127,7 +119,7 @@ public class MaestroSlayer extends NodeScript {
                     sendBroadcast(new Broadcast("cannon-set", false));
                 } else if (message.getMessage().contains("there isn't enough space to set up here")) {
                     sendBroadcast(new Broadcast("cannon-error"));
-                } else if (message.getMessage().toLowerCase().contains("assigned to " + "kill")) {
+                } else if (message.getMessage().toLowerCase().contains("assigned to kill")) {
                     if (RuntimeVariables.currentTask == null || !RuntimeVariables.currentTask.isFinished()) {
                         SlayerTask.setCurrentTask(message.getMessage());
                         if (RuntimeVariables.currentTask != null) {
@@ -193,41 +185,5 @@ public class MaestroSlayer extends NodeScript {
         }
     }
 
-    private void downloadSlayerData() {
-        log("Downloading latest version...");
-        //logic
-        log("Download finished.");
-    }
 
-    private void loadSlayerDataLocal() {
-        log("Loading slayer data...");
-        try {
-            if (!RuntimeVariables.saveDirectory.getFile(Config.SLAYER_DATA_FILE_NAME).exists()) {
-                warn("NO LOCAL SLAYER DATA FOUND!");
-                downloadSlayerData();
-                loadSlayerDataLocal();
-            }
-        } catch (InvalidFileNameException e) {
-            e.printStackTrace();
-        }
-        JSONParser parser = new JSONParser();
-        JSONObject slayerData = null;
-        try (FileReader reader = new FileReader(RuntimeVariables.saveDirectory.getFile(Config.SLAYER_DATA_FILE_NAME))) {
-            slayerData = (JSONObject) parser.parse(reader);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InvalidFileNameException e) {
-            e.printStackTrace();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if (slayerData == null) {
-            warn("ERROR LOADING LOCAL SLAYER DATA!");
-            forceStopScript(true);
-        }
-        RuntimeVariables.slayerContainer = SlayerContainer.wrap(slayerData);
-        log("Slayer data loaded.");
-    }
 }

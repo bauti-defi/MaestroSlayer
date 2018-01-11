@@ -34,6 +34,7 @@ public class Config {
     public static final String MASTERS = "Y";
     public static final String ID = "Z";
     public static final String SLAYER_DATA_FILE_NAME = "slayer.txt";
+    public static final String SLAYER_SETTINGS_FILE_NAME = "slayer_settings.txt";
     public static final MechanicMapper mechanicMapper;
     public static final SlayerItemMapper itemMapper;
     public static final Area[] GAME_BANKS = new Area[]{
@@ -42,6 +43,7 @@ public class Config {
             .FALADOR_WEST, Banks.HOSIDIUS_HOUSE, Banks.LOVAKENGJ_HOUSE, Banks.LOVAKITE_MINE, Banks.GNOME_STRONGHOLD, Banks
             .GNOME_STRONGHOLD, Banks.LUMBRIDGE_LOWER, Banks.LUMBRIDGE_UPPER, Banks.VARROCK_EAST, Banks.VARROCK_WEST, Banks
             .YANILLE, Banks.TZHAAR};
+    public static final boolean USE_GUI = false;
 
 
     static {

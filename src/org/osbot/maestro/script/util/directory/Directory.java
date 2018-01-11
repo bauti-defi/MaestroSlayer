@@ -117,6 +117,14 @@ public class Directory {
         throw new InvalidFileNameException(name);
     }
 
+    public boolean delete() {
+        return directory.delete();
+    }
+
+    public boolean delete(String name) throws InvalidFileNameException {
+        return getFile(name).delete();
+    }
+
     public Directory[] getSubDirectories() {
         final ArrayList<Directory> directories = new ArrayList<Directory>();
         for (File file : directory.listFiles()) {

@@ -9,7 +9,10 @@ import org.osbot.maestro.script.slayer.utils.events.CameraMovementEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
+import org.osbot.rs07.input.mouse.MouseDestination;
 
+import java.awt.*;
+import java.awt.geom.Area;
 import java.util.Random;
 
 public class AntibanHandler extends NodeTimeTask {
@@ -25,7 +28,7 @@ public class AntibanHandler extends NodeTimeTask {
 
     @Override
     protected void execute() throws InterruptedException {
-        switch (random.nextInt(7)) {
+        switch (random.nextInt(8)) {
             case 0:
                 provider.log("Antiban: Move camera pitch");
                 if (provider.getCamera().getPitchAngle() != provider.getCamera().getLowestPitchAngle()) {
@@ -83,8 +86,38 @@ public class AntibanHandler extends NodeTimeTask {
                 provider.log("Antiban: Hover target");
                 sendBroadcast(new Broadcast("hover-target-antiban"));
                 break;
+            case 8:
+                provider.log("Antiban: Re-arranging inventory items");
+                provider.getMouse().move(provider.getInventory().getMouseDestination(random.nextInt(27)));
+                provider.getMouse().move(new MouseDestination(provider.getBot()) {
+
+                    int slot = random.nextInt(27);
+
+                    @Override
+                    public Area getArea() {
+                        return provider.getInventory().getMouseDestination(slot).getArea();
+                    }
+
+                    @Override
+                    public boolean evaluate() {
+                        return provider.getInventory().getMouseDestination(slot).evaluate();
+                    }
+
+                    @Override
+                    public Rectangle getBoundingBox() {
+                        return provider.getInventory().getMouseDestination(slot).getBoundingBox();
+                    }
+
+                    @Override
+                    public boolean isVisible() {
+                        return provider.getInventory().getMouseDestination(slot).isVisible();
+                    }
+                }, true);
+                break;
         }
         super.execute();
         provider.log("Next Antiban action in: " + (getNextRefresh() / 1000) + " seconds");
     }
+
 }
+
