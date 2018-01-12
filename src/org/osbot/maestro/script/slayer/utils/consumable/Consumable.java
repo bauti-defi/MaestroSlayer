@@ -1,6 +1,5 @@
 package org.osbot.maestro.script.slayer.utils.consumable;
 
-import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
@@ -29,12 +28,6 @@ public abstract class Consumable implements Serializable {
 
     public boolean isRequired() {
         return required;
-    }
-
-    public boolean withdrawFromBank(MethodProvider provider) {
-        provider.log("Withdrawing " + amount + " " + getName());
-        BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(name, amount, false);
-        return provider.execute(withdrawEvent).hasFinished();
     }
 
     public boolean hasConsumable(MethodProvider provider) {

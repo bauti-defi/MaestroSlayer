@@ -2,7 +2,6 @@ package org.osbot.maestro.script.slayer.utils.consumable;
 
 import org.osbot.maestro.script.data.Potions;
 import org.osbot.maestro.script.data.RuntimeVariables;
-import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.Skill;
@@ -38,20 +37,6 @@ public class Potion extends Consumable implements Serializable {
                 return item.getName().contains(getName());
             }
         });
-    }
-
-    @Override
-    public boolean withdrawFromBank(MethodProvider provider) {
-        provider.log("Withdrawing " + getAmount() + " " + getName());
-        BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(getName(), new Filter<Item>() {
-
-            @Override
-            public boolean match(Item item) {
-                return item.getName().contains(getName()) && (item.getName().contains("(3)") || item.getName().contains("(4)"));
-            }
-        }, getAmount(), false);
-        withdrawEvent.setNeedExactAmount(true);
-        return provider.execute(withdrawEvent).hasFinished();
     }
 
     public boolean needConsume(MethodProvider provider) {

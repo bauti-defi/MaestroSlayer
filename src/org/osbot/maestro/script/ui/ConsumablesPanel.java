@@ -106,15 +106,12 @@ public class ConsumablesPanel extends JPanel implements ActionListener, ChangeLi
         switch (e.getActionCommand()) {
             case "delete":
                 if (!potionsToUse.isSelectionEmpty()) {
+                    //delete potion from settings list
                     potionsToUse.remove(potionsToUse.getSelectedIndex());
                     potionsToUse.clearSelection();
                 }
-                if (potionsToUseModel.isEmpty()) {
-                    settings.setDrinkPotion(false);
-                }
                 break;
             case "add":
-                settings.setDrinkPotion(true);
                 break;
         }
     }

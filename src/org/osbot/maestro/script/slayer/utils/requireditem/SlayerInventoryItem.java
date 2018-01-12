@@ -1,7 +1,6 @@
 package org.osbot.maestro.script.slayer.utils.requireditem;
 
 import org.osbot.maestro.script.slayer.utils.Condition;
-import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.script.MethodProvider;
@@ -51,22 +50,6 @@ public class SlayerInventoryItem extends SlayerItem {
             }
         }
         return 0;
-    }
-
-    @Override
-    public boolean withdrawFromBank(MethodProvider provider) {
-        if (stackable) {
-            provider.log("Withdrawing " + getAmount() + " " + getName());
-            BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(getName(), new Filter<Item>() {
-                @Override
-                public boolean match(Item item) {
-                    return item.getName().equalsIgnoreCase(getName()) || (!item.getName().contains("(0)") && item.getName().contains(getName()));
-                }
-            }, getAmount(), true);
-            withdrawEvent.setNeedExactAmount(true);
-            return provider.execute(withdrawEvent).hasFinished();
-        }
-        return super.withdrawFromBank(provider);
     }
 
     @Override

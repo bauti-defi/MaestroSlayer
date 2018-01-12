@@ -1,9 +1,11 @@
 package org.osbot.maestro.script.nodetasks;
 
+import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.EquipmentPreset;
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
@@ -25,12 +27,21 @@ public class EquipmentHandler extends NodeTask {
             this.startingPreset = getEquipmentAsPreset();
             this.currentPreset = startingPreset;
             provider.log("Current equipment preset saved");
-        } else if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.haveRequiredWornItems(provider)) {
-            for (SlayerWornItem wornItem : RuntimeVariables.currentTask.getAllSlayerWornItems()) {
-                if (!wornItem.isWearing(provider)) {
-                    toWear = wornItem;
-                    return true;
+        } else if (RuntimeVariables.currentTask != null) {
+            if (!RuntimeVariables.currentTask.getAllSlayerItems().isEmpty()) {
+                for (SlayerWornItem wornItem : RuntimeVariables.currentTask.getAllSlayerWornItems()) {
+                    if (!wornItem.haveItem(provider)) {
+                        sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(wornItem.getName(), wornItem.getAmount()
+                                , wornItem.getSlot() == EquipmentSlot.ARROWS ? true : false, true, true)));
+                        continue;
+                    } else if (!wornItem.isWearing(provider)) {
+                        toWear = wornItem;
+                        return true;
+                    }
                 }
+                currentPreset = getEquipmentAsPreset();
+            } else {
+                currentPreset = startingPreset;
             }
         }
         return false;
@@ -51,7 +62,6 @@ public class EquipmentHandler extends NodeTask {
                 }.sleep();
             }
         }
-
     }
 
     private EquipmentPreset getEquipmentAsPreset() {

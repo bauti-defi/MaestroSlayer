@@ -1,15 +1,17 @@
 package org.osbot.maestro.script.slayer.utils.events;
 
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.event.Event;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 public class BankItemWithdrawEvent extends Event {
 
     private final String name;
     private final int amount;
-    private boolean needExactAmount;
     private final boolean stackable;
+    private boolean needExactAmount;
     private Filter<Item> filter;
 
     public BankItemWithdrawEvent(String name, int amount, boolean stackable) {
@@ -22,6 +24,11 @@ public class BankItemWithdrawEvent extends Event {
     public BankItemWithdrawEvent(String name, Filter<Item> filter, int amount, boolean stackable) {
         this(name, amount, stackable);
         this.filter = filter;
+    }
+
+    public BankItemWithdrawEvent(WithdrawRequest request) {
+        this(request.getName(), request.getFilter(), request.getAmount(), request.isStackable());
+        setNeedExactAmount(request.isNeedExactAmount());
     }
 
     public void setNeedExactAmount(boolean needExactAmount) {
@@ -48,13 +55,29 @@ public class BankItemWithdrawEvent extends Event {
                 return -1;
             }
         }
+        long currentCount = getItemCount();
         if (withdraw()) {
+            log("Withdrawing " + amount + " " + name);
+            new ConditionalSleep(3000, 500) {
+
+                @Override
+                public boolean condition() throws InterruptedException {
+                    return currentCount != getItemCount();
+                }
+            }.sleep();
             setFinished();
         } else {
             log("Failed to withdraw: " + name);
             setFailed();
         }
         return random(250, 500);
+    }
+
+    private long getItemCount() {
+        if (filter != null) {
+            return getInventory().getAmount(filter);
+        }
+        return getInventory().getAmount(name);
     }
 
     private boolean withdraw() {
@@ -74,4 +97,6 @@ public class BankItemWithdrawEvent extends Event {
         }
         return getBank().withdraw(name, amount);
     }
+
+
 }

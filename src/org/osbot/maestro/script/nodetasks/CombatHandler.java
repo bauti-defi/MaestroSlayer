@@ -6,8 +6,12 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
+import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
+import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Character;
+import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
@@ -24,17 +28,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (!provider.getCombat().isAutoRetaliateOn()) {
-            provider.log("Turning auto retaliate on...");
-            provider.getCombat().toggleAutoRetaliate(true);
-            new ConditionalSleep(2500, 500) {
-
-                @Override
-                public boolean condition() throws InterruptedException {
-                    return provider.getCombat().isAutoRetaliateOn();
-                }
-            }.sleep();
-        }
         if (provider.getConfigs().get(RuntimeVariables.combatStyle.getConfigParentId()) != RuntimeVariables.combatStyle.getConfigId()) {
             provider.log("Switching back to original combat style.");
             if (provider.getTabs().open(Tab.ATTACK)) {
@@ -53,7 +46,18 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         }
         if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.haveRequiredInventoryItems(provider)) {
-                provider.log("Need bank, missing inventory item...");
+                for (SlayerInventoryItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
+                    if (!inventoryItem.haveItem(provider)) {
+                        sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(inventoryItem.getName(), new Filter<Item>() {
+                            @Override
+                            public boolean match(Item item) {
+                                return item.getName().equalsIgnoreCase(inventoryItem.getName()) || (!item.getName().contains("(0)") && item
+                                        .getName().contains(inventoryItem.getName()));
+                            }
+                        }, inventoryItem.getAmount(), inventoryItem.isStackable(), true, true)));
+                        continue;
+                    }
+                }
                 return false;
             } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 return monster != null && monster.exists() && !inCombat(provider.myPlayer());
@@ -66,6 +70,16 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     public void execute() throws InterruptedException {
         if (monster == null || !monster.exists()) {
             return;
+        } else if (!provider.getCombat().isAutoRetaliateOn()) {
+            provider.log("Turning auto retaliate on...");
+            provider.getCombat().toggleAutoRetaliate(true);
+            new ConditionalSleep(2500, 500) {
+
+                @Override
+                public boolean condition() throws InterruptedException {
+                    return provider.getCombat().isAutoRetaliateOn();
+                }
+            }.sleep();
         }
         provider.log("Attacking: " + monster.getName());
         EntityInteractionEvent attackMonster = new EntityInteractionEvent(monster, "Attack");

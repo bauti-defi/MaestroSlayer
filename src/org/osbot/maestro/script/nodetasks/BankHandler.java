@@ -6,11 +6,10 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
-import org.osbot.maestro.script.slayer.utils.consumable.Consumable;
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
 import org.osbot.rs07.api.filter.Filter;
-import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.RS2Object;
 import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
@@ -23,28 +22,22 @@ import java.util.List;
 
 public class BankHandler extends NodeTask implements BroadcastReceiver {
 
-    private final List<Consumable> consumablesToRestock;
-    private final List<Consumable> consumablesToRestockNow;
+    private final List<WithdrawRequest> bankRequests;
+    private boolean emergencyBank;
 
     public BankHandler() {
         super(Priority.URGENT);
-        this.consumablesToRestockNow = new ArrayList<>();
-        this.consumablesToRestock = new ArrayList<>();
+        this.bankRequests = new ArrayList<>();
         registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override
     public boolean runnable() throws InterruptedException {
-        if (RuntimeVariables.currentTask != null) {
-            return !RuntimeVariables.currentTask.haveAllRequiredItems(provider) || RuntimeVariables.currentTask.isFinished() ||
-                    !consumablesToRestockNow.isEmpty();
+        if (RuntimeVariables.currentTask != null && (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())
+                || RuntimeVariables.currentTask.isFinished())) {
+            return !bankRequests.isEmpty();
         }
-        return provider.getBank().isOpen() || !provider.getInventory().contains("Enchanted gem") || !provider.getInventory().contains(new Filter<Item>() {
-            @Override
-            public boolean match(Item item) {
-                return item.getName().contains("Teleport");
-            }
-        });
+        return provider.getBank().isOpen() || emergencyBank;
     }
 
     @Override
@@ -56,55 +49,20 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             } else {
                 openBank(bank);
             }
-        } else if (!provider.getInventory().contains("Enchanted gemn")) {
-            provider.log("Withdrawing enchanted gem...");
-            if (provider.getBank().withdraw("Enchanted gem", 1)) {
-                new ConditionalSleep(3000, 500) {
-
-                    @Override
-                    public boolean condition() throws InterruptedException {
-                        return provider.getInventory().contains("Enchanted gem");
-                    }
-                }.sleep();
-            } else {
-                outOfItem("Enchanted gem");
-            }
-        } else if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
-            for (SlayerItem item : RuntimeVariables.currentTask.getAllSlayerItems()) {
-                if (!item.haveItem(provider)) {
-                    provider.log("Withdrawing " + item.getAmount() + " " + item.getName());
-                    if (!item.withdrawFromBank(provider)) {
-                        outOfItem(item.getName());
-                        return;
-                    }
+        } else if (!bankRequests.isEmpty()) {
+            for (WithdrawRequest request : bankRequests) {
+                BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(request);
+                if (provider.execute(withdrawEvent).hasFinished()) {
+                    continue;
                 }
             }
-        } else if (!consumablesToRestockNow.isEmpty()) {
-            for (Consumable consumable : consumablesToRestockNow) {
-                if (!consumable.withdrawFromBank(provider)) {
-                    outOfItem(consumable.getName());
-                    return;
-                }
-            }
-            consumablesToRestockNow.clear();
-        } else if (!consumablesToRestock.isEmpty()) {
-            for (Consumable consumable : consumablesToRestock) {
-                if (!consumable.withdrawFromBank(provider)) {
-                    outOfItem(consumable.getName());
-                    return;
-                }
-            }
-            consumablesToRestock.clear();
+            bankRequests.clear();
+            emergencyBank = false;
+            sendBroadcast(new Broadcast("resupplied", true));
         } else {
             provider.log("Closing bank...");
             provider.getBank().close();
         }
-    }
-
-    private void outOfItem(String name) {
-        provider.log(name + " not found in bank, stopping...");
-        provider.getBank().close();
-        stopScript(true);
     }
 
     private void walkToBank() {
@@ -141,7 +99,8 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
         return provider.getObjects().closest(new Filter<RS2Object>() {
             @Override
             public boolean match(RS2Object rs2Object) {
-                return rs2Object.getName().contains("Bank") && provider.getMap().canReach(rs2Object) && provider.getMap().isWithinRange
+                return (rs2Object.getName().equalsIgnoreCase("Bank booth") || rs2Object.getName().equalsIgnoreCase("Bank chest")) && provider
+                        .getMap().canReach(rs2Object) && provider.getMap().isWithinRange
                         (rs2Object, 10);
             }
         });
@@ -166,27 +125,23 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "bank-for-potions":
-            case "bank-for-food":
-                Consumable consumable = (Consumable) broadcast.getMessage();
-                if (consumable.isRequired()) {
-                    if (!consumablesToRestockNow.contains(consumable)) {
-                        consumablesToRestockNow.add(consumable);
-                        organize(consumablesToRestockNow);
-                    }
-                    break;
-                } else if (!consumablesToRestock.contains(consumable)) {
-                    consumablesToRestock.add(consumable);
-                    organize(consumablesToRestock);
+            case "bank-withdraw-request":
+                WithdrawRequest request = (WithdrawRequest) broadcast.getMessage();
+                if (!bankRequests.contains(request)) {
+                    provider.log("Request registered.");
+                    emergencyBank = request.isEmergency();
+                    bankRequests.add(request);
+                    organize(bankRequests);
                 }
+                sendBroadcast(new Broadcast("resupplied", false));
                 break;
         }
     }
 
-    private void organize(List<Consumable> consumables) {
-        consumables.sort(new Comparator<Consumable>() {
+    private void organize(List<WithdrawRequest> bankRequests) {
+        bankRequests.sort(new Comparator<WithdrawRequest>() {
             @Override
-            public int compare(Consumable o1, Consumable o2) {
+            public int compare(WithdrawRequest o1, WithdrawRequest o2) {
                 return o2.getAmount() - o1.getAmount();
             }
         });

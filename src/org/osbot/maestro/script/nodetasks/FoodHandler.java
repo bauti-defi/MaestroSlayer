@@ -4,6 +4,7 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.consumable.Food;
 import org.osbot.rs07.api.ui.Tab;
 
@@ -23,7 +24,7 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
     public boolean runnable() {
         if (!food.hasConsumable(provider)) {
             provider.log("Out of " + food.getName() + " banking...");
-            sendBroadcast(new Broadcast("bank-for-food", food));
+            sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(food.getName(), food.getAmount(), false, false, true)));
             return false;
         }
         return food.needConsume(provider);

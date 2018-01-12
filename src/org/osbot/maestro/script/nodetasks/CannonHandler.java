@@ -34,6 +34,9 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
         if (RuntimeVariables.currentTask.getCurrentMonster().canCannon()) {
             if (isCannonSet()) {
                 return super.runnable() || needReload() || needRepair || needPickUp;
+            } else if (!isCannonSet() && !holdingCannon()) {
+                //request cannon urgent
+                return false;
             }
             return !isCannonSet();
         }

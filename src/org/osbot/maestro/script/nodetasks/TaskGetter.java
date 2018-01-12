@@ -1,6 +1,7 @@
 package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.Broadcast;
+import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
@@ -13,7 +14,9 @@ import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-public class TaskGetter extends NodeTask {
+public class TaskGetter extends NodeTask implements BroadcastReceiver {
+
+    private boolean needTaskFromMaster;
 
     public TaskGetter() {
         super(Priority.HIGH);
@@ -24,7 +27,7 @@ public class TaskGetter extends NodeTask {
         if (RuntimeVariables.currentTask != null) {
             return RuntimeVariables.currentTask.isFinished();
         }
-        return RuntimeVariables.currentTask == null;
+        return needTaskFromMaster;
     }
 
     @Override
@@ -103,5 +106,14 @@ public class TaskGetter extends NodeTask {
         profile.setAllowObstacles(true);
         profile.setAllowTeleports(true);
         return profile;
+    }
+
+    @Override
+    public void receivedBroadcast(Broadcast broadcast) {
+        switch (broadcast.getKey()) {
+            case "need-new-task":
+                needTaskFromMaster = true;
+                break;
+        }
     }
 }

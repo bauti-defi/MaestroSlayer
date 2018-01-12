@@ -12,7 +12,7 @@ public class SlayerSettings implements Serializable {
 
     private String slayerMaster;
     private int minimumLootPrice;
-    private boolean eatToLoot, drinkPotion, useCannon, debug, useAntidote;
+    private boolean eatToLoot, useCannon, debug, useAntidote;
     private List<String> tasksToSkip;
     private List<Potion> potions;
     private Food food;
@@ -21,14 +21,12 @@ public class SlayerSettings implements Serializable {
     public SlayerSettings() {
         this.potions = new ArrayList<>();
         this.tasksToSkip = new ArrayList<>();
-        food = new Food(Foods.MONKFISH.getName(), 15, 30, 50);
-        drinkPotion = true;
+        food = new Food(Foods.MONKFISH.getName(), 22, 30, 50);
         potions.add(new Potion(Potions.SUPER_ATTACK, 1, 0));
         debug = true;
         useCannon = false;
         minimumLootPrice = 3000;
         eatToLoot = false;
-        drinkPotion = false;
         slayerMaster = "Vannaka";
         useAntidote = true;
         antibanFrequency = AntibanFrequency.HIGH;
@@ -94,14 +92,6 @@ public class SlayerSettings implements Serializable {
 
     public void setEatToLoot(boolean eatToLoot) {
         this.eatToLoot = eatToLoot;
-    }
-
-    public boolean isDrinkPotion() {
-        return drinkPotion;
-    }
-
-    public void setDrinkPotion(boolean drinkPotion) {
-        this.drinkPotion = drinkPotion;
     }
 
     public boolean isUseCannon() {

@@ -5,6 +5,7 @@ import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
+import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -13,7 +14,6 @@ import org.osbot.rs07.utility.ConditionalSleep;
 public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     private boolean forceCheck;
-    private boolean needFirstTask;
 
     public TaskValidator() {
         super(Priority.URGENT);
@@ -22,9 +22,11 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() {
-        if (RuntimeVariables.currentTask == null && !needFirstTask || forceCheck) {
+        if (RuntimeVariables.currentTask == null || forceCheck) {
             if (provider.getInventory().contains("Enchanted gem")) {
                 return true;
+            } else {
+                sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest("Enchanted gem", 1, false, true, true)));
             }
         }
         return false;
@@ -56,9 +58,6 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "need-first-task":
-                needFirstTask = (boolean) broadcast.getMessage();
-                break;
             case "check-kills-antiban":
                 forceCheck = true;
                 break;

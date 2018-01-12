@@ -71,7 +71,7 @@ public class MaestroSlayer extends NodeScript {
         RuntimeVariables.experienceTracker.start(Skill.RANGED);
         RuntimeVariables.experienceTracker.start(Skill.MAGIC);
         RuntimeVariables.experienceTracker.start(Skill.DEFENCE);
-        if (RuntimeVariables.settings.isDrinkPotion()) {
+        if (!RuntimeVariables.settings.getPotions().isEmpty()) {
             log("Adding potion support");
             addTask(new PotionHandler(RuntimeVariables.settings.getPotions()));
         }
@@ -138,7 +138,7 @@ public class MaestroSlayer extends NodeScript {
                         RuntimeVariables.currentTask.forceFinish();
                         break;
                     }
-                    sendBroadcast(new Broadcast("need-first-task", true));
+                    sendBroadcast(new Broadcast("need-new-task", true));
                 }
                 break;
         }
@@ -152,6 +152,12 @@ public class MaestroSlayer extends NodeScript {
 
     @Override
     public void onPaint(Graphics2D g) {
+        g.setColor(Color.RED);
+        int mouseX = getMouse().getPosition().x;
+        int mouseY = getMouse().getPosition().y;
+        g.fillOval(mouseX, mouseY, 6, 6);
+        g.drawLine(mouseX - 7, mouseY, mouseX + 7, mouseY);
+
         g.setColor(color1);
         g.fillRoundRect(7, 10, 178, 113, 16, 16);
         g.setFont(font1);
