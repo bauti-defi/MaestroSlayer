@@ -8,6 +8,7 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
+import org.osbot.maestro.script.slayer.utils.Combat;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.ui.MainFrame;
 import org.osbot.rs07.api.model.NPC;
@@ -179,7 +180,11 @@ public class MaestroSlayer extends NodeScript {
                 ? "None" : RuntimeVariables.currentTask.getName()), 12, 118);
         g.drawString("Tasks: " + RuntimeVariables.tasksFinished, 12, 70);
         if (targetToPaint != null && targetToPaint.exists()) {
-            g.setColor(Color.RED);
+            if (Combat.isAttacking(prayer.myPlayer(), targetToPaint)) {
+                g.setColor(Color.GREEN);
+            } else {
+                g.setColor(Color.RED);
+            }
             g.drawPolygon(targetToPaint.getPosition().getPolygon(getBot()));
         }
     }

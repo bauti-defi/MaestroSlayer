@@ -62,7 +62,7 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
         talkToMaster.setEnergyThreshold(10, 30);
         talkToMaster.setMinDistanceThreshold(2);
         talkToMaster.setMiniMapDistanceThreshold(8);
-        talkToMaster.setBreakCondition(new ConditionalSleep(5000, 1000) {
+        talkToMaster.setBreakCondition(new ConditionalSleep(10000, 1000) {
 
             @Override
             public boolean condition() throws InterruptedException {

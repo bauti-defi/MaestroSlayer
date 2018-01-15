@@ -2,10 +2,8 @@ package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
-import org.osbot.maestro.script.slayer.task.monster.Monster;
-import org.osbot.rs07.api.filter.Filter;
+import org.osbot.maestro.script.slayer.utils.Combat;
 import org.osbot.rs07.api.map.Position;
-import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.event.WalkingEvent;
@@ -13,13 +11,16 @@ import org.osbot.rs07.event.WebWalkEvent;
 import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
 
+import java.util.Comparator;
+import java.util.function.Predicate;
+
 public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     private NPC target;
     private int currentExp = 0;
 
     public TargetFinder() {
-        super(Priority.VERY_LOW);
+        super(Priority.LOW);
     }
 
     @Override
@@ -32,10 +33,13 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
             if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 if (target == null || !target.exists()) {
                     return Response.EXECUTE;
-                } else if (inCombat(target) && !inCombat(provider.myPlayer()) || inCombat(provider.myPlayer()) && (!inCombat(target) ||
-                        !provider.myPlayer().isInteracting(target))) {
+                } else if (Combat.inCombat(target) && !Combat.inCombat(provider.myPlayer()) && !Combat.isAttacking(provider.myPlayer(),
+                        target)) {
+                    return Response.EXECUTE;
+                } else if (Combat.inCombat(provider.myPlayer()) && !Combat.isAttacking(target, provider.myPlayer())) {
                     return Response.EXECUTE;
                 }
+
             } else if (!RuntimeVariables.currentTask.isFinished() && !RuntimeVariables.currentTask.getCurrentMonster().getArea().contains
                     (provider.myPosition())) {
                 return Response.EXECUTE;
@@ -55,20 +59,35 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
             }
             return;
         }
-        target = provider.getNpcs().closest(new Filter<NPC>() {
-            @Override
-            public boolean match(NPC npc) {
-                if (!isPartOfTask(npc)) {
-                    return false;
-                } else if (npc.isInteracting(provider.myPlayer())) {
-                    return true;
-                } else if (!inCombat(provider.myPlayer())) {
-                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getHealthPercent() != 0 && provider.getMap().canReach(npc) &&
+        if (!Combat.inCombat(provider.myPlayer())) {
+            provider.log("Finding next target.");
+            target = provider.getNpcs().getAll().stream().filter(new Predicate<NPC>() {
+                @Override
+                public boolean test(NPC npc) {
+                    if (!Combat.isPartOfTask(npc)) {
+                        return false;
+                    }
+                    return !Combat.inCombat(npc) && npc.hasAction("Attack") && npc.getHealthPercent() > 0 && provider.getMap().canReach(npc) &&
                             RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(npc.getPosition());
                 }
-                return false;
-            }
-        });
+            }).sorted(new Comparator<NPC>() {
+                @Override
+                public int compare(NPC o1, NPC o2) {
+                    return provider.getMap().distance(o1) - provider.getMap().distance(o2);
+                }
+            }).findFirst().orElse(null);
+        } else {
+            provider.log("We were attacked, updating target to aggressor.");
+            target = provider.getNpcs().getAll().stream().filter(new Predicate<NPC>() {
+                @Override
+                public boolean test(NPC npc) {
+                    if (!Combat.isPartOfTask(npc)) {
+                        return false;
+                    }
+                    return Combat.isAttacking(npc, provider.myPlayer());
+                }
+            }).findFirst().orElse(null);
+        }
         if (target != null && target.exists()) {
             provider.log(target.getName() + " found.");
             sendBroadcast(new Broadcast("new-target", target));
@@ -77,21 +96,6 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         }
     }
 
-    private boolean inCombat(Character character) {
-        if (character != null && character.exists()) {
-            return !character.isAttackable() || character.isUnderAttack() || character.getInteracting() != null;
-        }
-        return false;
-    }
-
-    private boolean isPartOfTask(NPC npc) {
-        for (Monster monster : RuntimeVariables.currentTask.getMonsters()) {
-            if (npc.getName().equalsIgnoreCase(monster.getName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void webWalkToTask() {
         provider.log("Task in web walking range");

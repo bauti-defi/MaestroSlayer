@@ -77,7 +77,7 @@ public class EntityInteractionEvent extends Event {
                 execute(cameraMovementEvent);
             }
         }
-        if (walkTo && !getMap().isWithinRange(entity, minDistanceThreshold)) {
+        if (walkTo && entity.getPosition().distance(myPosition()) > minDistanceThreshold) {
             if (walkingEvent == null || walkingEvent.hasFailed()) {
                 walkingEvent = new WalkingEvent(entity);
                 walkingEvent.setOperateCamera(false);
@@ -87,7 +87,7 @@ public class EntityInteractionEvent extends Event {
                 walkingEvent.setBreakCondition(new Condition() {
                     @Override
                     public boolean evaluate() {
-                        return entity != null && entity.isVisible();
+                        return entity != null && entity.isVisible() || myPlayer().getInteracting() != null;
                     }
                 });
                 walkingEvent.setAsync();
@@ -98,8 +98,11 @@ public class EntityInteractionEvent extends Event {
         }
         if (entity.interact(action)) {
             if (hasBreakCondition()) {
-                condition.sleep();
-                setFinished();
+                if (condition.sleep()) {
+                    setFinished();
+                } else {
+                    setFailed();
+                }
                 return -1;
             }
             setFinished();

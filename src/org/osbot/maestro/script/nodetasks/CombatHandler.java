@@ -2,12 +2,12 @@ package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
+import org.osbot.maestro.script.slayer.utils.Combat;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.maestro.script.slayer.utils.events.OnFinishAction;
 import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
-import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
@@ -19,7 +19,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private NPC monster;
 
     public CombatHandler() {
-        super(Priority.LOW);
+        super(Priority.VERY_LOW);
         registerBroadcastReceiver(this);
     }
 
@@ -35,7 +35,8 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                 }
                 return Response.RESTART_CYCLE;
             } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-                if (monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster))) {
+                if (monster != null && monster.exists() && !Combat.inCombat(provider.myPlayer()) && !Combat.inCombat(monster) && !Combat
+                        .isTryingToAttack(provider.myPlayer(), monster)) {
                     return Response.EXECUTE;
                 }
             }
@@ -81,7 +82,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         attackMonster.setBreakCondition(new ConditionalSleep(5000, 1000) {
             @Override
             public boolean condition() throws InterruptedException {
-                return inCombat(monster) || inCombat(provider.myPlayer());
+                return Combat.inCombat(monster) || Combat.inCombat(provider.myPlayer());
             }
         });
         attackMonster.setOnFinishAction(new OnFinishAction() {
@@ -92,14 +93,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
             }
         });
         provider.execute(attackMonster);
-    }
-
-    private boolean inCombat(Character character) {
-        if (character != null && character.exists()) {
-            return !character.isAttackable() || character.isUnderAttack() || character
-                    .getInteracting() != null;
-        }
-        return false;
     }
 
     @Override
