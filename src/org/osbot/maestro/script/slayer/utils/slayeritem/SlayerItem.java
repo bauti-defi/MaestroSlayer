@@ -60,7 +60,8 @@ public abstract class SlayerItem {
     public boolean equals(Object obj) {
         if (obj instanceof SlayerItem) {
             SlayerItem item = (SlayerItem) obj;
-            return item.getName().equalsIgnoreCase(item.getName()) && item.isRequired() == isRequired();
+            return item.getName().equalsIgnoreCase(item.getName()) && item.isRequired() == isRequired() && amount == item.getAmount() &&
+                    stackable == item.isStackable();
         }
         return false;
     }

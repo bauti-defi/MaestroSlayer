@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
 import org.osbot.rs07.api.ui.Tab;
@@ -21,13 +18,14 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
 
 
     @Override
-    public boolean runnable() {
+    public Response runnable() {
         if (!food.hasInInventory(provider)) {
             provider.log("Out of " + food.getName() + " banking...");
             sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(food, false)));
-            return false;
+        } else if (food.needConsume(provider)) {
+            return Response.EXECUTE;
         }
-        return food.needConsume(provider);
+        return Response.CONTINUE;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
@@ -23,11 +20,13 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
-        if (RuntimeVariables.currentTask != null) {
-            return RuntimeVariables.currentTask.isFinished();
+    public Response runnable() throws InterruptedException {
+        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.isFinished()) {
+            return Response.EXECUTE;
+        } else if (needTaskFromMaster) {
+            return Response.EXECUTE;
         }
-        return needTaskFromMaster;
+        return Response.CONTINUE;
     }
 
     @Override
@@ -111,7 +110,7 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "need-slayeritem-task":
+            case "need-slayer-task":
                 needTaskFromMaster = true;
                 break;
         }

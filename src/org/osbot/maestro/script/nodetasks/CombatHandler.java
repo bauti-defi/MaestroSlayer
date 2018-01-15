@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
@@ -20,12 +17,32 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     private NPC monster;
 
     public CombatHandler() {
-        super(Priority.VERY_LOW);
+        super(Priority.LOW);
         registerBroadcastReceiver(this);
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
+        if (RuntimeVariables.currentTask != null) {
+            if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
+                for (InventoryTaskItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
+                    if (!inventoryItem.hasInInventory(provider)) {
+                        sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(inventoryItem, true)));
+                        continue;
+                    }
+                }
+                return Response.RESTART_CYCLE;
+            }
+        } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
+            if (monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster))) {
+                return Response.EXECUTE;
+            }
+        }
+        return Response.CONTINUE;
+    }
+
+    @Override
+    public void execute() throws InterruptedException {
         if (provider.getConfigs().get(RuntimeVariables.combatStyle.getConfigParentId()) != RuntimeVariables.combatStyle.getConfigId()) {
             provider.log("Switching back to original combat style.");
             if (provider.getTabs().open(Tab.ATTACK)) {
@@ -41,26 +58,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                     }.sleep();
                 }
             }
-        }
-        if (RuntimeVariables.currentTask != null) {
-            if (!RuntimeVariables.currentTask.haveRequiredInventoryItems(provider)) {
-                for (InventoryTaskItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
-                    if (!inventoryItem.hasInInventory(provider)) {
-                        sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(inventoryItem, true)));
-                        continue;
-                    }
-                }
-                return false;
-            } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-                return monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster));
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public void execute() throws InterruptedException {
-        if (monster == null || !monster.exists()) {
+        } else if (monster == null || !monster.exists()) {
             return;
         } else if (!provider.getCombat().isAutoRetaliateOn()) {
             provider.log("Turning auto retaliate on...");
@@ -100,7 +98,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
-        if (broadcast.getKey().equalsIgnoreCase("slayeritem-target")) {
+        if (broadcast.getKey().equalsIgnoreCase("new-target")) {
             monster = (NPC) broadcast.getMessage();
         }
     }

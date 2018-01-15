@@ -33,12 +33,12 @@ public class BankRequestManager {
         this.requests.add(request);
     }
 
-
-    public LinkedList<BankRequest> getOptimizedList() {
-        return getOptimizedList(requests);
+    public void flush() {
+        requests.clear();
     }
 
-    private LinkedList<BankRequest> getOptimizedList(LinkedList<BankRequest> requests) {
+
+    public LinkedList<BankRequest> getOptimizedList() {
         requests.sort(new Comparator<BankRequest>() {
             @Override
             public int compare(BankRequest o1, BankRequest o2) {

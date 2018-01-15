@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerInventoryItem;
@@ -23,15 +20,15 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
     }
 
     @Override
-    public boolean runnable() {
+    public Response runnable() {
         if (RuntimeVariables.currentTask == null || forceCheck) {
             if (provider.getInventory().contains("Enchanted gem")) {
-                return true;
+                return Response.EXECUTE;
             } else {
                 sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(ENCHANTED_GEM, true)));
             }
         }
-        return false;
+        return Response.CONTINUE;
     }
 
     @Override

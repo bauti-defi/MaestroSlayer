@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
@@ -25,20 +22,19 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
     }
 
     @Override
-    public boolean runnable() {
+    public Response runnable() {
         for (Potion potion : potions) {
             if (!potion.hasInInventory(provider)) {
                 sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(potion, true)));
-                return false;
             } else if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider
                     .myPosition())) {
                 if (potion.hasInInventory(provider) && potion.needConsume(provider)) {
                     this.potion = potion;
-                    return true;
+                    return Response.EXECUTE;
                 }
             }
         }
-        return false;
+        return Response.CONTINUE;
     }
 
     @Override

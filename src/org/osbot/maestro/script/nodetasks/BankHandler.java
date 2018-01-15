@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.banking.BankRequest;
@@ -26,18 +23,22 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
 
 
     public BankHandler() {
-        super(Priority.URGENT);
+        super(Priority.HIGH);
         this.manager = new BankRequestManager();
         registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null && (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())
                 || RuntimeVariables.currentTask.isFinished())) {
-            return manager.requestPending();
+            if (manager.requestPending()) {
+                return Response.EXECUTE;
+            }
+        } else if (provider.getBank().isOpen() || manager.requiredRequestPending()) {
+            return Response.EXECUTE;
         }
-        return provider.getBank().isOpen() || manager.requiredRequestPending();
+        return Response.CONTINUE;
     }
 
     @Override
@@ -61,6 +62,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                     provider.execute(depositEvent);
                 }
             }
+            manager.flush();
         } else {
             provider.log("Closing bank...");
             provider.getBank().close();
@@ -130,6 +132,7 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             case "bank-request":
                 BankRequest request = (BankRequest) broadcast.getMessage();
                 manager.addRequest(request);
+                ;
                 break;
         }
     }

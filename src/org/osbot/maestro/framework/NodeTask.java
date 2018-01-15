@@ -20,7 +20,7 @@ public abstract class NodeTask extends Node {
         }
     }
 
-    public abstract boolean runnable() throws InterruptedException;
+    public abstract Response runnable() throws InterruptedException;
 
     protected abstract void execute() throws InterruptedException;
 

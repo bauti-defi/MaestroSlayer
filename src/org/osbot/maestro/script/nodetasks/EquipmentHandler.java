@@ -3,6 +3,7 @@ package org.osbot.maestro.script.nodetasks;
 import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.Response;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.EquipmentPreset;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
@@ -18,11 +19,11 @@ public class EquipmentHandler extends NodeTask {
     private SlayerWornItem toWear;
 
     public EquipmentHandler() {
-        super(Priority.HIGH);
+        super(Priority.URGENT);
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
         if (startingPreset == null) {
             this.startingPreset = getEquipmentAsPreset();
             this.currentPreset = startingPreset;
@@ -35,7 +36,7 @@ public class EquipmentHandler extends NodeTask {
                         continue;
                     } else if (!wornItem.isWearing(provider)) {
                         toWear = wornItem;
-                        return true;
+                        return Response.EXECUTE;
                     }
                 }
                 currentPreset = getEquipmentAsPreset();
@@ -43,7 +44,7 @@ public class EquipmentHandler extends NodeTask {
                 currentPreset = startingPreset;
             }
         }
-        return false;
+        return Response.CONTINUE;
     }
 
     @Override

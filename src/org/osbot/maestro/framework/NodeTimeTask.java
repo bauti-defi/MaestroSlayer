@@ -39,11 +39,11 @@ public abstract class NodeTimeTask extends NodeTask {
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
         if (currentDeviation != 0) {
-            return (refreshRate + startTime + currentDeviation) - System.currentTimeMillis() >= 0 ? false : true;
+            return (refreshRate + startTime + currentDeviation) - System.currentTimeMillis() >= 0 ? Response.CONTINUE : Response.EXECUTE;
         }
-        return (refreshRate + startTime) - System.currentTimeMillis() >= 0 ? false : true;
+        return (refreshRate + startTime) - System.currentTimeMillis() >= 0 ? Response.CONTINUE : Response.EXECUTE;
     }
 
     @Override

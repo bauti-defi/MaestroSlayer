@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.rs07.api.filter.Filter;
@@ -20,14 +17,13 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
 
     private NPC target;
     private int currentExp = 0;
-    private boolean resupplied = true;
 
     public TargetFinder() {
-        super(Priority.LOW);
+        super(Priority.VERY_LOW);
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null) {
             if (RuntimeVariables.experienceTracker.getGainedXP(Skill.SLAYER) != currentExp) {
                 RuntimeVariables.currentTask.registerKill();
@@ -35,15 +31,17 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
             }
             if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
                 if (target == null || !target.exists()) {
-                    return true;
+                    return Response.EXECUTE;
+                } else if (inCombat(target) && !inCombat(provider.myPlayer()) || inCombat(provider.myPlayer()) && (!inCombat(target) ||
+                        !provider.myPlayer().isInteracting(target))) {
+                    return Response.EXECUTE;
                 }
-                return inCombat(target) && !inCombat(provider.myPlayer()) || target.getHealthPercent() == 0 ||
-                        inCombat(provider.myPlayer()) && (!inCombat(target) || !target.isInteracting(provider.myPlayer()));
+            } else if (!RuntimeVariables.currentTask.isFinished() && !RuntimeVariables.currentTask.getCurrentMonster().getArea().contains
+                    (provider.myPosition())) {
+                return Response.EXECUTE;
             }
-            return !RuntimeVariables.currentTask.isFinished() && !RuntimeVariables.currentTask.getCurrentMonster().getArea().contains
-                    (provider.myPosition()) && resupplied;
         }
-        return false;
+        return Response.CONTINUE;
     }
 
     @Override
@@ -69,7 +67,7 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         });
         if (target != null && target.exists()) {
             provider.log("Target found");
-            sendBroadcast(new Broadcast("slayeritem-target", target));
+            sendBroadcast(new Broadcast("new-target", target));
         } else {
             provider.log("No targets found");
         }
@@ -143,8 +141,6 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
                 if (target != null) {
                     target.hover();
                 }
-            case "resupplied":
-                resupplied = (boolean) broadcast.getMessage();
                 break;
         }
     }

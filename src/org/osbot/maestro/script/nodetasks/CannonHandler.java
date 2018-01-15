@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.Broadcast;
-import org.osbot.maestro.framework.BroadcastReceiver;
-import org.osbot.maestro.framework.NodeTimeTask;
-import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CannonPlacementException;
 import org.osbot.rs07.api.filter.Filter;
@@ -30,17 +27,20 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     @Override
-    public boolean runnable() throws InterruptedException {
+    public Response runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask.getCurrentMonster().canCannon()) {
             if (isCannonSet()) {
-                return super.runnable() || needReload() || needRepair || needPickUp;
+                if (super.runnable() == Response.EXECUTE || needReload() || needRepair || needPickUp) {
+                    return Response.EXECUTE;
+                }
             } else if (!isCannonSet() && !holdingCannon()) {
                 //request cannon urgent
-                return false;
+                sendBroadcast(new Broadcast("bank-request"));
+            } else if (!isCannonSet()) {
+                return Response.EXECUTE;
             }
-            return !isCannonSet();
         }
-        return false;
+        return Response.CONTINUE;
     }
 
     @Override

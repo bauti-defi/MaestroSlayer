@@ -133,12 +133,12 @@ public class MaestroSlayer extends NodeScript {
                     log("Task complete.");
                     RuntimeVariables.tasksFinished++;
                     RuntimeVariables.currentTask.forceFinish();
-                } else if (message.getMessage().toLowerCase().contains("you need something slayeritem to hunt.")) {
+                } else if (message.getMessage().toLowerCase().contains("you need something new to hunt.")) {
                     if (RuntimeVariables.currentTask != null) {
                         RuntimeVariables.currentTask.forceFinish();
                         break;
                     }
-                    sendBroadcast(new Broadcast("need-slayeritem-task", true));
+                    sendBroadcast(new Broadcast("need-slayer-task", true));
                 }
                 break;
         }
@@ -184,7 +184,7 @@ public class MaestroSlayer extends NodeScript {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "slayeritem-target":
+            case "new-target":
                 targetToPaint = (NPC) broadcast.getMessage();
                 break;
         }
