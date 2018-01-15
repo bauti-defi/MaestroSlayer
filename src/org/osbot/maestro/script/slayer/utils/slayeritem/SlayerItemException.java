@@ -1,4 +1,4 @@
-package org.osbot.maestro.script.slayer.utils.requireditem;
+package org.osbot.maestro.script.slayer.utils.slayeritem;
 
 public class SlayerItemException extends Exception {
 

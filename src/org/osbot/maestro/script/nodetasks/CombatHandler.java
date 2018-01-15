@@ -6,12 +6,10 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.rs07.api.filter.Filter;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
 import org.osbot.rs07.api.model.Character;
-import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
@@ -46,21 +44,15 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         }
         if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.haveRequiredInventoryItems(provider)) {
-                for (SlayerInventoryItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
-                    if (!inventoryItem.haveItem(provider)) {
-                        sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(inventoryItem.getName(), new Filter<Item>() {
-                            @Override
-                            public boolean match(Item item) {
-                                return item.getName().equalsIgnoreCase(inventoryItem.getName()) || (!item.getName().contains("(0)") && item
-                                        .getName().contains(inventoryItem.getName()));
-                            }
-                        }, inventoryItem.getAmount(), inventoryItem.isStackable(), true, true)));
+                for (InventoryTaskItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
+                    if (!inventoryItem.hasInInventory(provider)) {
+                        sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(inventoryItem, true)));
                         continue;
                     }
                 }
                 return false;
             } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-                return monster != null && monster.exists() && !inCombat(provider.myPlayer());
+                return monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster));
             }
         }
         return false;
@@ -108,7 +100,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
-        if (broadcast.getKey().equalsIgnoreCase("new-target")) {
+        if (broadcast.getKey().equalsIgnoreCase("slayeritem-target")) {
             monster = (NPC) broadcast.getMessage();
         }
     }

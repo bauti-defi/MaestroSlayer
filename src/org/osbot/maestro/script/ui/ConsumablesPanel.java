@@ -3,8 +3,8 @@ package org.osbot.maestro.script.ui;
 import org.osbot.maestro.script.data.Foods;
 import org.osbot.maestro.script.data.Potions;
 import org.osbot.maestro.script.data.SlayerSettings;
-import org.osbot.maestro.script.slayer.utils.consumable.Food;
-import org.osbot.maestro.script.slayer.utils.consumable.Potion;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -96,7 +96,7 @@ public class ConsumablesPanel extends JPanel implements ActionListener, ChangeLi
     }
 
     private void updateFood() {
-        settings.setFood(new Food((Foods) foods.getSelectedItem(), (int) amount.getValue(), (int) baseEat.getValue(), (int)
+        settings.setFood(new Food(((Foods) foods.getSelectedItem()).getName(), (int) amount.getValue(), (int) baseEat.getValue(), (int)
                 maxEat.getValue()));
     }
 

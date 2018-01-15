@@ -5,8 +5,8 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.EquipmentPreset;
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerWornItem;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -30,9 +30,8 @@ public class EquipmentHandler extends NodeTask {
         } else if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.getAllSlayerItems().isEmpty()) {
                 for (SlayerWornItem wornItem : RuntimeVariables.currentTask.getAllSlayerWornItems()) {
-                    if (!wornItem.haveItem(provider)) {
-                        sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(wornItem.getName(), wornItem.getAmount()
-                                , wornItem.getSlot() == EquipmentSlot.ARROWS ? true : false, true, true)));
+                    if (!wornItem.hasItem(provider)) {
+                        sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(wornItem, true)));
                         continue;
                     } else if (!wornItem.isWearing(provider)) {
                         toWear = wornItem;
@@ -50,7 +49,7 @@ public class EquipmentHandler extends NodeTask {
     @Override
     protected void execute() throws InterruptedException {
         if (toWear != null) {
-            if (toWear.haveItem(provider) && !toWear.isWearing(provider)) {
+            if (toWear.hasInInventory(provider) && !toWear.isWearing(provider)) {
                 provider.log("Equiping item: " + toWear.getName());
                 toWear.equip(provider);
                 new ConditionalSleep(2000, 500) {

@@ -1,9 +1,6 @@
 package org.osbot.maestro.script.slayer.utils;
 
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItemException;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.*;
 import org.osbot.maestro.script.slayer.utils.templates.InventoryItemTemplate;
 import org.osbot.maestro.script.slayer.utils.templates.WornItemTemplate;
 
@@ -18,14 +15,14 @@ public class SlayerItemMapper {
         this.slayerItems = new ArrayList<>();
     }
 
-    public SlayerInventoryItem get(InventoryItemTemplate template) throws SlayerItemException {
+    public InventoryTaskItem get(InventoryItemTemplate template) throws SlayerItemException {
         if (template == null) {
             return null;
         }
         for (SlayerItem item : slayerItems) {
             if (item instanceof SlayerInventoryItem) {
                 if (item.getName().equalsIgnoreCase(template.getName())) {
-                    return (SlayerInventoryItem) item;
+                    return (InventoryTaskItem) item;
                 }
             }
         }
@@ -33,14 +30,14 @@ public class SlayerItemMapper {
     }
 
 
-    public SlayerWornItem get(WornItemTemplate template) throws SlayerItemException {
+    public WornTaskItem get(WornItemTemplate template) throws SlayerItemException {
         if (template == null) {
             return null;
         }
         for (SlayerItem item : slayerItems) {
             if (item instanceof SlayerWornItem) {
                 if (item.getName().equalsIgnoreCase(template.getName())) {
-                    return (SlayerWornItem) item;
+                    return (WornTaskItem) item;
                 }
             }
         }

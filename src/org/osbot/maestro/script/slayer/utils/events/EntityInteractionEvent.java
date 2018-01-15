@@ -62,6 +62,8 @@ public class EntityInteractionEvent extends Event {
             log("EntityInteractionEvent: Invalid Entity");
             setFailed();
             return -1;
+        } else if (!isRunning()) {
+
         } else if (!entity.isVisible()) {
             if (cameraMovementEvent == null || cameraMovementEvent.hasFinished() || cameraMovementEvent.hasFailed()) {
                 cameraMovementEvent = new CameraMovementEvent(entity);
@@ -79,7 +81,8 @@ public class EntityInteractionEvent extends Event {
                 walkingEvent.setMiniMapDistanceThreshold(miniMapDistanceThreshold);
                 walkingEvent.setMinDistanceThreshold(minDistanceThreshold);
                 walkingEvent.setAsync();
-            } else if (!walkingEvent.isQueued() && !walkingEvent.isWorking()) {
+            }
+            if (!walkingEvent.isQueued() && !walkingEvent.isWorking()) {
                 execute(walkingEvent);
             }
         }
@@ -92,6 +95,10 @@ public class EntityInteractionEvent extends Event {
             setFinished();
         }
         return random(400, 650);
+    }
+
+    private boolean isRunning() {
+        return getConfigs().get(173) == 1;
     }
 
 }

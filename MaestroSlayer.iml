@@ -7,7 +7,8 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="osbot 2.4.152" level="project" />
     <orderEntry type="library" name="json-simple-1.1.1 (1)" level="project" />
+    <orderEntry type="library" name="QuantumAPI" level="project" />
+    <orderEntry type="library" name="osbot 2.4.153" level="project" />
   </component>
 </module>

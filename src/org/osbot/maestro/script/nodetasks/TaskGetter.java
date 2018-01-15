@@ -111,7 +111,7 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "need-new-task":
+            case "need-slayeritem-task":
                 needTaskFromMaster = true;
                 break;
         }

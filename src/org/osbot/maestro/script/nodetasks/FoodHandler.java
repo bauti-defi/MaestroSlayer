@@ -4,8 +4,8 @@ import org.osbot.maestro.framework.Broadcast;
 import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
-import org.osbot.maestro.script.slayer.utils.consumable.Food;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
 import org.osbot.rs07.api.ui.Tab;
 
 public class FoodHandler extends NodeTask implements BroadcastReceiver {
@@ -22,9 +22,9 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
 
     @Override
     public boolean runnable() {
-        if (!food.hasConsumable(provider)) {
+        if (!food.hasInInventory(provider)) {
             provider.log("Out of " + food.getName() + " banking...");
-            sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest(food.getName(), food.getAmount(), false, false, true)));
+            sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(food, false)));
             return false;
         }
         return food.needConsume(provider);
@@ -45,7 +45,7 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         if (broadcast.getKey().equalsIgnoreCase("hover-food-antiban")) {
-            food.hoverOver(provider);
+            food.hoverOverInInventory(provider);
         }
     }
 }

@@ -5,9 +5,9 @@ import org.json.simple.JSONObject;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.slayer.utils.position.SlayerArea;
 import org.osbot.maestro.script.slayer.utils.position.SlayerPosition;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItemException;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItemException;
+import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +26,8 @@ public class MonsterTemplate {
     private boolean multicombat;
     private SlayerPosition safeSpot;
     private SlayerPosition cannonPosition;
-    private List<SlayerInventoryItem> requiredInventoryItems;
-    private List<SlayerWornItem> requiredWornItems;
+    private List<InventoryTaskItem> requiredInventoryItems;
+    private List<WornTaskItem> requiredWornItems;
 
     public MonsterTemplate() {
         this.requiredWornItems = new ArrayList<>();
@@ -102,20 +102,20 @@ public class MonsterTemplate {
         this.cannonPosition = cannonPosition;
     }
 
-    public List<SlayerInventoryItem> getRequiredInventoryItems() {
+    public List<InventoryTaskItem> getRequiredInventoryItems() {
         return requiredInventoryItems;
     }
 
 
-    public List<SlayerWornItem> getRequiredWornItems() {
+    public List<WornTaskItem> getRequiredWornItems() {
         return requiredWornItems;
     }
 
-    private void addRequiredSlayerWornItem(final SlayerWornItem wornItem) {
+    private void addRequiredSlayerWornItem(final WornTaskItem wornItem) {
         this.requiredWornItems.add(wornItem);
     }
 
-    private void addRequiredSlayerInventoryItem(final SlayerInventoryItem inventoryItem) {
+    private void addRequiredSlayerInventoryItem(final InventoryTaskItem inventoryItem) {
         this.requiredInventoryItems.add(inventoryItem);
     }
 

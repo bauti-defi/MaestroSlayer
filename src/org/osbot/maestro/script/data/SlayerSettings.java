@@ -1,8 +1,8 @@
 package org.osbot.maestro.script.data;
 
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
-import org.osbot.maestro.script.slayer.utils.consumable.Food;
-import org.osbot.maestro.script.slayer.utils.consumable.Potion;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class SlayerSettings implements Serializable {
         this.potions = new ArrayList<>();
         this.tasksToSkip = new ArrayList<>();
         food = new Food(Foods.MONKFISH.getName(), 22, 30, 50);
-        potions.add(new Potion(Potions.SUPER_ATTACK, 1, 0));
+        potions.add(new Potion(Potions.SUPER_ATTACK.getName(), Potions.SUPER_ATTACK.getSkill(), 0, 1, Potions.SUPER_ATTACK.isRequired()));
         debug = true;
         useCannon = false;
         minimumLootPrice = 3000;

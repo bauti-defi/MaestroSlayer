@@ -69,7 +69,7 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         });
         if (target != null && target.exists()) {
             provider.log("Target found");
-            sendBroadcast(new Broadcast("new-target", target));
+            sendBroadcast(new Broadcast("slayeritem-target", target));
         } else {
             provider.log("No targets found");
         }

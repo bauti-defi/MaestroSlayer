@@ -3,9 +3,9 @@ package org.osbot.maestro.script.slayer.task;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 import org.osbot.maestro.script.slayer.utils.templates.SlayerTaskTemplate;
 import org.osbot.rs07.script.MethodProvider;
 
@@ -18,13 +18,13 @@ public class SlayerTask {
     private final String name;
     private final List<Monster> monsters;
     private final MonsterMechanic monsterMechanic;
-    private final List<SlayerInventoryItem> slayerInventoryItems;
-    private final List<SlayerWornItem> slayerWornItems;
+    private final List<InventoryTaskItem> slayerInventoryItems;
+    private final List<WornTaskItem> slayerWornItems;
     private Monster currentMonster;
     private int killsLeft = 0;
 
-    private SlayerTask(String name, List<Monster> monsters, MonsterMechanic monsterMechanic, List<SlayerInventoryItem> slayerInventoryItems,
-                       List<SlayerWornItem> slayerWornItems) {
+    private SlayerTask(String name, List<Monster> monsters, MonsterMechanic monsterMechanic, List<InventoryTaskItem> slayerInventoryItems,
+                       List<WornTaskItem> slayerWornItems) {
         this.name = name;
         this.monsters = monsters;
         this.monsterMechanic = monsterMechanic;
@@ -87,25 +87,25 @@ public class SlayerTask {
         return slayerItems;
     }
 
-    public List<SlayerInventoryItem> getAllSlayerInventoryItems() {
-        List<SlayerInventoryItem> slayerInventoryItems = new ArrayList<>();
+    public List<InventoryTaskItem> getAllSlayerInventoryItems() {
+        List<InventoryTaskItem> slayerInventoryItems = new ArrayList<>();
         slayerInventoryItems.addAll(getBaseSlayerInventoryItems());
         slayerInventoryItems.addAll(currentMonster.getMonsterUniqueInventoryItems());
         return slayerInventoryItems;
     }
 
-    public List<SlayerWornItem> getAllSlayerWornItems() {
-        List<SlayerWornItem> slayerWornItems = new ArrayList<>();
+    public List<WornTaskItem> getAllSlayerWornItems() {
+        List<WornTaskItem> slayerWornItems = new ArrayList<>();
         slayerWornItems.addAll(getBaseSlayerWornItems());
         slayerWornItems.addAll(currentMonster.getMonsterUniqueRequiredWornItems());
         return slayerWornItems;
     }
 
-    public List<SlayerInventoryItem> getBaseSlayerInventoryItems() {
+    public List<InventoryTaskItem> getBaseSlayerInventoryItems() {
         return slayerInventoryItems;
     }
 
-    public List<SlayerWornItem> getBaseSlayerWornItems() {
+    public List<WornTaskItem> getBaseSlayerWornItems() {
         return slayerWornItems;
     }
 
@@ -114,8 +114,8 @@ public class SlayerTask {
     }
 
     public boolean haveRequiredInventoryItems(MethodProvider provider) {
-        for (SlayerInventoryItem item : getAllSlayerInventoryItems()) {
-            if (!item.haveItem(provider)) {
+        for (InventoryTaskItem item : getAllSlayerInventoryItems()) {
+            if (!item.hasInInventory(provider)) {
                 return false;
             }
         }
@@ -123,8 +123,8 @@ public class SlayerTask {
     }
 
     public boolean haveRequiredWornItems(MethodProvider provider) {
-        for (SlayerWornItem item : getAllSlayerWornItems()) {
-            if (!item.haveItem(provider)) {
+        for (WornTaskItem item : getAllSlayerWornItems()) {
+            if (!item.isWearing(provider) && !item.hasInInventory(provider)) {
                 return false;
             }
         }
@@ -134,7 +134,7 @@ public class SlayerTask {
     public static void setCurrentTask(String message) {
         String monsterName;
         int amount = 0;
-        if (message.contains("new task")) {
+        if (message.contains("slayeritem task")) {
             amount = Integer.parseInt(message.split("kill ")[1].split(" ")[0]);
             monsterName = message.split(String.valueOf(amount) + " ")[1].replace(".", "");
         } else {

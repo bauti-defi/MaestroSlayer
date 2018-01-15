@@ -6,9 +6,9 @@ import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanicException;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerItemException;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItemException;
+import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ public class SlayerTaskTemplate {
     private String name;
     private final List<Monster> monsters;
     private MonsterMechanic monsterMechanic;
-    private final List<SlayerInventoryItem> slayerInventoryItems;
-    private final List<SlayerWornItem> slayerWornItems;
+    private final List<InventoryTaskItem> slayerInventoryItems;
+    private final List<WornTaskItem> slayerWornItems;
 
     public SlayerTaskTemplate() {
         monsters = new ArrayList<>();
@@ -83,15 +83,15 @@ public class SlayerTaskTemplate {
         this.monsterMechanic = monsterMechanic;
     }
 
-    public List<SlayerInventoryItem> getSlayerInventoryItems() {
+    public List<InventoryTaskItem> getSlayerInventoryItems() {
         return slayerInventoryItems;
     }
 
-    private void addRequiredSlayerInventoryItem(final SlayerInventoryItem inventoryItem) {
+    private void addRequiredSlayerInventoryItem(final InventoryTaskItem inventoryItem) {
         this.slayerInventoryItems.add(inventoryItem);
     }
 
-    private void addRequiredSlayerWornItem(final SlayerWornItem wornItem) {
+    private void addRequiredSlayerWornItem(final WornTaskItem wornItem) {
         this.slayerWornItems.add(wornItem);
     }
 
@@ -107,7 +107,7 @@ public class SlayerTaskTemplate {
         return monsterMechanic;
     }
 
-    public List<SlayerWornItem> getSlayerWornItems() {
+    public List<WornTaskItem> getSlayerWornItems() {
         return slayerWornItems;
     }
 

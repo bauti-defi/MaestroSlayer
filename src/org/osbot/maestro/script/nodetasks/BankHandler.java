@@ -6,7 +6,11 @@ import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.banking.BankRequest;
+import org.osbot.maestro.script.slayer.utils.banking.BankRequestManager;
+import org.osbot.maestro.script.slayer.utils.banking.DepositRequest;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.events.BankItemDepositEvent;
 import org.osbot.maestro.script.slayer.utils.events.BankItemWithdrawEvent;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
 import org.osbot.rs07.api.filter.Filter;
@@ -16,18 +20,14 @@ import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
 public class BankHandler extends NodeTask implements BroadcastReceiver {
 
-    private final List<WithdrawRequest> bankRequests;
-    private boolean emergencyBank;
+    private final BankRequestManager manager;
+
 
     public BankHandler() {
         super(Priority.URGENT);
-        this.bankRequests = new ArrayList<>();
+        this.manager = new BankRequestManager();
         registerBroadcastReceiver(this::receivedBroadcast);
     }
 
@@ -35,9 +35,9 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     public boolean runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null && (!RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())
                 || RuntimeVariables.currentTask.isFinished())) {
-            return !bankRequests.isEmpty();
+            return manager.requestPending();
         }
-        return provider.getBank().isOpen() || emergencyBank;
+        return provider.getBank().isOpen() || manager.requiredRequestPending();
     }
 
     @Override
@@ -49,16 +49,18 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
             } else {
                 openBank(bank);
             }
-        } else if (!bankRequests.isEmpty()) {
-            for (WithdrawRequest request : bankRequests) {
-                BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(request);
-                if (provider.execute(withdrawEvent).hasFinished()) {
-                    continue;
+        } else if (manager.requestPending()) {
+            for (BankRequest request : manager.getOptimizedList()) {
+                if (request instanceof WithdrawRequest) {
+                    WithdrawRequest withdrawRequest = (WithdrawRequest) request;
+                    BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(withdrawRequest);
+                    provider.execute(withdrawEvent);
+                } else {
+                    DepositRequest depositRequest = (DepositRequest) request;
+                    BankItemDepositEvent depositEvent = new BankItemDepositEvent(depositRequest);
+                    provider.execute(depositEvent);
                 }
             }
-            bankRequests.clear();
-            emergencyBank = false;
-            sendBroadcast(new Broadcast("resupplied", true));
         } else {
             provider.log("Closing bank...");
             provider.getBank().close();
@@ -125,26 +127,11 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
-            case "bank-withdraw-request":
-                WithdrawRequest request = (WithdrawRequest) broadcast.getMessage();
-                if (!bankRequests.contains(request)) {
-                    provider.log("Request registered.");
-                    emergencyBank = request.isEmergency();
-                    bankRequests.add(request);
-                    organize(bankRequests);
-                }
-                sendBroadcast(new Broadcast("resupplied", false));
+            case "bank-request":
+                BankRequest request = (BankRequest) broadcast.getMessage();
+                manager.addRequest(request);
                 break;
         }
-    }
-
-    private void organize(List<WithdrawRequest> bankRequests) {
-        bankRequests.sort(new Comparator<WithdrawRequest>() {
-            @Override
-            public int compare(WithdrawRequest o1, WithdrawRequest o2) {
-                return o2.getAmount() - o1.getAmount();
-            }
-        });
     }
 
 }

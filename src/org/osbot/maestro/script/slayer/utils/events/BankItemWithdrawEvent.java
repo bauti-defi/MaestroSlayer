@@ -1,38 +1,16 @@
 package org.osbot.maestro.script.slayer.utils.events;
 
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
-import org.osbot.rs07.api.filter.Filter;
-import org.osbot.rs07.api.model.Item;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Mutadable;
 import org.osbot.rs07.event.Event;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class BankItemWithdrawEvent extends Event {
 
-    private final String name;
-    private final int amount;
-    private final boolean stackable;
-    private boolean needExactAmount;
-    private Filter<Item> filter;
-
-    public BankItemWithdrawEvent(String name, int amount, boolean stackable) {
-        this.name = name;
-        this.amount = amount;
-        this.stackable = stackable;
-        setBlocking();
-    }
-
-    public BankItemWithdrawEvent(String name, Filter<Item> filter, int amount, boolean stackable) {
-        this(name, amount, stackable);
-        this.filter = filter;
-    }
+    private final WithdrawRequest request;
 
     public BankItemWithdrawEvent(WithdrawRequest request) {
-        this(request.getName(), request.getFilter(), request.getAmount(), request.isStackable());
-        setNeedExactAmount(request.isNeedExactAmount());
-    }
-
-    public void setNeedExactAmount(boolean needExactAmount) {
-        this.needExactAmount = needExactAmount;
+        this.request = request;
     }
 
     @Override
@@ -41,23 +19,18 @@ public class BankItemWithdrawEvent extends Event {
             log("Failed to withdraw: bank closed");
             setFailed();
             return -1;
-        }
-        if (needExactAmount) {
-            if (!stackable) {
-                if (getInventory().getEmptySlotCount() < amount) {
-                    log("Not enought inventory space for: " + name);
-                    setFailed();
-                    return -1;
-                }
-            } else if (getInventory().getEmptySlotCount() == 0) {
-                log("Not enought inventory space for: " + name);
-                setFailed();
-                return -1;
-            }
+        } else if (getInventory().getEmptySlotCount() < request.getInventorySpaceRequired()) {
+            log("Not enought inventory space for: " + request.getItem().getName());
+            setFailed();
+            return -1;
+        } else if (!request.getItem().hasInBank(this)) {
+            log("Out of: " + request.getItem().getName());
+            setFailed();
+            return -1;
         }
         long currentCount = getItemCount();
         if (withdraw()) {
-            log("Withdrawing " + amount + " " + name);
+            log("Withdrawing " + request.getAmount() + " " + request.getItem().getName());
             new ConditionalSleep(3000, 500) {
 
                 @Override
@@ -67,35 +40,29 @@ public class BankItemWithdrawEvent extends Event {
             }.sleep();
             setFinished();
         } else {
-            log("Failed to withdraw: " + name);
+            log("Failed to withdraw: " + request.getItem().getName());
             setFailed();
         }
         return random(250, 500);
     }
 
     private long getItemCount() {
-        if (filter != null) {
-            return getInventory().getAmount(filter);
-        }
-        return getInventory().getAmount(name);
+        return request.getItem().getInventoryCount(this);
     }
 
     private boolean withdraw() {
-        if (amount >= 28) {
-            if (needExactAmount && stackable) {
-                if (filter != null) {
-                    return getBank().withdraw(filter, amount);
+        if (!request.isExactAmount()) {
+            if (request.getAmount() >= 28) {
+                if (request.getItem() instanceof Mutadable) {
+                    return getBank().withdrawAll(((Mutadable) request.getItem()).getMutationFilter());
                 }
-                return getBank().withdraw(name, amount);
+                return getBank().withdrawAll(request.getItem().getName());
             }
-            if (filter != null) {
-                return getBank().withdrawAll(filter);
-            }
-            return getBank().withdrawAll(name);
-        } else if (filter != null) {
-            return getBank().withdraw(filter, amount);
         }
-        return getBank().withdraw(name, amount);
+        if (request.getItem() instanceof Mutadable) {
+            return getBank().withdraw(((Mutadable) request.getItem()).getMutationFilter(), request.getAmount());
+        }
+        return getBank().withdraw(request.getItem().getName(), request.getAmount());
     }
 
 

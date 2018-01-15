@@ -2,8 +2,8 @@ package org.osbot.maestro.script.slayer.task.monster;
 
 import org.osbot.maestro.script.slayer.utils.position.SlayerArea;
 import org.osbot.maestro.script.slayer.utils.position.SlayerPosition;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 import org.osbot.maestro.script.slayer.utils.templates.MonsterTemplate;
 
 import java.util.List;
@@ -21,11 +21,12 @@ public class Monster {
     private final boolean multicombat;
     private final SlayerPosition safeSpot;
     private final SlayerPosition cannonPosition;
-    private final List<SlayerInventoryItem> requiredInventoryItems;
-    private final List<SlayerWornItem> requiredWornItems;
+    private final List<InventoryTaskItem> requiredInventoryItems;
+    private final List<WornTaskItem> requiredWornItems;
 
     private Monster(String name, SlayerArea area, int combatLevel, int wildernessLevel, int npcCount, int id, boolean poisonous, boolean
-            cantMelee, boolean multicombat, SlayerPosition safeSpot, SlayerPosition cannonPosition, List<SlayerInventoryItem> requiredInventoryItems, List<SlayerWornItem> requiredWornItems) {
+            cantMelee, boolean multicombat, SlayerPosition safeSpot, SlayerPosition cannonPosition, List<InventoryTaskItem> requiredInventoryItems,
+                    List<WornTaskItem> requiredWornItems) {
         this.name = name;
         this.area = area;
         this.combatLevel = combatLevel;
@@ -93,11 +94,11 @@ public class Monster {
         return cannonPosition;
     }
 
-    public List<SlayerInventoryItem> getMonsterUniqueInventoryItems() {
+    public List<InventoryTaskItem> getMonsterUniqueInventoryItems() {
         return requiredInventoryItems;
     }
 
-    public List<SlayerWornItem> getMonsterUniqueRequiredWornItems() {
+    public List<WornTaskItem> getMonsterUniqueRequiredWornItems() {
         return requiredWornItems;
     }
 

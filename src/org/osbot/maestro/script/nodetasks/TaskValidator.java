@@ -5,7 +5,8 @@ import org.osbot.maestro.framework.BroadcastReceiver;
 import org.osbot.maestro.framework.NodeTask;
 import org.osbot.maestro.framework.Priority;
 import org.osbot.maestro.script.data.RuntimeVariables;
-import org.osbot.maestro.script.slayer.utils.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerInventoryItem;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -13,6 +14,7 @@ import org.osbot.rs07.utility.ConditionalSleep;
 
 public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
+    private SlayerInventoryItem ENCHANTED_GEM = new SlayerInventoryItem("Enchanted gem", 1, false, true);
     private boolean forceCheck;
 
     public TaskValidator() {
@@ -26,7 +28,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
             if (provider.getInventory().contains("Enchanted gem")) {
                 return true;
             } else {
-                sendBroadcast(new Broadcast("bank-withdraw-request", new WithdrawRequest("Enchanted gem", 1, false, true, true)));
+                sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(ENCHANTED_GEM, true)));
             }
         }
         return false;

@@ -36,7 +36,7 @@ public class MonsterMechanicHandler extends NodeTask implements BroadcastReceive
 
     @Override
     public void receivedBroadcast(Broadcast broadcast) {
-        if (broadcast.getKey().equalsIgnoreCase("new-target")) {
+        if (broadcast.getKey().equalsIgnoreCase("slayeritem-target")) {
             monster = (NPC) broadcast.getMessage();
         }
     }

@@ -1,20 +1,20 @@
 package org.osbot.maestro.script.data;
 
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerInventoryItem;
-import org.osbot.maestro.script.slayer.utils.requireditem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 
 public class SlayerItems {
 
-    public static final SlayerWornItem DESERT_BOOTS = new SlayerWornItem("Desert boots", 1, EquipmentSlot.FEET);
-    public static final SlayerWornItem DESERT_SHIRT = new SlayerWornItem("Desert shirt", 1, EquipmentSlot.CHEST);
-    public static final SlayerWornItem DESERT_ROBE = new SlayerWornItem("Desert robe", 1, EquipmentSlot.LEGS);
-    public static final SlayerWornItem EARMUFFS = new SlayerWornItem("Earmuffs", 1, EquipmentSlot.HAT);
+    public static final WornTaskItem DESERT_BOOTS = new WornTaskItem("Desert boots", EquipmentSlot.FEET, 1, false);
+    public static final WornTaskItem DESERT_SHIRT = new WornTaskItem("Desert shirt", EquipmentSlot.CHEST, 1, false);
+    public static final WornTaskItem DESERT_ROBE = new WornTaskItem("Desert robe", EquipmentSlot.LEGS, 1, false);
+    public static final WornTaskItem EARMUFFS = new WornTaskItem("Earmuffs", EquipmentSlot.HAT, 1, false);
 
 
-    public static final SlayerInventoryItem BAG_OF_SALT = new SlayerInventoryItem("Bag of salt", 250, true);
-    public static final SlayerInventoryItem WATERSKIN = new SlayerInventoryItem("Waterskin", 4, false);
-    public static final SlayerInventoryItem ICE_COOLER = new SlayerInventoryItem("Ice cooler", 250, true);
-    public static final SlayerInventoryItem LANTERN = new SlayerInventoryItem("Lantern", 1, false);
+    public static final InventoryTaskItem BAG_OF_SALT = new InventoryTaskItem("Bag of salt", 250, true);
+    public static final InventoryTaskItem WATERSKIN = new InventoryTaskItem("Waterskin", 4, false);
+    public static final InventoryTaskItem ICE_COOLER = new InventoryTaskItem("Ice cooler", 250, true);
+    public static final InventoryTaskItem LANTERN = new InventoryTaskItem("Lantern", 1, false);
 
 }

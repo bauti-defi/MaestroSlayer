@@ -1,7 +1,7 @@
 package org.osbot.maestro.framework;
 
-import org.osbot.rs07.script.Script;
 import org.osbot.rs07.utility.ConditionalSleep;
+import rip.quantum.QuantumScript;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -9,7 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public abstract class NodeScript extends Script implements BroadcastReceiver {
+public abstract class NodeScript extends QuantumScript implements BroadcastReceiver {
 
     private final List<NodeTask> tasks;
     private final List<BroadcastReceiver> receivers;
