@@ -82,30 +82,30 @@ public class SlayerTask {
 
     public List<SlayerItem> getAllSlayerItems() {
         List<SlayerItem> slayerItems = new ArrayList<>();
-        slayerItems.addAll(getAllSlayerInventoryItems());
-        slayerItems.addAll(getAllSlayerWornItems());
+        slayerItems.addAll(getAllInventoryItems());
+        slayerItems.addAll(getAllWornItems());
         return slayerItems;
     }
 
-    public List<InventoryTaskItem> getAllSlayerInventoryItems() {
+    public List<InventoryTaskItem> getAllInventoryItems() {
         List<InventoryTaskItem> slayerInventoryItems = new ArrayList<>();
-        slayerInventoryItems.addAll(getBaseSlayerInventoryItems());
+        slayerInventoryItems.addAll(getBaseInventoryItems());
         slayerInventoryItems.addAll(currentMonster.getMonsterUniqueInventoryItems());
         return slayerInventoryItems;
     }
 
-    public List<WornTaskItem> getAllSlayerWornItems() {
+    public List<WornTaskItem> getAllWornItems() {
         List<WornTaskItem> slayerWornItems = new ArrayList<>();
-        slayerWornItems.addAll(getBaseSlayerWornItems());
-        slayerWornItems.addAll(currentMonster.getMonsterUniqueRequiredWornItems());
+        slayerWornItems.addAll(getBaseWornItems());
+        slayerWornItems.addAll(currentMonster.getMonsterUniqueWornItems());
         return slayerWornItems;
     }
 
-    public List<InventoryTaskItem> getBaseSlayerInventoryItems() {
+    public List<InventoryTaskItem> getBaseInventoryItems() {
         return slayerInventoryItems;
     }
 
-    public List<WornTaskItem> getBaseSlayerWornItems() {
+    public List<WornTaskItem> getBaseWornItems() {
         return slayerWornItems;
     }
 
@@ -114,7 +114,7 @@ public class SlayerTask {
     }
 
     public boolean haveRequiredInventoryItems(MethodProvider provider) {
-        for (InventoryTaskItem item : getAllSlayerInventoryItems()) {
+        for (InventoryTaskItem item : getAllInventoryItems()) {
             if (!item.hasInInventory(provider)) {
                 return false;
             }
@@ -123,7 +123,7 @@ public class SlayerTask {
     }
 
     public boolean haveRequiredWornItems(MethodProvider provider) {
-        for (WornTaskItem item : getAllSlayerWornItems()) {
+        for (WornTaskItem item : getAllWornItems()) {
             if (!item.isWearing(provider) && !item.hasInInventory(provider)) {
                 return false;
             }
@@ -134,7 +134,7 @@ public class SlayerTask {
     public static void setCurrentTask(String message) {
         String monsterName;
         int amount = 0;
-        if (message.contains("slayeritem task")) {
+        if (message.contains("slayer task")) {
             amount = Integer.parseInt(message.split("kill ")[1].split(" ")[0]);
             monsterName = message.split(String.valueOf(amount) + " ")[1].replace(".", "");
         } else {

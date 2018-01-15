@@ -98,7 +98,7 @@ public class Monster {
         return requiredInventoryItems;
     }
 
-    public List<WornTaskItem> getMonsterUniqueRequiredWornItems() {
+    public List<WornTaskItem> getMonsterUniqueWornItems() {
         return requiredWornItems;
     }
 

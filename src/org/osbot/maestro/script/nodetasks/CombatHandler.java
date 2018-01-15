@@ -25,7 +25,7 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
     public Response runnable() throws InterruptedException {
         if (RuntimeVariables.currentTask != null) {
             if (!RuntimeVariables.currentTask.haveAllRequiredItems(provider)) {
-                for (InventoryTaskItem inventoryItem : RuntimeVariables.currentTask.getAllSlayerInventoryItems()) {
+                for (InventoryTaskItem inventoryItem : RuntimeVariables.currentTask.getAllInventoryItems()) {
                     if (!inventoryItem.hasInInventory(provider)) {
                         sendBroadcast(new Broadcast("bank-request", new WithdrawRequest(inventoryItem, true)));
                         continue;
