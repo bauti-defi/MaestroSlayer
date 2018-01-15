@@ -21,8 +21,8 @@ public class SlayerSettings implements Serializable {
     public SlayerSettings() {
         this.potions = new ArrayList<>();
         this.tasksToSkip = new ArrayList<>();
-        food = new Food(Foods.MONKFISH.getName(), 18, 30, 50);
-        potions.add(new Potion(Potions.SUPER_ATTACK.getName(), Potions.SUPER_ATTACK.getSkill(), 0, 1, Potions.SUPER_ATTACK.isRequired()));
+        food = new Food(Foods.TUNA.getName(), 18, 30, 50);
+        //potions.add(new Potion(Potions.SUPER_ATTACK.getName(), Potions.SUPER_ATTACK.getSkill(), 0, 1, Potions.SUPER_ATTACK.isRequired()));
         debug = true;
         useCannon = false;
         minimumLootPrice = 3000;

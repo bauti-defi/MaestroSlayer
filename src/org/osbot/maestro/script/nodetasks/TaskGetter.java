@@ -17,13 +17,12 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
 
     public TaskGetter() {
         super(Priority.HIGH);
+        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override
     public Response runnable() throws InterruptedException {
-        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.isFinished()) {
-            return Response.EXECUTE;
-        } else if (needTaskFromMaster) {
+        if (RuntimeVariables.currentTask != null && RuntimeVariables.currentTask.isFinished() || needTaskFromMaster) {
             return Response.EXECUTE;
         }
         return Response.CONTINUE;
@@ -34,11 +33,11 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
         NPC master = getMaster();
         if (master != null) {
             if (provider.getDialogues().inDialogue()) {
-                sendBroadcast(new Broadcast("need-first-task", false));
                 RS2Widget taskWidget = provider.getWidgets().get(231, 3);
                 if (taskWidget != null) {
                     SlayerTask.setCurrentTask(taskWidget.getMessage());
                     if (RuntimeVariables.currentTask != null) {
+                        sendBroadcast(new Broadcast("need-slayer-task", needTaskFromMaster = false));
                         sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentTask.getCurrentMonster().isPoisonous()));
                         provider.log("Current task: " + RuntimeVariables.currentTask.getName());
                         provider.getDialogues().clickContinue();
@@ -111,7 +110,7 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
     public void receivedBroadcast(Broadcast broadcast) {
         switch (broadcast.getKey()) {
             case "need-slayer-task":
-                needTaskFromMaster = true;
+                needTaskFromMaster = (boolean) broadcast.getMessage();
                 break;
         }
     }

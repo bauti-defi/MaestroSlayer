@@ -5,11 +5,13 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.events.EntityInteractionEvent;
+import org.osbot.maestro.script.slayer.utils.events.OnFinishAction;
 import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
 import org.osbot.rs07.api.model.Character;
 import org.osbot.rs07.api.model.NPC;
 import org.osbot.rs07.api.ui.RS2Widget;
 import org.osbot.rs07.api.ui.Tab;
+import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class CombatHandler extends NodeTask implements BroadcastReceiver {
@@ -32,10 +34,10 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
                     }
                 }
                 return Response.RESTART_CYCLE;
-            }
-        } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
-            if (monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster))) {
-                return Response.EXECUTE;
+            } else if (RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(provider.myPosition())) {
+                if (monster != null && monster.exists() && (!inCombat(provider.myPlayer()) || !inCombat(monster))) {
+                    return Response.EXECUTE;
+                }
             }
         }
         return Response.CONTINUE;
@@ -76,16 +78,20 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
         attackMonster.setWalkTo(true);
         attackMonster.setMinDistanceThreshold(5);
         attackMonster.setEnergyThreshold(10, 30);
-        attackMonster.setBreakCondition(new ConditionalSleep(5000, 500) {
+        attackMonster.setBreakCondition(new ConditionalSleep(5000, 1000) {
             @Override
             public boolean condition() throws InterruptedException {
                 return inCombat(monster) || inCombat(provider.myPlayer());
             }
         });
-        if (provider.execute(attackMonster).hasFinished()) {
-            provider.log("Moving mouse off screen");
-            provider.getMouse().moveOutsideScreen();
-        }
+        attackMonster.setOnFinishAction(new OnFinishAction() {
+            @Override
+            public void execute(MethodProvider provider) {
+                provider.log("Moving mouse off screen");
+                provider.getMouse().moveOutsideScreen();
+            }
+        });
+        provider.execute(attackMonster);
     }
 
     private boolean inCombat(Character character) {

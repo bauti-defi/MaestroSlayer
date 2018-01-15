@@ -58,18 +58,22 @@ public class TargetFinder extends NodeTask implements BroadcastReceiver {
         target = provider.getNpcs().closest(new Filter<NPC>() {
             @Override
             public boolean match(NPC npc) {
-                if (!inCombat(provider.myPlayer())) {
-                    return !inCombat(npc) && npc.hasAction("Attack") && isPartOfTask(npc) && provider.getMap().canReach(npc) &&
+                if (!isPartOfTask(npc)) {
+                    return false;
+                } else if (npc.isInteracting(provider.myPlayer())) {
+                    return true;
+                } else if (!inCombat(provider.myPlayer())) {
+                    return !inCombat(npc) && npc.hasAction("Attack") && npc.getHealthPercent() != 0 && provider.getMap().canReach(npc) &&
                             RuntimeVariables.currentTask.getCurrentMonster().getArea().contains(npc.getPosition());
                 }
-                return npc.isInteracting(provider.myPlayer()) && isPartOfTask(npc);
+                return false;
             }
         });
         if (target != null && target.exists()) {
-            provider.log("Target found");
+            provider.log(target.getName() + " found.");
             sendBroadcast(new Broadcast("new-target", target));
         } else {
-            provider.log("No targets found");
+            provider.log("No targets found.");
         }
     }
 

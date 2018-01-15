@@ -3,6 +3,7 @@ package org.osbot.maestro.script.slayer.utils.events;
 import org.osbot.rs07.api.model.Entity;
 import org.osbot.rs07.event.Event;
 import org.osbot.rs07.event.WalkingEvent;
+import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 public class EntityInteractionEvent extends Event {
@@ -13,15 +14,20 @@ public class EntityInteractionEvent extends Event {
     private CameraMovementEvent cameraMovementEvent;
     private WalkingEvent walkingEvent;
     private boolean walkTo;
-    private int minDistanceThreshold = 3;
+    private int minDistanceThreshold = 4;
     private int miniMapDistanceThreshold = 8;
     private int energyThreshold = 15;
+    private OnFinishAction onFinishAction;
 
 
     public EntityInteractionEvent(Entity entity, String action) {
         this.action = action;
         this.entity = entity;
         setBlocking();
+    }
+
+    public void setOnFinishAction(OnFinishAction action) {
+        this.onFinishAction = action;
     }
 
     public void setWalkTo(boolean walkTo) {
@@ -62,10 +68,8 @@ public class EntityInteractionEvent extends Event {
             log("EntityInteractionEvent: Invalid Entity");
             setFailed();
             return -1;
-        } else if (!isRunning()) {
-
         } else if (!entity.isVisible()) {
-            if (cameraMovementEvent == null || cameraMovementEvent.hasFinished() || cameraMovementEvent.hasFailed()) {
+            if (cameraMovementEvent == null || cameraMovementEvent.hasFailed()) {
                 cameraMovementEvent = new CameraMovementEvent(entity);
                 cameraMovementEvent.setAsync();
             }
@@ -74,12 +78,18 @@ public class EntityInteractionEvent extends Event {
             }
         }
         if (walkTo && !getMap().isWithinRange(entity, minDistanceThreshold)) {
-            if (walkingEvent == null || walkingEvent.hasFinished() || walkingEvent.hasFailed()) {
+            if (walkingEvent == null || walkingEvent.hasFailed()) {
                 walkingEvent = new WalkingEvent(entity);
                 walkingEvent.setOperateCamera(false);
                 walkingEvent.setEnergyThreshold(energyThreshold);
                 walkingEvent.setMiniMapDistanceThreshold(miniMapDistanceThreshold);
                 walkingEvent.setMinDistanceThreshold(minDistanceThreshold);
+                walkingEvent.setBreakCondition(new Condition() {
+                    @Override
+                    public boolean evaluate() {
+                        return entity != null && entity.isVisible();
+                    }
+                });
                 walkingEvent.setAsync();
             }
             if (!walkingEvent.isQueued() && !walkingEvent.isWorking()) {
@@ -95,6 +105,14 @@ public class EntityInteractionEvent extends Event {
             setFinished();
         }
         return random(400, 650);
+    }
+
+    @Override
+    public Event setFinished() {
+        if (onFinishAction != null) {
+            onFinishAction.execute(this);
+        }
+        return super.setFinished();
     }
 
     private boolean isRunning() {

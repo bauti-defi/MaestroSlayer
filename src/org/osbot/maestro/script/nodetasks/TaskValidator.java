@@ -12,7 +12,7 @@ import org.osbot.rs07.utility.ConditionalSleep;
 public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     private SlayerInventoryItem ENCHANTED_GEM = new SlayerInventoryItem("Enchanted gem", 1, false, true);
-    private boolean forceCheck;
+    private boolean forceCheck, needTaskFromMaster;
 
     public TaskValidator() {
         super(Priority.URGENT);
@@ -21,7 +21,7 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
 
     @Override
     public Response runnable() {
-        if (RuntimeVariables.currentTask == null || forceCheck) {
+        if (!needTaskFromMaster && (RuntimeVariables.currentTask == null || forceCheck)) {
             if (provider.getInventory().contains("Enchanted gem")) {
                 return Response.EXECUTE;
             } else {
@@ -59,6 +59,9 @@ public class TaskValidator extends NodeTask implements BroadcastReceiver {
         switch (broadcast.getKey()) {
             case "check-kills-antiban":
                 forceCheck = true;
+                break;
+            case "need-slayer-task":
+                needTaskFromMaster = (boolean) broadcast.getMessage();
                 break;
         }
     }

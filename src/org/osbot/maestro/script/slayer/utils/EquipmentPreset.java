@@ -4,6 +4,7 @@ import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerWornItem;
 import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class EquipmentPreset {
     }
 
     public List<SlayerWornItem> getItems() {
-        return (List<SlayerWornItem>) preset.values();
+        return new ArrayList<SlayerWornItem>(preset.values());
     }
 
     public SlayerWornItem getItem(EquipmentSlot slot) {

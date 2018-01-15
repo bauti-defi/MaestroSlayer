@@ -122,6 +122,7 @@ public class MaestroSlayer extends NodeScript {
                     if (RuntimeVariables.currentTask == null || !RuntimeVariables.currentTask.isFinished()) {
                         SlayerTask.setCurrentTask(message.getMessage());
                         if (RuntimeVariables.currentTask != null) {
+                            sendBroadcast(new Broadcast("need-slayer-task", false));
                             sendBroadcast(new Broadcast("request-equipment-update"));
                             sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentTask.getCurrentMonster().isPoisonous()));
                             log("Current task: " + RuntimeVariables.currentTask.getName());
@@ -140,6 +141,7 @@ public class MaestroSlayer extends NodeScript {
                         break;
                     }
                     sendBroadcast(new Broadcast("need-slayer-task", true));
+                    log("Need new task from " + RuntimeVariables.currentMaster.getName());
                 }
                 break;
         }

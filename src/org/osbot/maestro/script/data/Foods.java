@@ -1,7 +1,7 @@
 package org.osbot.maestro.script.data;
 
 public enum Foods {
-    MONKFISH("Monkfish"), TROUT("Trout");
+    MONKFISH("Monkfish"), TROUT("Trout"), TUNA("Tuna");
 
     private final String name;
 

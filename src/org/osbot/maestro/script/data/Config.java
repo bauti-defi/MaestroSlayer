@@ -52,13 +52,13 @@ public class Config {
         mechanicMapper.map(MonsterMechanics.ICE_MONSTER);
 
         itemMapper = new SlayerItemMapper();
-        itemMapper.map(SlayerItems.BAG_OF_SALT);
-        itemMapper.map(SlayerItems.DESERT_BOOTS);
-        itemMapper.map(SlayerItems.DESERT_ROBE);
-        itemMapper.map(SlayerItems.DESERT_SHIRT);
-        itemMapper.map(SlayerItems.EARMUFFS);
-        itemMapper.map(SlayerItems.ICE_COOLER);
-        itemMapper.map(SlayerItems.WATERSKIN);
-        itemMapper.map(SlayerItems.LANTERN);
+        itemMapper.map(SlayerTaskItems.BAG_OF_SALT);
+        itemMapper.map(SlayerTaskItems.DESERT_BOOTS);
+        itemMapper.map(SlayerTaskItems.DESERT_ROBE);
+        itemMapper.map(SlayerTaskItems.DESERT_SHIRT);
+        itemMapper.map(SlayerTaskItems.EARMUFFS);
+        itemMapper.map(SlayerTaskItems.ICE_COOLER);
+        itemMapper.map(SlayerTaskItems.WATERSKIN);
+        itemMapper.map(SlayerTaskItems.LANTERN);
     }
 }
