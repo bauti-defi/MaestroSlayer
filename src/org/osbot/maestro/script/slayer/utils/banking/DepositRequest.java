@@ -4,7 +4,7 @@ import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItem;
 
 public class DepositRequest extends BankRequest {
 
-    public DepositRequest(SlayerItem item, boolean needExact) {
-        super(item, needExact);
+    public DepositRequest(SlayerItem item) {
+        super(item, true);
     }
 }

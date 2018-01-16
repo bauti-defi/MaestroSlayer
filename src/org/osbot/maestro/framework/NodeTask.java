@@ -6,7 +6,6 @@ public abstract class NodeTask extends Node {
 
     private NodeScript script;
     protected MethodProvider provider;
-    private BroadcastReceiver receiver;
 
     public NodeTask(Priority priority) {
         super(priority);
@@ -15,9 +14,6 @@ public abstract class NodeTask extends Node {
     protected void inject(NodeScript script) {
         this.script = script;
         this.provider = script;
-        if (receiver != null) {
-            script.registerBroadcastReceiver(receiver);
-        }
     }
 
     public abstract Response runnable() throws InterruptedException;
@@ -26,10 +22,6 @@ public abstract class NodeTask extends Node {
 
     protected void stopScript(boolean logout) {
         script.forceStopScript(logout);
-    }
-
-    protected final void registerBroadcastReceiver(BroadcastReceiver receiver) {
-        this.receiver = receiver;
     }
 
     protected final void sendBroadcast(Broadcast broadcast) {

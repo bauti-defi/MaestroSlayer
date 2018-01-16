@@ -106,6 +106,8 @@ public class EntityInteractionEvent extends Event {
                 return -1;
             }
             setFinished();
+        } else {
+            setFailed();
         }
         return random(400, 650);
     }

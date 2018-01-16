@@ -6,7 +6,8 @@ import java.io.Serializable;
 
 public enum Potions implements Serializable {
 
-    SUPER_ATTACK("Super attack", Skill.ATTACK, false), SUPER_STRENGTH("Super strength", Skill.STRENGTH, false), COMBAT_POTION("Combat potion", Skill.STRENGTH, false),
+    SUPER_ATTACK("Super attack", Skill.ATTACK, false), SUPER_STRENGTH("Super strength", Skill.STRENGTH, false), COMBAT_POTION("Combat " +
+            "potion", Skill.ATTACK, false),
     PRAYER_POTION("Prayer potion", Skill.PRAYER, true);
 
     private final String name;

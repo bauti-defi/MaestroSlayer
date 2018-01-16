@@ -18,7 +18,6 @@ public class PotionHandler extends NodeTask implements BroadcastReceiver {
     public PotionHandler(List<Potion> potions) {
         super(Priority.URGENT);
         this.potions = potions;
-        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override

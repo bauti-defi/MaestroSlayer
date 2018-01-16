@@ -18,7 +18,6 @@ public class EquipmentHandler extends NodeTask implements BroadcastReceiver {
 
     public EquipmentHandler() {
         super(Priority.URGENT);
-        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override

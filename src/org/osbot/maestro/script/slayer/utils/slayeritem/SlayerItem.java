@@ -65,5 +65,4 @@ public abstract class SlayerItem {
         }
         return false;
     }
-
 }

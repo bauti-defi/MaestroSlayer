@@ -20,7 +20,6 @@ public class CombatHandler extends NodeTask implements BroadcastReceiver {
 
     public CombatHandler() {
         super(Priority.VERY_LOW);
-        registerBroadcastReceiver(this);
     }
 
     @Override

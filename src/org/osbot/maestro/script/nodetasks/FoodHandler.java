@@ -13,7 +13,6 @@ public class FoodHandler extends NodeTask implements BroadcastReceiver {
     public FoodHandler(Food food) {
         super(Priority.CRITICAL);
         this.food = food;
-        registerBroadcastReceiver(this);
     }
 
 

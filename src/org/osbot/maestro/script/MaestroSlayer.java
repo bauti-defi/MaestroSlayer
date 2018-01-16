@@ -7,12 +7,10 @@ import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.nodetasks.*;
 import org.osbot.maestro.script.slayer.SlayerMaster;
-import org.osbot.maestro.script.slayer.task.SlayerTask;
 import org.osbot.maestro.script.slayer.utils.Combat;
 import org.osbot.maestro.script.slayer.utils.CombatStyle;
 import org.osbot.maestro.script.ui.MainFrame;
 import org.osbot.rs07.api.model.NPC;
-import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.api.ui.Skill;
 import org.osbot.rs07.api.util.ExperienceTracker;
 import org.osbot.rs07.script.ScriptManifest;
@@ -93,59 +91,6 @@ public class MaestroSlayer extends NodeScript {
         log("MaestroSlayer started!");
         log("Please report any bugs to El Maestro.");
         super.onStart();
-    }
-
-    @Override
-    public void onMessage(final Message message) throws InterruptedException {
-        outter:
-        switch (message.getType()) {
-            case GAME:
-                if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
-                    sendBroadcast(new Broadcast("cannon-broken", true));
-                    sendBroadcast(new Broadcast("cannon-set", true));
-                } else if (message.getMessage().toLowerCase().contains("cannon is out of ammo")) {
-                    sendBroadcast(new Broadcast("cannon-reload", true));
-                    sendBroadcast(new Broadcast("cannon-set", true));
-                } else if (message.getMessage().contains("you repair your cannon")) {
-                    sendBroadcast(new Broadcast("cannon-broken", false));
-                    sendBroadcast(new Broadcast("cannon-set", true));
-                } else if (message.getMessage().contains("load the cannon with")) {
-                    sendBroadcast(new Broadcast("cannon-reload", false));
-                    sendBroadcast(new Broadcast("cannon-set", true));
-                } else if (message.getMessage().contains("cannon already firing")) {
-                    sendBroadcast(new Broadcast("cannon-reload", false));
-                    sendBroadcast(new Broadcast("cannon-set", true));
-                } else if (message.getMessage().contains("you pick up your cannon")) {
-                    sendBroadcast(new Broadcast("cannon-set", false));
-                } else if (message.getMessage().contains("there isn't enough space to set up here")) {
-                    sendBroadcast(new Broadcast("cannon-error"));
-                } else if (message.getMessage().toLowerCase().contains("assigned to kill")) {
-                    if (RuntimeVariables.currentTask == null || !RuntimeVariables.currentTask.isFinished()) {
-                        SlayerTask.setCurrentTask(message.getMessage());
-                        if (RuntimeVariables.currentTask != null) {
-                            sendBroadcast(new Broadcast("need-slayer-task", false));
-                            sendBroadcast(new Broadcast("request-equipment-update"));
-                            sendBroadcast(new Broadcast("requires-anti", RuntimeVariables.currentTask.getCurrentMonster().isPoisonous()));
-                            log("Current task: " + RuntimeVariables.currentTask.getName());
-                            break outter;
-                        }
-                        log("Task not supported.");
-                        forceStopScript(true);
-                    }
-                } else if (message.getMessage().toLowerCase().contains("you've completed")) {
-                    log("Task complete.");
-                    RuntimeVariables.tasksFinished++;
-                    RuntimeVariables.currentTask.forceFinish();
-                } else if (message.getMessage().toLowerCase().contains("you need something new to hunt.")) {
-                    if (RuntimeVariables.currentTask != null) {
-                        RuntimeVariables.currentTask.forceFinish();
-                        break;
-                    }
-                    sendBroadcast(new Broadcast("need-slayer-task", true));
-                    log("Need new task from " + RuntimeVariables.currentMaster.getName());
-                }
-                break;
-        }
     }
 
     @Override

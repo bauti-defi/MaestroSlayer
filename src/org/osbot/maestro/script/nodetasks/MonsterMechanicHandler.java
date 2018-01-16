@@ -11,7 +11,6 @@ public class MonsterMechanicHandler extends NodeTask implements BroadcastReceive
 
     public MonsterMechanicHandler() {
         super(Priority.MEDIUM);
-        registerBroadcastReceiver(this);
     }
 
     @Override

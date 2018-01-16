@@ -17,7 +17,6 @@ public class TaskGetter extends NodeTask implements BroadcastReceiver {
 
     public TaskGetter() {
         super(Priority.HIGH);
-        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override

@@ -17,6 +17,8 @@ import org.osbot.rs07.event.webwalk.PathPreferenceProfile;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
+import java.util.LinkedList;
+
 public class BankHandler extends NodeTask implements BroadcastReceiver {
 
     private final BankRequestManager manager;
@@ -25,7 +27,6 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
     public BankHandler() {
         super(Priority.HIGH);
         this.manager = new BankRequestManager();
-        registerBroadcastReceiver(this::receivedBroadcast);
     }
 
     @Override
@@ -51,7 +52,8 @@ public class BankHandler extends NodeTask implements BroadcastReceiver {
                 openBank(bank);
             }
         } else if (manager.requestPending()) {
-            for (BankRequest request : manager.getOptimizedList()) {
+            LinkedList<BankRequest> requests = manager.getOptimizedList(provider);
+            for (BankRequest request : requests) {
                 if (request instanceof WithdrawRequest) {
                     WithdrawRequest withdrawRequest = (WithdrawRequest) request;
                     BankItemWithdrawEvent withdrawEvent = new BankItemWithdrawEvent(withdrawRequest);

@@ -1,5 +1,6 @@
 package org.osbot.maestro.framework;
 
+import org.osbot.rs07.listener.MessageListener;
 import org.osbot.rs07.script.Script;
 import org.osbot.rs07.utility.ConditionalSleep;
 
@@ -18,12 +19,20 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
     public NodeScript() {
         this.tasks = new ArrayList<>();
         this.receivers = new ArrayList<>();
-        registerBroadcastReceiver(this);
     }
 
     @Override
     public void onStart() throws InterruptedException {
+        registerBroadcastReceiver(this);
         sortTasks();
+        for (NodeTask task : tasks) {
+            if (task instanceof MessageListener) {
+                getBot().addMessageListener((MessageListener) task);
+            }
+            if (task instanceof BroadcastReceiver) {
+                registerBroadcastReceiver((BroadcastReceiver) task);
+            }
+        }
         run = true;
     }
 
@@ -32,7 +41,7 @@ public abstract class NodeScript extends Script implements BroadcastReceiver {
         tasks.add(task);
     }
 
-    protected void registerBroadcastReceiver(BroadcastReceiver receiver) {
+    private void registerBroadcastReceiver(BroadcastReceiver receiver) {
         receivers.add(receiver);
     }
 

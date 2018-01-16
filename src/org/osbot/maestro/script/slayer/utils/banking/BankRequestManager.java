@@ -1,5 +1,9 @@
 package org.osbot.maestro.script.slayer.utils.banking;
 
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerInventoryItem;
+import org.osbot.rs07.api.model.Item;
+import org.osbot.rs07.script.MethodProvider;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -37,8 +41,20 @@ public class BankRequestManager {
         requests.clear();
     }
 
+    private void applyDeposites(MethodProvider provider) {
+        sort();
+        outter:
+        for (Item item : provider.getInventory().getItems()) {
+            for (BankRequest request : requests) {
+                if (request.getItem().getName().contains(item.getName()) && request.isRequired()) {
+                    continue outter;
+                }
+            }
+            requests.add(new DepositRequest(SlayerInventoryItem.wrap(item, true, true)));
+        }
+    }
 
-    public LinkedList<BankRequest> getOptimizedList() {
+    private void sort() {
         requests.sort(new Comparator<BankRequest>() {
             @Override
             public int compare(BankRequest o1, BankRequest o2) {
@@ -58,6 +74,12 @@ public class BankRequestManager {
                 return 0;
             }
         });
+    }
+
+
+    public LinkedList<BankRequest> getOptimizedList(MethodProvider provider) {
+        applyDeposites(provider);
+        sort();
         int invySpace = 0;
         Iterator<BankRequest> requestIterator = requests.iterator();
         while (requestIterator.hasNext()) {

@@ -1,19 +1,24 @@
 package org.osbot.maestro.script.nodetasks;
 
-import org.osbot.maestro.framework.*;
+import org.osbot.maestro.framework.Broadcast;
+import org.osbot.maestro.framework.NodeTimeTask;
+import org.osbot.maestro.framework.Priority;
+import org.osbot.maestro.framework.Response;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.CannonPlacementException;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.model.RS2Object;
+import org.osbot.rs07.api.ui.Message;
 import org.osbot.rs07.event.WalkingEvent;
+import org.osbot.rs07.listener.MessageListener;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
+public class CannonHandler extends NodeTimeTask implements MessageListener {
 
     private static final int CANNON_ID = 6;
     private static final int BROKEN_CANNON_ID = 14916;
@@ -23,7 +28,6 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
 
     public CannonHandler() {
         super(15, 3, TimeUnit.SECONDS, Priority.MEDIUM);
-        registerBroadcastReceiver(this);
     }
 
     @Override
@@ -167,32 +171,34 @@ public class CannonHandler extends NodeTimeTask implements BroadcastReceiver {
     }
 
     @Override
-    public void receivedBroadcast(Broadcast broadcast) {
-        switch (broadcast.getKey()) {
-            case "cannon-loaded":
-                needLoad = (boolean) broadcast.getMessage();
-                if (!needReload()) {
-                    resetTimer();
+    public void onMessage(Message message) throws InterruptedException {
+        switch (message.getType()) {
+            case GAME:
+                if (message.getMessage().toLowerCase().contains("your cannon has broken")) {
+                    needRepair = true;
+                    cannonSet = true;
+                } else if (message.getMessage().toLowerCase().contains("cannon is out of ammo")) {
+                    needLoad = true;
+                    cannonSet = true;
+                } else if (message.getMessage().contains("you repair your cannon")) {
+                    needRepair = false;
+                    cannonSet = true;
+                } else if (message.getMessage().contains("load the cannon with")) {
+                    needLoad = false;
+                    cannonSet = true;
+                } else if (message.getMessage().contains("cannon already firing")) {
+                    needLoad = false;
+                    cannonSet = true;
+                } else if (message.getMessage().contains("you pick up your cannon")) {
+                    cannonSet = false;
+                } else if (message.getMessage().contains("there isn't enough space to set up here")) {
+                    try {
+                        throw new CannonPlacementException(RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().unwrap());
+                    } catch (CannonPlacementException e) {
+                        e.printStackTrace();
+                    }
                 }
                 break;
-            case "cannon-broken":
-                needRepair = (boolean) broadcast.getMessage();
-                break;
-            case "cannon-error":
-                try {
-                    throw new CannonPlacementException(RuntimeVariables.currentTask.getCurrentMonster().getCannonPosition().unwrap());
-                } catch (CannonPlacementException e) {
-                    e.printStackTrace();
-                    stopScript(true);
-                }
-                break;
-            case "cannon-set":
-                cannonSet = (boolean) broadcast.getMessage();
-                break;
-            case "cannon-pick-up":
-                needPickUp = (boolean) broadcast.getMessage();
-                break;
-
         }
     }
 }

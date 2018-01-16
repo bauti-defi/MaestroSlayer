@@ -22,4 +22,8 @@ public class SlayerInventoryItem extends SlayerItem {
         }
     }
 
+    public static SlayerInventoryItem wrap(Item item, boolean stackable, boolean required) {
+        return new SlayerInventoryItem(item.getName(), item.getAmount(), stackable, required);
+    }
+
 }

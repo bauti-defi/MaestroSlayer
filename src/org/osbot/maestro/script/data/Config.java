@@ -60,5 +60,6 @@ public class Config {
         itemMapper.map(SlayerTaskItems.ICE_COOLER);
         itemMapper.map(SlayerTaskItems.WATERSKIN);
         itemMapper.map(SlayerTaskItems.LANTERN);
+        itemMapper.map(SlayerTaskItems.BUG_LANTERN);
     }
 }

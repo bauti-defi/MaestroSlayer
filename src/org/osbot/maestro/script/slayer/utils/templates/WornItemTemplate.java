@@ -6,7 +6,12 @@ import org.osbot.maestro.script.data.Config;
 
 public enum WornItemTemplate {
 
-    EARMUFFS("Earmuffs"), DESERT_BOOTS("Desert boots"), DESERT_SHIRT("Desert shirt"), DESERT_ROBES("Desert robes"), MIRROR_SHIELD("Mirror shield");
+    EARMUFFS("Earmuffs"),
+    DESERT_BOOTS("Desert boots"),
+    DESERT_SHIRT("Desert shirt"),
+    DESERT_ROBES("Desert robes"),
+    MIRROR_SHIELD("Mirror shield"),
+    BUG_LANTERN("Lit bug lantern");
 
     private final String name;
 
