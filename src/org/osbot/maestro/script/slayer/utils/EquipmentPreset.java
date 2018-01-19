@@ -1,7 +1,7 @@
 package org.osbot.maestro.script.slayer.utils;
 
 import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerWornItem;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 
 import java.util.ArrayList;

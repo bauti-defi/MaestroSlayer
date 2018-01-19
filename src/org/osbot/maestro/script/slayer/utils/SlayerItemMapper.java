@@ -1,6 +1,11 @@
 package org.osbot.maestro.script.slayer.utils;
 
-import org.osbot.maestro.script.slayer.utils.slayeritem.*;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerInventoryItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItemException;
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerWornItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.maestro.script.slayer.utils.templates.InventoryItemTemplate;
 import org.osbot.maestro.script.slayer.utils.templates.WornItemTemplate;
 

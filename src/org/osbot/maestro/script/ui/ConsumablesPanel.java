@@ -3,8 +3,8 @@ package org.osbot.maestro.script.ui;
 import org.osbot.maestro.script.data.Foods;
 import org.osbot.maestro.script.data.Potions;
 import org.osbot.maestro.script.data.SlayerSettings;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Food;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Potion;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

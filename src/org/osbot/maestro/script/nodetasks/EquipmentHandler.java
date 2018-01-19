@@ -5,7 +5,7 @@ import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.EquipmentPreset;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
 import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerWornItem;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 import org.osbot.rs07.utility.ConditionalSleep;

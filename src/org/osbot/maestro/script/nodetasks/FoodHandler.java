@@ -2,7 +2,7 @@ package org.osbot.maestro.script.nodetasks;
 
 import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Food;
 import org.osbot.rs07.api.ui.Tab;
 
 public class FoodHandler extends NodeTask implements BroadcastReceiver {

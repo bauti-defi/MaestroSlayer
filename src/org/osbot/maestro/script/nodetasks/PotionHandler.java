@@ -3,7 +3,7 @@ package org.osbot.maestro.script.nodetasks;
 import org.osbot.maestro.framework.*;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.utils.banking.WithdrawRequest;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Potion;
 import org.osbot.rs07.api.ui.Tab;
 
 import java.util.List;

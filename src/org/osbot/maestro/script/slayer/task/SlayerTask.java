@@ -3,9 +3,9 @@ package org.osbot.maestro.script.slayer.task;
 import org.osbot.maestro.script.data.RuntimeVariables;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
-import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
 import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItem;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.maestro.script.slayer.utils.templates.SlayerTaskTemplate;
 import org.osbot.rs07.script.MethodProvider;
 

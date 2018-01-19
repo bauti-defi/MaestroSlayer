@@ -6,9 +6,9 @@ import org.osbot.maestro.script.data.Config;
 import org.osbot.maestro.script.slayer.task.monster.Monster;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanic;
 import org.osbot.maestro.script.slayer.task.monster.MonsterMechanicException;
-import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
 import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerItemException;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 
 import java.util.ArrayList;
 import java.util.List;

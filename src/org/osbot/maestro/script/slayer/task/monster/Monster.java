@@ -2,8 +2,8 @@ package org.osbot.maestro.script.slayer.task.monster;
 
 import org.osbot.maestro.script.slayer.utils.position.SlayerArea;
 import org.osbot.maestro.script.slayer.utils.position.SlayerPosition;
-import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.maestro.script.slayer.utils.templates.MonsterTemplate;
 
 import java.util.List;

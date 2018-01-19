@@ -1,4 +1,4 @@
-package org.osbot.maestro.script.slayer.utils.slayeritem;
+package org.osbot.maestro.script.slayer.utils.slayeritem.consumables;
 
 import org.osbot.rs07.script.MethodProvider;
 import org.osbot.rs07.utility.ConditionalSleep;

@@ -1,7 +1,7 @@
 package org.osbot.maestro.script.data;
 
-import org.osbot.maestro.script.slayer.utils.slayeritem.InventoryTaskItem;
-import org.osbot.maestro.script.slayer.utils.slayeritem.WornTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.InventoryTaskItem;
+import org.osbot.maestro.script.slayer.utils.slayeritem.taskitem.WornTaskItem;
 import org.osbot.rs07.api.ui.EquipmentSlot;
 
 public class SlayerTaskItems {

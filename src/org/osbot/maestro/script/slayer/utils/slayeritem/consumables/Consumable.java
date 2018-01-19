@@ -1,5 +1,6 @@
-package org.osbot.maestro.script.slayer.utils.slayeritem;
+package org.osbot.maestro.script.slayer.utils.slayeritem.consumables;
 
+import org.osbot.maestro.script.slayer.utils.slayeritem.SlayerInventoryItem;
 import org.osbot.rs07.script.MethodProvider;
 
 public abstract class Consumable extends SlayerInventoryItem {

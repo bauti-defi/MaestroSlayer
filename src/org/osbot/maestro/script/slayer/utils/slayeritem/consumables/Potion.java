@@ -1,6 +1,7 @@
-package org.osbot.maestro.script.slayer.utils.slayeritem;
+package org.osbot.maestro.script.slayer.utils.slayeritem.consumables;
 
 import org.osbot.maestro.script.data.RuntimeVariables;
+import org.osbot.maestro.script.slayer.utils.slayeritem.Mutadable;
 import org.osbot.rs07.api.filter.Filter;
 import org.osbot.rs07.api.model.Item;
 import org.osbot.rs07.api.ui.Skill;

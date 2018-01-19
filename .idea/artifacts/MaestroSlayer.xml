@@ -2,8 +2,9 @@
   <artifact type="jar" build-on-make="true" name="MaestroSlayer">
     <output-path>$USER_HOME$/OSBot/Scripts</output-path>
     <root id="archive" name="MaestroSlayer.jar">
-      <element id="extracted-dir" path="$USER_HOME$/Downloads/json-simple-1.1.1 (1).jar" path-in-jar="/" />
       <element id="module-output" name="MaestroSlayer" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Java Libraries/json-simple-1.1.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Java Libraries/QuantumAPI.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

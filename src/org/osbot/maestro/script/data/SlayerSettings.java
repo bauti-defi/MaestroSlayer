@@ -1,8 +1,8 @@
 package org.osbot.maestro.script.data;
 
 import org.osbot.maestro.script.slayer.utils.antiban.AntibanFrequency;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Food;
-import org.osbot.maestro.script.slayer.utils.slayeritem.Potion;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Food;
+import org.osbot.maestro.script.slayer.utils.slayeritem.consumables.Potion;
 
 import java.io.Serializable;
 import java.util.ArrayList;
